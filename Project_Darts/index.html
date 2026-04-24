@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARTS Login</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <img src="DARTS_Landscape_Logo.png" alt="DARTS Logo" class="header-logo">
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+
+    <!-- LEFT PANEL -->
+    <div class="left">
+        <div class="left-content">
+            <p>Records Management</p>
+            <h2>Every document.<br>Exactly where it belongs.</h2>
+            <p>Archive • Release • Track</p>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right">
+
+        <!-- TOP RIGHT LOGO -->
+        <div class="top-right-logo">
+            <img src="DARTS_Animated_Logo.png" alt="Icon">
+        </div>
+
+        <h1>Personnel Authentication</h1>
+        <p class="subtitle">Enter your credentials to access the secure terminal</p>
+
+<form action="login.php" method="POST">
+
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="text" name="email" placeholder="name@gmail.com" required>
+        </div>
+
+        <div class="form-group">
+            <div class="password-row">
+                <label>Password</label>
+                <a href="#" class="forgot">Forgot Password?</a>
+            </div>
+            <input type="password" name="password" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login →</button>
+
+    </form>
+
+        <div class="divider">
+            <span>OR AUTHENTICATE VIA</span>
+        </div>
+
+        <button class="google-btn">
+            <img src="google.png" class="google-icon">
+            Sign in with Google
+        </button>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2026 DARTS Intelligence. All rights reserved.
+    <br><br>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Documentation</a>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
