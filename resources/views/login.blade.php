@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DARTS – Login</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="css/login.css">
 </head>
 <body class="login-body">
@@ -30,17 +30,23 @@
         <h1 class="login-title">Login to DARTS</h1>
         <p class="login-subtitle">Enter your credentials to access the secure terminal</p>
 
-        <form id="loginForm" novalidate>
+        <form action="/login" method="POST" id="loginForm" novalidate>
+          @csrf
+          @if ($errors->any())
+            <div class="field-error" style="margin-bottom:1rem">
+              {{ $errors->first() }}
+            </div>
+          @endif
           <div class="field-group">
             <label for="email">Email Address</label>
-            <input type="email" id="email" placeholder="name@example.com" autocomplete="email">
+            <input name="email" type="email" id="email" placeholder="name@example.com" autocomplete="email">
             <span class="field-error" id="emailError"></span>
           </div>
 
           <div class="field-group">
             <label for="password">Password</label>
             <div class="password-wrap">
-              <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+              <input name="password" type="password" id="password" placeholder="••••••••" autocomplete="current-password">
               <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">
                 <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
@@ -80,6 +86,6 @@
     </div>
   </footer>
 
-  <script src="js/login.js"></script>
+  <script src="{{ asset('js/login.js') }}"></script>
 </body>
 </html>

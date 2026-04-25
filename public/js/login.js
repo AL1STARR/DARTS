@@ -40,10 +40,8 @@ function validate() {
   return valid;
 }
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  if (validate()) {
-    // TODO: replace with real auth call
-    window.location.href = 'index.html';
-  }
+form.addEventListener('submit', (e) => {
+  if (!validate()) e.preventDefault();
 });
+
+
