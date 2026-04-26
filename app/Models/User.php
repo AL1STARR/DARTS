@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -34,6 +36,16 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return (bool) $this->is_admin;
+    }
+
+    public function documentRequests(): HasMany
+    {
+        return $this->hasMany(\App\Models\DocumentRequest::class, 'user_id');
+    }
+
+    public function assignedRequests(): HasMany
+    {
+        return $this->hasMany(\App\Models\DocumentRequest::class, 'assigned_to');
     }
 
 

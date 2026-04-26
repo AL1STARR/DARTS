@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentRequestController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AssignedRequestController;
 use App\Http\Controllers\GoogleAuthController;
 
 Route::get('/', function () {
@@ -19,7 +20,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/myrequests', [DocumentRequestController::class, 'index'])->name('myrequests');
     Route::post('/myrequests', [DocumentRequestController::class, 'store'])->name('myrequests.store');
     Route::delete('/myrequests/{documentRequest}', [DocumentRequestController::class, 'destroy'])->name('myrequests.destroy');
-    Route::get('/assigned', fn() => view('assigned'))->name('assigned');
+    Route::get('/assigned', [AssignedRequestController::class, 'index'])->name('assigned');
+    Route::patch('/assigned/{documentRequest}/status', [AssignedRequestController::class, 'updateStatus'])->name('assigned.status');
+    Route::patch('/assigned/{documentRequest}/transfer', [AssignedRequestController::class, 'transfer'])->name('assigned.transfer');
+    Route::get('/assigned/department-users', [AssignedRequestController::class, 'departmentUsers'])->name('assigned.department-users');
     Route::get('/archive', fn() => view('archive'))->name('archive');
     Route::get('/routing', fn() => view('routing'))->name('routing');
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');

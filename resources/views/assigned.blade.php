@@ -19,7 +19,7 @@
   <div class="subbar-right">
     <div class="search-bar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Search assigned requests…">
+      <input type="text" id="searchInput" placeholder="Search assigned requests…" value="{{ request('search') }}">
     </div>
     <div class="datetime" id="datetime"></div>
   </div>
@@ -36,46 +36,49 @@
   <div class="assigned-panel">
 
     <!-- Filters -->
-    <div class="filters-row">
-      <div class="filter-group">
-        <label class="filter-label">STATUS</label>
-        <div class="select-wrap">
-          <select id="statusFilter">
-            <option value="">All Statuses</option>
-            <option value="received">Received</option>
-            <option value="assigned">Assigned</option>
-            <option value="completed">Completed</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    <form method="GET" action="{{ route('assigned') }}" id="filterForm">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label class="filter-label">STATUS</label>
+          <div class="select-wrap">
+            <select name="status" id="statusFilter" onchange="document.getElementById('filterForm').submit()">
+              <option value="">All Statuses</option>
+              <option value="pending"   {{ request('status') === 'pending'   ? 'selected' : '' }}>Pending</option>
+              <option value="in-review" {{ request('status') === 'in-review' ? 'selected' : '' }}>In Review</option>
+              <option value="approved"  {{ request('status') === 'approved'  ? 'selected' : '' }}>Approved</option>
+              <option value="rejected"  {{ request('status') === 'rejected'  ? 'selected' : '' }}>Rejected</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">PRIORITY</label>
-        <div class="select-wrap">
-          <select id="priorityFilter">
-            <option value="">All Priorities</option>
-            <option value="high">High</option>
-            <option value="moderate">Moderate</option>
-            <option value="low">Low</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="filter-group">
+          <label class="filter-label">PRIORITY</label>
+          <div class="select-wrap">
+            <select name="priority" id="priorityFilter" onchange="document.getElementById('filterForm').submit()">
+              <option value="">All Priorities</option>
+              <option value="high"   {{ request('priority') === 'high'   ? 'selected' : '' }}>High</option>
+              <option value="medium" {{ request('priority') === 'medium' ? 'selected' : '' }}>Medium</option>
+              <option value="low"    {{ request('priority') === 'low'    ? 'selected' : '' }}>Low</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">CATEGORY</label>
-        <div class="select-wrap">
-          <select id="categoryFilter">
-            <option value="">All Categories</option>
-            <option value="letters">Letters</option>
-            <option value="memorandum">Memorandum</option>
-            <option value="minutes">Minutes of the Meeting</option>
-            <option value="notice">Notice of the Meeting</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="filter-group">
+          <label class="filter-label">CATEGORY</label>
+          <div class="select-wrap">
+            <select name="category" id="categoryFilter" onchange="document.getElementById('filterForm').submit()">
+              <option value="">All Categories</option>
+              <option value="letters"    {{ request('category') === 'letters'    ? 'selected' : '' }}>Letters</option>
+              <option value="memorandum" {{ request('category') === 'memorandum' ? 'selected' : '' }}>Memorandum</option>
+              <option value="minutes"    {{ request('category') === 'minutes'    ? 'selected' : '' }}>Minutes of the Meeting</option>
+              <option value="notice"     {{ request('category') === 'notice'     ? 'selected' : '' }}>Notice of the Meeting</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
+        <a href="{{ route('assigned') }}" class="clear-filters-btn">Clear All Filters</a>
       </div>
-      <button class="clear-filters-btn" id="clearFilters">Clear All Filters</button>
-    </div>
+    </form>
 
     <!-- Table -->
     <div class="assigned-table-wrap">
@@ -92,50 +95,62 @@
           </tr>
         </thead>
         <tbody id="assignedBody">
-          <tr data-status="received" data-priority="high" data-category="memorandum" data-search="req-025 q4 financial report" data-desc="Quarterly financial summary for the fourth quarter of 2026.">
-            <td class="req-id-cell">REQ-025</td>
-            <td class="doc-name-td">Q4 financial report for 2026.</td>
-            <td><span class="category-badge">Memorandum</span></td>
-            <td><div class="requestor"><span class="requestor-avatar">CS</span>Chloe S.</div></td>
-            <td><span class="badge-status received">Received</span></td>
-            <td><span class="badge-priority high">High</span></td>
-            <td><button class="view-btn">View</button></td>
+          @forelse($requests as $req)
+          <tr>
+            <td class="req-id-cell">REQ-{{ str_pad($req->id, 3, '0', STR_PAD_LEFT) }}</td>
+            <td class="doc-name-td">{{ $req->title }}</td>
+            <td><span class="category-badge">{{ ucfirst($req->category) }}</span></td>
+            <td>
+              <div class="requestor">
+                <span class="requestor-avatar">{{ strtoupper(substr($req->user->first_name, 0, 1) . substr($req->user->last_name, 0, 1)) }}</span>
+                {{ $req->user->first_name }} {{ substr($req->user->last_name, 0, 1) }}.
+              </div>
+            </td>
+            <td><span class="badge-status {{ $req->status }}">{{ ucfirst(str_replace('-', ' ', $req->status)) }}</span></td>
+            <td><span class="badge-priority {{ $req->priority }}">{{ ucfirst($req->priority) }}</span></td>
+            <td>
+              <button class="view-btn"
+                data-id="{{ $req->id }}"
+                data-title="{{ $req->title }}"
+                data-category="{{ ucfirst($req->category) }}"
+                data-priority="{{ ucfirst($req->priority) }}"
+                data-status="{{ $req->status }}"
+                data-dept="{{ $req->department }}"
+                data-date="{{ $req->created_at->format('M d, Y') }}"
+                data-desc="{{ $req->description ?? '' }}"
+                data-requestor="{{ $req->user->first_name }} {{ $req->user->last_name }}"
+                data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB'])->toJson() }}"
+                data-status-url="{{ route('assigned.status', $req) }}"
+                data-transfer-url="{{ route('assigned.transfer', $req) }}"
+                data-department-users-url="{{ route('assigned.department-users') }}">
+                View
+              </button>
+            </td>
           </tr>
-          <tr data-status="completed" data-priority="high" data-category="letters" data-search="req-030 document logs" data-desc="Document logs of different departments for the month of August.">
-            <td class="req-id-cell">REQ-030</td>
-            <td class="doc-name-td">Document logs of different departments for the month of August.</td>
-            <td><span class="category-badge">Letters</span></td>
-            <td><div class="requestor"><span class="requestor-avatar">CS</span>Chloe S.</div></td>
-            <td><span class="badge-status completed">Completed</span></td>
-            <td><span class="badge-priority high">High</span></td>
-            <td><button class="view-btn">View</button></td>
-          </tr>
-          <tr data-status="assigned" data-priority="moderate" data-category="minutes" data-search="req-012 organizational accomplishment" data-desc="Annual organizational accomplishment report for 2026.">
-            <td class="req-id-cell">REQ-012</td>
-            <td class="doc-name-td">Organizational Accomplishment Report for 2026</td>
-            <td><span class="category-badge">Minutes of the Meeting</span></td>
-            <td><div class="requestor"><span class="requestor-avatar">CS</span>Chloe S.</div></td>
-            <td><span class="badge-status assigned">Assigned</span></td>
-            <td><span class="badge-priority moderate">Moderate</span></td>
-            <td><button class="view-btn">View</button></td>
-          </tr>
+          @empty
+          <tr><td colspan="7" class="empty-row">No assigned requests found.</td></tr>
+          @endforelse
         </tbody>
       </table>
     </div>
 
     <!-- Pagination -->
     <div class="pagination-bar">
-      <span class="pagination-info" id="paginationInfo">Showing 3 of 3 assigned document requests</span>
+      <span class="pagination-info">
+        Showing {{ $requests->firstItem() ?? 0 }} to {{ $requests->lastItem() ?? 0 }} of {{ $requests->total() }} request{{ $requests->total() !== 1 ? 's' : '' }}
+      </span>
       <div class="pagination-controls">
-        <button class="page-btn" id="prevBtn" disabled>
+        <a href="{{ $requests->previousPageUrl() ?? '#' }}" class="page-btn {{ $requests->onFirstPage() ? 'disabled' : '' }}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="page-numbers" id="pageNumbers">
-          <button class="page-num active">1</button>
+        </a>
+        <div class="page-numbers">
+          @for($i = 1; $i <= $requests->lastPage(); $i++)
+            <a href="{{ $requests->url($i) }}" class="page-num {{ $requests->currentPage() === $i ? 'active' : '' }}">{{ $i }}</a>
+          @endfor
         </div>
-        <button class="page-btn" id="nextBtn" disabled>
+        <a href="{{ $requests->nextPageUrl() ?? '#' }}" class="page-btn {{ !$requests->hasMorePages() ? 'disabled' : '' }}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+        </a>
       </div>
     </div>
 
@@ -181,8 +196,12 @@
         <span class="drawer-info-value" id="dInfoRequestor"></span>
       </div>
       <div class="drawer-info-item">
-        <span class="drawer-info-label">STATUS</span>
-        <span class="drawer-info-value" id="dInfoStatus"></span>
+        <span class="drawer-info-label">DEPARTMENT</span>
+        <span class="drawer-info-value" id="dInfoDept"></span>
+      </div>
+      <div class="drawer-info-item">
+        <span class="drawer-info-label">DATE SUBMITTED</span>
+        <span class="drawer-info-value" id="dInfoDate"></span>
       </div>
     </div>
     <div class="drawer-desc-card">
@@ -195,14 +214,24 @@
     </div>
     <div class="mgmt-panel">
       <div class="mgmt-title">MANAGEMENT ACTIONS</div>
-      <button class="mgmt-btn mgmt-received" id="mgmtPrimary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        MARK AS RECEIVED
-      </button>
-      <button class="mgmt-btn mgmt-flag" id="mgmtFlag">
+      <button class="mgmt-btn mgmt-received" id="mgmtPrimary"></button>
+      <button class="mgmt-btn mgmt-flag" id="mgmtReject">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-        REJECTED
+        MARK AS REJECTED
       </button>
+      <div class="mgmt-divider"></div>
+      <div class="mgmt-transfer">
+        <div class="mgmt-title">TRANSFER REQUEST</div>
+        <div class="transfer-row">
+          <div class="select-wrap transfer-select-wrap">
+            <select id="transferSelect">
+              <option value="">Select person to transfer to…</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <button class="mgmt-btn mgmt-transfer-btn" id="mgmtTransfer">Transfer</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

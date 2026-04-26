@@ -21,6 +21,28 @@ document.getElementById('searchInput').addEventListener('keydown', e => {
   }
 });
 
+// ── Assign To: load users when department changes ──
+document.getElementById('fDept').addEventListener('change', async function () {
+  const dept = this.value;
+  const assignSelect = document.getElementById('fAssignTo');
+  if (!dept) {
+    assignSelect.innerHTML = '<option value="">Select department first…</option>';
+    assignSelect.disabled = true;
+    return;
+  }
+  assignSelect.innerHTML = '<option value="">Loading…</option>';
+  assignSelect.disabled = true;
+  try {
+    const res = await fetch(`/assigned/department-users?department=${encodeURIComponent(dept)}`);
+    const users = await res.json();
+    assignSelect.innerHTML = '<option value="">Select person (optional)…</option>' +
+      users.map(u => `<option value="${u.id}">${u.first_name} ${u.last_name} — ${u.role}</option>`).join('');
+    assignSelect.disabled = false;
+  } catch {
+    assignSelect.innerHTML = '<option value="">Failed to load users</option>';
+  }
+});
+
 // ── File attachment ──
 let attachedFiles = [];
 
@@ -85,6 +107,9 @@ function resetForm() {
   requestForm.reset();
   attachedFiles = [];
   renderFileList();
+  const assignSelect = document.getElementById('fAssignTo');
+  assignSelect.innerHTML = '<option value="">Select department first…</option>';
+  assignSelect.disabled = true;
 }
 
 function clearErrors() {

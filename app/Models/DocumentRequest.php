@@ -9,12 +9,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class DocumentRequest extends Model
 {
     protected $fillable = [
-        'user_id', 'title', 'category', 'priority', 'status', 'department', 'description',
+        'user_id', 'assigned_to', 'title', 'category', 'priority', 'status', 'department', 'description',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function assignedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     public function attachments(): HasMany

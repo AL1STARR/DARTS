@@ -175,19 +175,21 @@
   flex-shrink: 0;
 }
 
-.badge-status.received  { background: #f0f0f0; color: #555; }
-.badge-status.received::before  { background: #555; }
-.badge-status.completed { background: #e8f5e9; color: var(--green); }
-.badge-status.completed::before { background: var(--green); }
-.badge-status.assigned  { background: #f0f0f0; color: #555; }
-.badge-status.assigned::before  { background: #555; }
+.badge-status.pending   { background: #fef9c3; color: #ca8a04; }
+.badge-status.pending::before   { background: #ca8a04; }
+.badge-status.in-review { background: #eff6ff; color: #1d4ed8; }
+.badge-status.in-review::before { background: #1d4ed8; }
+.badge-status.approved  { background: #f0fdf4; color: #15803d; }
+.badge-status.approved::before  { background: #15803d; }
+.badge-status.rejected  { background: #fef2f2; color: var(--red); }
+.badge-status.rejected::before  { background: var(--red); }
 
-.badge-priority.high     { color: var(--red);    background: transparent; }
-.badge-priority.high::before     { background: var(--red); }
-.badge-priority.moderate { color: #d97706; background: transparent; }
-.badge-priority.moderate::before { background: #d97706; }
-.badge-priority.low      { color: var(--green);  background: transparent; }
-.badge-priority.low::before      { background: var(--green); }
+.badge-priority.high   { color: var(--red);    background: transparent; }
+.badge-priority.high::before   { background: var(--red); }
+.badge-priority.medium { color: #d97706; background: transparent; }
+.badge-priority.medium::before { background: #d97706; }
+.badge-priority.low    { color: var(--green);  background: transparent; }
+.badge-priority.low::before    { background: var(--green); }
 
 /* View button */
 .view-btn {
@@ -435,3 +437,38 @@
 .mgmt-received  { background: #2d3f52; color: #fff; }
 .mgmt-approved  { background: #fff; color: #15803d; border: 1px solid #15803d; }
 .mgmt-flag      { background: #c62828; color: #fff; }
+
+.mgmt-divider {
+  height: 1px;
+  background: rgba(255,255,255,.1);
+  margin: 4px 0;
+}
+
+.mgmt-transfer .mgmt-title { margin-bottom: 8px; }
+
+.transfer-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.transfer-select-wrap { flex: 1; }
+.transfer-select-wrap select {
+  background: #2d3f52;
+  color: #fff;
+  border-color: rgba(255,255,255,.15);
+  min-width: unset;
+  width: 100%;
+}
+.transfer-select-wrap select option { background: #1e2d3d; color: #fff; }
+.transfer-select-wrap svg { color: rgba(255,255,255,.5); }
+
+.mgmt-transfer-btn {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.2);
+  white-space: nowrap;
+  width: auto;
+  padding: 9px 16px;
+}
+.mgmt-transfer-btn:hover { background: rgba(255,255,255,.2); opacity: 1; }

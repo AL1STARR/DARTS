@@ -236,6 +236,15 @@
           <span class="field-error" id="errDept"></span>
         </div>
         <div class="field-group">
+          <label>Assign To <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <div class="select-wrap">
+            <select name="assigned_to" id="fAssignTo" disabled>
+              <option value="">Select department first…</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="field-group">
           <label>Description</label>
           <textarea name="description" id="fDesc" placeholder="Briefly describe the request…" rows="3"></textarea>
         </div>
