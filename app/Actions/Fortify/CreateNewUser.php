@@ -46,6 +46,8 @@ class CreateNewUser implements CreatesNewUsers
             'department' => $input['department'],
             'role'       => $input['role'],
             'password'   => Hash::make($input['password']),
+            'is_admin'   => false,
+            'status'     => 'pending',
         ]);
     }
 }
