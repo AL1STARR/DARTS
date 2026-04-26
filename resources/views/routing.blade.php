@@ -4,66 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DARTS – Routing</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/routing.css">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/routing.css') }}">
+</head>
 <body>
 
-<!-- ── HEADER ── -->
-<header class="site-header">
-  <div class="header-brand">
-    <img src="assets/logo.png" alt="DARTS Logo" class="logo-img">
-  </div>
-  <div class="header-divider"></div>
-  <nav class="top-nav">
-    <a href="index.html">
-      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Dashboard
-    </a>
-    <a href="#">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      My Requests
-    </a>
-    <a href="#">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><polyline points="9 12 11 14 15 10"/></svg>
-      Assigned Requests
-    </a>
-    <a href="archive.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-      Archive
-    </a>
-    <a href="routing.html" class="active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-      Routing
-    </a>
-  </nav>
-  <div class="header-actions">
-    <div class="datetime" id="datetime"></div>
-    <div class="header-sep"></div>
-    <button class="notif-btn" title="Notifications">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    </button>
-    <div class="user-chip" onclick="location.href='profile.html'" style="cursor:pointer">
-      <div class="user-meta">
-        <div class="user-name">Juan Dela Cruz</div>
-        <div class="user-role">Records Officer</div>
-      </div>
-      <div class="user-avatar">JD</div>
-    </div>
-  </div>
-</header>
+@include('partials.nav')
 
-<!-- ── CONTEXT BAR ── -->
-<div class="context-bar">
-  <div class="context-left">
-    <span class="page-title">Routing</span>
-    <span class="breadcrumb-sep">/</span>
-    <span class="breadcrumb-cur">Document Routing</span>
+<!-- ── SUBBAR ── -->
+<div class="subbar">
+  <div class="subbar-left">
+    <span class="breadcrumb">Home / <strong>Routing</strong></span>
   </div>
-  <div class="context-right">
+  <div class="subbar-right">
     <div class="search-bar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="searchInput" placeholder="Search routing records…">
     </div>
+    <div class="datetime" id="datetime"></div>
   </div>
 </div>
 
@@ -340,6 +298,6 @@
   </div>
 </div>
 
-<script src="js/routing.js"></script>
+<script src="{{ asset('js/routing.js') }}"></script>
 </body>
 </html>

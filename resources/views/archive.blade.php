@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DARTS – Archive</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/archive.css">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/archive.css') }}">
 </head>
 <body>
 
@@ -216,6 +216,6 @@
   </div>
 </div>
 
-<script src="js/archive.js"></script>
+<script src="{{ asset('js/archive.js') }}"></script>
 </body>
 </html>
