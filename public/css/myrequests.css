@@ -274,6 +274,10 @@
 .page-num:hover { background: var(--bg); color: var(--navy); }
 .page-num.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: 700; }
 
+.page-btn,
+.page-num,
+.clear-filters-btn { text-decoration: none; }
+
 /* ── MODAL ── */
 .modal-overlay {
   position: fixed;

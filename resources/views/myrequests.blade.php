@@ -19,7 +19,7 @@
   <div class="subbar-right">
     <div class="search-bar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Search requests…">
+      <input type="text" id="searchInput" placeholder="Search requests…" value="{{ request('search') }}">
     </div>
     <div class="datetime" id="datetime"></div>
   </div>
@@ -44,47 +44,49 @@
   <div class="mr-panel">
 
     <!-- Filters -->
-    <div class="filters-row">
-      <div class="filter-group">
-        <label class="filter-label">STATUS</label>
-        <div class="select-wrap">
-          <select id="statusFilter">
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="in-review">In Review</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    <form method="GET" action="{{ route('myrequests') }}" id="filterForm">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label class="filter-label">STATUS</label>
+          <div class="select-wrap">
+            <select name="status" id="statusFilter" onchange="document.getElementById('filterForm').submit()">
+              <option value="">All Statuses</option>
+              <option value="pending"   {{ request('status') === 'pending'   ? 'selected' : '' }}>Pending</option>
+              <option value="approved"  {{ request('status') === 'approved'  ? 'selected' : '' }}>Approved</option>
+              <option value="rejected"  {{ request('status') === 'rejected'  ? 'selected' : '' }}>Rejected</option>
+              <option value="in-review" {{ request('status') === 'in-review' ? 'selected' : '' }}>In Review</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">PRIORITY</label>
-        <div class="select-wrap">
-          <select id="priorityFilter">
-            <option value="">All Priorities</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="filter-group">
+          <label class="filter-label">PRIORITY</label>
+          <div class="select-wrap">
+            <select name="priority" id="priorityFilter" onchange="document.getElementById('filterForm').submit()">
+              <option value="">All Priorities</option>
+              <option value="high"   {{ request('priority') === 'high'   ? 'selected' : '' }}>High</option>
+              <option value="medium" {{ request('priority') === 'medium' ? 'selected' : '' }}>Medium</option>
+              <option value="low"    {{ request('priority') === 'low'    ? 'selected' : '' }}>Low</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">CATEGORY</label>
-        <div class="select-wrap">
-          <select id="categoryFilter">
-            <option value="">All Categories</option>
-            <option value="letters">Letters</option>
-            <option value="memorandum">Memorandum</option>
-            <option value="minutes">Minutes of the Meeting</option>
-            <option value="notice">Notice of the Meeting</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="filter-group">
+          <label class="filter-label">CATEGORY</label>
+          <div class="select-wrap">
+            <select name="category" id="categoryFilter" onchange="document.getElementById('filterForm').submit()">
+              <option value="">All Categories</option>
+              <option value="letters"    {{ request('category') === 'letters'    ? 'selected' : '' }}>Letters</option>
+              <option value="memorandum" {{ request('category') === 'memorandum' ? 'selected' : '' }}>Memorandum</option>
+              <option value="minutes"    {{ request('category') === 'minutes'    ? 'selected' : '' }}>Minutes of the Meeting</option>
+              <option value="notice"     {{ request('category') === 'notice'     ? 'selected' : '' }}>Notice of the Meeting</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
+        <a href="{{ route('myrequests') }}" class="clear-filters-btn">Clear All Filters</a>
       </div>
-      <button class="clear-filters-btn" id="clearFilters">Clear All Filters</button>
-    </div>
+    </form>
 
     <!-- Table -->
     <div class="mr-table-wrap">
@@ -100,21 +102,73 @@
             <th>Action</th>
           </tr>
         </thead>
-        <tbody id="mrBody"></tbody>
+        <tbody id="mrBody">
+          @forelse($requests as $req)
+          <tr>
+            <td><span class="mr-req-id">REQ-{{ str_pad($req->id, 3, '0', STR_PAD_LEFT) }}</span></td>
+            <td>
+              <div class="mr-doc-cell">
+                <div class="mr-doc-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <span class="mr-doc-title">{{ $req->title }}</span>
+              </div>
+            </td>
+            <td><span class="category-badge">{{ ucfirst($req->category) }}</span></td>
+            <td>
+              <span class="priority-badge {{ $req->priority }}">
+                @if($req->priority === 'high')
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                @elseif($req->priority === 'medium')
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                @else
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                @endif
+                {{ ucfirst($req->priority) }}
+              </span>
+            </td>
+            <td><span class="status-badge {{ $req->status }}">{{ ucfirst(str_replace('-', ' ', $req->status)) }}</span></td>
+            <td>{{ $req->created_at->format('M d, Y') }}</td>
+            <td>
+              <button class="view-btn"
+                data-id="{{ $req->id }}"
+                data-title="{{ $req->title }}"
+                data-category="{{ ucfirst($req->category) }}"
+                data-priority="{{ ucfirst($req->priority) }}"
+                data-status="{{ $req->status }}"
+                data-dept="{{ $req->department }}"
+                data-date="{{ $req->created_at->format('M d, Y') }}"
+                data-desc="{{ $req->description ?? '' }}"
+                data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB'])->toJson() }}"
+                data-delete-url="{{ route('myrequests.destroy', $req) }}">
+                View
+              </button>
+            </td>
+          </tr>
+          @empty
+          <tr><td colspan="7" class="empty-row">No requests found.</td></tr>
+          @endforelse
+        </tbody>
       </table>
     </div>
 
     <!-- Pagination -->
     <div class="pagination-bar">
-      <span class="pagination-info" id="paginationInfo"></span>
+      <span class="pagination-info">
+        Showing {{ $requests->firstItem() ?? 0 }} to {{ $requests->lastItem() ?? 0 }} of {{ $requests->total() }} request{{ $requests->total() !== 1 ? 's' : '' }}
+      </span>
       <div class="pagination-controls">
-        <button class="page-btn" id="prevBtn">
+        <a href="{{ $requests->previousPageUrl() ?? '#' }}" class="page-btn {{ $requests->onFirstPage() ? 'disabled' : '' }}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="page-numbers" id="pageNumbers"></div>
-        <button class="page-btn" id="nextBtn">
+        </a>
+        <div class="page-numbers">
+          @for($i = 1; $i <= $requests->lastPage(); $i++)
+            <a href="{{ $requests->url($i) }}" class="page-num {{ $requests->currentPage() === $i ? 'active' : '' }}">{{ $i }}</a>
+          @endfor
+        </div>
+        <a href="{{ $requests->nextPageUrl() ?? '#' }}" class="page-btn {{ !$requests->hasMorePages() ? 'disabled' : '' }}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+        </a>
       </div>
     </div>
 
@@ -128,76 +182,79 @@
       <h3>New Request</h3>
       <button class="modal-close" id="modalClose">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="field-group">
-        <label>Document Title</label>
-        <input type="text" id="fTitle" placeholder="Enter document title">
-        <span class="field-error" id="errTitle"></span>
-      </div>
-      <div class="field-row">
+    <form id="requestForm" enctype="multipart/form-data" novalidate data-action="{{ route('myrequests.store') }}">
+      @csrf
+      <div class="modal-body">
         <div class="field-group">
-          <label>Category</label>
+          <label>Document Title</label>
+          <input type="text" name="title" id="fTitle" placeholder="Enter document title">
+          <span class="field-error" id="errTitle"></span>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label>Category</label>
+            <div class="select-wrap">
+              <select name="category" id="fCategory">
+                <option value="">Select category</option>
+                <option value="letters">Letters</option>
+                <option value="memorandum">Memorandum</option>
+                <option value="minutes">Minutes of the Meeting</option>
+                <option value="notice">Notice of the Meeting</option>
+              </select>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <span class="field-error" id="errCategory"></span>
+          </div>
+          <div class="field-group">
+            <label>Priority</label>
+            <div class="select-wrap">
+              <select name="priority" id="fPriority">
+                <option value="">Select priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <span class="field-error" id="errPriority"></span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Department</label>
           <div class="select-wrap">
-            <select id="fCategory">
-              <option value="">Select category</option>
-              <option value="letters">Letters</option>
-              <option value="memorandum">Memorandum</option>
-              <option value="minutes">Minutes of the Meeting</option>
-              <option value="notice">Notice of the Meeting</option>
+            <select name="department" id="fDept">
+              <option value="">Select department</option>
+              <option>Executive Committee</option>
+              <option>Internal Affairs</option>
+              <option>External Affairs</option>
+              <option>Secretariat</option>
+              <option>Finance</option>
+              <option>Audit</option>
             </select>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-          <span class="field-error" id="errCategory"></span>
+          <span class="field-error" id="errDept"></span>
         </div>
         <div class="field-group">
-          <label>Priority</label>
-          <div class="select-wrap">
-            <select id="fPriority">
-              <option value="">Select priority</option>
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          <label>Description</label>
+          <textarea name="description" id="fDesc" placeholder="Briefly describe the request…" rows="3"></textarea>
+        </div>
+        <div class="field-group">
+          <label>Attachment</label>
+          <div class="drop-zone" id="dropZone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+            <p>Drag &amp; drop files here or <span class="browse-link" id="browseLink">browse</span></p>
+            <span>PDF files only</span>
+            <input type="file" name="attachments[]" id="fAttachments" multiple accept=".pdf" hidden>
           </div>
-          <span class="field-error" id="errPriority"></span>
+          <div id="fileList" class="file-list"></div>
         </div>
       </div>
-      <div class="field-group">
-        <label>Department</label>
-        <div class="select-wrap">
-          <select id="fDept">
-            <option value="">Select department</option>
-            <option>Executive Committee</option>
-            <option>Internal Affairs</option>
-            <option>External Affairs</option>
-            <option>Secretariat</option>
-            <option>Finance</option>
-            <option>Audit</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <span class="field-error" id="errDept"></span>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="modalCancel">Cancel</button>
+        <button type="submit" class="btn-submit" id="modalSubmit">Submit Request</button>
       </div>
-      <div class="field-group">
-        <label>Description</label>
-        <textarea id="fDesc" placeholder="Briefly describe the request…" rows="3"></textarea>
-      </div>
-      <div class="field-group">
-        <label>Attach Supporting Documents</label>
-        <div class="drop-zone" id="dropZone">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-          <p>Drag &amp; drop files here or <span class="browse-link" id="browseLink">browse</span></p>
-          <span>PDF, DOCS, XLSX, PPTX supported</span>
-          <input type="file" id="fAttachments" multiple accept=".pdf,.doc,.docx,.xlsx,.pptx" hidden>
-        </div>
-        <div id="fileList" class="file-list"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" id="modalCancel">Cancel</button>
-      <button class="btn-submit" id="modalSubmit">Submit Request</button>
-    </div>
+    </form>
   </div>
 </div>
 
@@ -258,7 +315,6 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       Delete Request
     </button>
-  </div>
   </div>
 </div>
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DocumentRequestController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GoogleAuthController;
 
@@ -14,7 +15,9 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', fn() => view('index'))->name('dashboard');
     Route::get('/profile', fn() => view('profile'))->name('profile');
-    Route::get('/myrequests', fn() => view('myrequests'))->name('myrequests');
+    Route::get('/myrequests', [DocumentRequestController::class, 'index'])->name('myrequests');
+    Route::post('/myrequests', [DocumentRequestController::class, 'store'])->name('myrequests.store');
+    Route::delete('/myrequests/{documentRequest}', [DocumentRequestController::class, 'destroy'])->name('myrequests.destroy');
     Route::get('/assigned', fn() => view('assigned'))->name('assigned');
     Route::get('/archive', fn() => view('archive'))->name('archive');
     Route::get('/routing', fn() => view('routing'))->name('routing');

@@ -1,4 +1,5 @@
 <header class="site-header">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <div class="header-brand">
     <img src="{{ asset('assets/logo.png') }}" alt="DARTS Logo" class="logo-img">
   </div>
