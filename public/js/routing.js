@@ -236,8 +236,8 @@ document.getElementById('modalSubmit').addEventListener('click', () => {
   const priority = document.getElementById('newPriority').value;
   const status   = 'pending';
 
-  if (!doc) { alert('Please enter a document name.'); return; }
-  if (stages.some(s => !s.waypoint)) { alert('Please select a waypoint for all stages.'); return; }
+  if (!doc) { showToast('Please enter a document name.', 'error'); return; }
+  if (stages.some(s => !s.waypoint)) { showToast('Please select a waypoint for all stages.', 'error'); return; }
 
   const origin   = stages[0].origin;
   const waypoint = stages[stages.length - 1].waypoint;
@@ -342,7 +342,8 @@ document.getElementById('detailOverlay').addEventListener('click', closeDetail);
 
 function handleAction(type) {
   const labels = { received: 'Marked as Received', returned: 'Document Returned', flag: 'Flagged as Missing' };
-  alert(labels[type]);
+  const types  = { received: 'success', returned: 'info', flag: 'warning' };
+  showToast(labels[type], types[type]);
 }
 
 // ── Wire view buttons (delegate from tbody) ──
