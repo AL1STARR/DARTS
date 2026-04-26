@@ -232,7 +232,8 @@ document.getElementById('modalSubmit').addEventListener('click', () => {
   nextId++;
 
   requests.unshift({ id, title, category, priority, status: 'pending', dept,
-    date: `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`, desc: desc || '—' });
+    date: `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`, desc: desc || '—',
+    attachments: attachedFiles.map(f => ({ name: f.name, size: f.size })) });
 
   closeModal();
   currentPage = 1;
@@ -255,16 +256,28 @@ function openDrawer(id) {
   const r = requests.find(r => r.id === id);
   if (!r) return;
 
-  document.getElementById('drawerReqId').textContent  = r.id;
-  document.getElementById('drawerTitle').textContent  = r.title;
-  document.getElementById('drawerSub').textContent    = `Submitted on ${r.date} · ${r.dept}`;
+  document.getElementById('drawerReqId').textContent   = r.id;
+  document.getElementById('drawerTitle').textContent   = r.title;
+  document.getElementById('drawerSub').textContent     = `Submitted on ${r.date} · ${r.dept}`;
   document.getElementById('dInfoId').textContent       = r.id;
   document.getElementById('dInfoCategory').textContent = categoryLabel[r.category] || r.category;
   document.getElementById('dInfoPriority').textContent = priorityLabel[r.priority];
   document.getElementById('dInfoDept').textContent     = r.dept;
   document.getElementById('dInfoDate').textContent     = r.date;
   document.getElementById('dInfoBy').textContent       = 'You';
-  document.getElementById('dInfoDesc').textContent     = r.desc || '—';
+  document.getElementById('dInfoDesc').textContent     = r.desc || 'No description provided.';
+
+  const docSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+  const attachEl = document.getElementById('dInfoAttachments');
+  if (r.attachments && r.attachments.length) {
+    attachEl.innerHTML = r.attachments.map(f => `
+      <div class="file-item">
+        <div class="file-item-name">${docSvg}<span>${f.name}</span></div>
+        <span class="file-item-size">${(f.size / 1024).toFixed(1)} KB</span>
+      </div>`).join('');
+  } else {
+    attachEl.innerHTML = '<p class="drawer-no-attachments">No attachments.</p>';
+  }
 
   const statusEl = document.getElementById('drawerStatus');
   statusEl.className = statusDrawerClasses[r.status] || 'status-badge pending';

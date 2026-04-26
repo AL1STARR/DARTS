@@ -252,6 +252,10 @@
       <div class="drawer-desc-label">DESCRIPTION</div>
       <p class="drawer-desc-text" id="dInfoDesc"></p>
     </div>
+    <div class="drawer-attachments-card">
+      <div class="drawer-desc-label">ATTACHMENTS</div>
+      <div id="dInfoAttachments" class="drawer-attachments-list"></div>
+    </div>
   </div>
 </div>
 
