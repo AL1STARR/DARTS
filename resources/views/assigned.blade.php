@@ -119,7 +119,7 @@
                 data-date="{{ $req->created_at->format('M d, Y') }}"
                 data-desc="{{ $req->description ?? '' }}"
                 data-requestor="{{ $req->user->first_name }} {{ $req->user->last_name }}"
-                data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB'])->toJson() }}"
+                data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB', 'url' => route('attachments.view', $a)])->toJson() }}"
                 data-status-url="{{ route('assigned.status', $req) }}"
                 data-transfer-url="{{ route('assigned.transfer', $req) }}"
                 data-department-users-url="{{ route('assigned.department-users') }}">

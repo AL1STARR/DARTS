@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/myrequests', [DocumentRequestController::class, 'index'])->name('myrequests');
     Route::post('/myrequests', [DocumentRequestController::class, 'store'])->name('myrequests.store');
     Route::delete('/myrequests/{documentRequest}', [DocumentRequestController::class, 'destroy'])->name('myrequests.destroy');
+    Route::get('/attachments/{attachment}', [DocumentRequestController::class, 'viewAttachment'])->name('attachments.view');
     Route::get('/assigned', [AssignedRequestController::class, 'index'])->name('assigned');
     Route::patch('/assigned/{documentRequest}/status', [AssignedRequestController::class, 'updateStatus'])->name('assigned.status');
     Route::patch('/assigned/{documentRequest}/transfer', [AssignedRequestController::class, 'transfer'])->name('assigned.transfer');

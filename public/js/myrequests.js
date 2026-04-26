@@ -202,6 +202,7 @@ document.getElementById('mrBody').addEventListener('click', e => {
   document.getElementById('dInfoId').textContent      = `REQ-${String(id).padStart(3,'0')}`;
   document.getElementById('dInfoCategory').textContent = category;
   document.getElementById('dInfoPriority').textContent = priority;
+  document.getElementById('dInfoAssigned').textContent  = btn.dataset.assigned;
   document.getElementById('dInfoDept').textContent     = dept;
   document.getElementById('dInfoDate').textContent     = date;
   document.getElementById('dInfoDesc').textContent     = desc;
@@ -214,10 +215,11 @@ document.getElementById('mrBody').addEventListener('click', e => {
   const attachEl = document.getElementById('dInfoAttachments');
   attachEl.innerHTML = attachments.length
     ? attachments.map(f => `
-        <div class="file-item">
+        <a class="file-item" href="${f.url}" target="_blank" rel="noopener">
           <div class="file-item-name">${docSvg}<span>${f.name}</span></div>
           <span class="file-item-size">${f.size}</span>
-        </div>`).join('')
+          <svg class="file-view-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </a>`).join('')
     : '<p class="drawer-no-attachments">No attachments.</p>';
 
   detailOverlay.classList.add('open');

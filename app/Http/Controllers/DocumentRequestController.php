@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DocumentRequest;
 use App\Models\RequestAttachment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentRequestController extends Controller
 {
@@ -67,6 +68,19 @@ class DocumentRequestController extends Controller
         }
 
         return back()->with('success', 'Request submitted successfully.');
+    }
+
+    public function viewAttachment(RequestAttachment $attachment)
+    {
+        // Allow access if user owns the request or is assigned to it
+        $req = $attachment->request;
+        abort_if($req->user_id !== auth()->id() && $req->assigned_to !== auth()->id(), 403);
+
+        abort_if(!Storage::disk('public')->exists($attachment->path), 404);
+
+        return Storage::disk('public')->response($attachment->path, $attachment->filename, [
+            'Content-Disposition' => 'inline; filename="' . $attachment->filename . '"',
+        ]);
     }
 
     public function destroy(DocumentRequest $documentRequest)

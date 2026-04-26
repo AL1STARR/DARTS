@@ -139,7 +139,8 @@
                 data-dept="{{ $req->department }}"
                 data-date="{{ $req->created_at->format('M d, Y') }}"
                 data-desc="{{ $req->description ?? '' }}"
-                data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB'])->toJson() }}"
+                data-assigned="{{ $req->assignedTo ? $req->assignedTo->first_name . ' ' . $req->assignedTo->last_name : 'Unassigned' }}"
+                data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB', 'url' => route('attachments.view', $a)])->toJson() }}"
                 data-delete-url="{{ route('myrequests.destroy', $req) }}">
                 View
               </button>
@@ -301,6 +302,10 @@
       <div class="drawer-info-item">
         <span class="drawer-info-label">PRIORITY</span>
         <span class="drawer-info-value" id="dInfoPriority"></span>
+      </div>
+      <div class="drawer-info-item">
+        <span class="drawer-info-label">ASSIGNED TO</span>
+        <span class="drawer-info-value" id="dInfoAssigned"></span>
       </div>
       <div class="drawer-info-item">
         <span class="drawer-info-label">DEPARTMENT</span>
