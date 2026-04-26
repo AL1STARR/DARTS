@@ -18,7 +18,8 @@ class DocumentRequestController extends Controller
         if ($request->filled('priority')) $query->where('priority', $request->priority);
         if ($request->filled('category')) $query->where('category', $request->category);
         if ($request->filled('search'))   $query->where(function ($q) use ($request) {
-            $q->where('title', 'like', '%' . $request->search . '%');
+            $q->where('title', 'like', '%' . $request->search . '%')
+              ->orWhereRaw('CONCAT("REQ-", LPAD(id, 3, "0")) LIKE ?', ['%' . $request->search . '%']);
         });
 
         $requests = $query->paginate(5)->withQueryString();
