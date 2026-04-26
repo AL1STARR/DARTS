@@ -243,10 +243,6 @@
         <span class="drawer-info-label">DATE SUBMITTED</span>
         <span class="drawer-info-value" id="dInfoDate"></span>
       </div>
-      <div class="drawer-info-item">
-        <span class="drawer-info-label">SUBMITTED BY</span>
-        <span class="drawer-info-value" id="dInfoBy"></span>
-      </div>
     </div>
     <div class="drawer-desc-card">
       <div class="drawer-desc-label">DESCRIPTION</div>

@@ -6,6 +6,21 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  margin-bottom: 8px;
+}
+
+.page-h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.page-sub {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 620px;
 }
 
 .new-request-btn {
@@ -106,31 +121,33 @@
 .mr-table { width: 100%; border-collapse: collapse; }
 
 .mr-table th {
-  padding: 11px 18px;
-  text-align: left;
+  padding: 14px 20px;
+  text-align: center;
   font-size: 11px;
   font-weight: 700;
   color: var(--muted);
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  background: #fafbfc;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 
 .mr-table td {
-  padding: 15px 18px;
+  padding: 18px 20px;
   font-size: 13px;
-  color: #374151;
+  color: var(--navy);
   border-bottom: 1px solid #f0f2f5;
   vertical-align: middle;
+  text-align: center;
 }
+
+.mr-table td:nth-child(2) { text-align: left; }
 
 .mr-table tbody tr:last-child td { border-bottom: none; }
 .mr-table tbody tr { transition: background .1s; }
 .mr-table tbody tr:hover { background: #f8f9fb; }
 
-.mr-req-id { font-weight: 700; color: var(--blue); font-size: 13px; }
+.mr-req-id { font-weight: 500; color: var(--navy); font-size: 13px; }
 
 .mr-doc-cell { display: flex; align-items: center; gap: 10px; }
 .mr-doc-icon {
