@@ -44,4 +44,17 @@ form.addEventListener('submit', (e) => {
   if (!validate()) e.preventDefault();
 });
 
+// ── Forgot Password Modal ──
+const forgotModal = document.getElementById('forgotModal');
+document.getElementById('forgotLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  forgotModal.classList.add('show');
+});
+document.getElementById('forgotClose').addEventListener('click', () => {
+  forgotModal.classList.remove('show');
+});
+forgotModal.addEventListener('click', (e) => {
+  if (e.target === forgotModal) forgotModal.classList.remove('show');
+});
+
 

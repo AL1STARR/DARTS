@@ -3,12 +3,8 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('login');
+    return auth()->check() ? redirect()->route('dashboard') : view('login');
 });
-
-Route::get('/dashboard', function () {
-    return view('index');
-})->middleware(['auth'])->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', fn() => view('index'))->name('dashboard');

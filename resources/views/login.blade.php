@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DARTS – Login</title>
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 </head>
 <body class="login-body">
 
   <div class="login-top-bar">
-    <img src="assets/logo.png" alt="DARTS Logo" class="login-logo">
+    <img src="{{ asset('assets/logo.png') }}" alt="DARTS Logo" class="login-logo">
   </div>
 
   <main class="login-main">
@@ -32,6 +32,11 @@
 
         <form action="/login" method="POST" id="loginForm" novalidate>
           @csrf
+          @if (session('status'))
+            <div class="field-success" style="margin-bottom:1rem">
+              {{ session('status') }}
+            </div>
+          @endif
           @if ($errors->any())
             <div class="field-error" style="margin-bottom:1rem">
               {{ $errors->first() }}
@@ -55,7 +60,7 @@
           </div>
 
           <div class="forgot-row">
-            <a href="#" class="forgot-link">Forgot Password?</a>
+            <a class="forgot-link" id="forgotLink" style="cursor:pointer">Forgot Password?</a>
           </div>
 
           <button type="submit" class="btn-login">Login →</button>
@@ -70,7 +75,7 @@
 
         <div class="login-footer-row">
           <span>New personnel?</span>
-          <a href="register.html" class="request-access">Request access</a>
+          <a href="{{ route('register') }}" class="request-access">Request access</a>
         </div>
       </div>
 
@@ -85,6 +90,22 @@
       <a href="#">Documentation</a>
     </div>
   </footer>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-backdrop" id="forgotModal">
+    <div class="modal-card">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h2 class="modal-title">Forgot your password?</h2>
+      <p class="modal-desc">Password resets are managed by your system administrator. Please contact them directly to request a password change.</p>
+      <div class="modal-contact">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span>Contact your Administrator</span>
+      </div>
+      <button class="modal-close" id="forgotClose">Got it</button>
+    </div>
+  </div>
 
   <script src="{{ asset('js/login.js') }}"></script>
 </body>

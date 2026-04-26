@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DARTS – Profile</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
 </head>
 <body>
 
@@ -30,27 +30,23 @@
     <!-- Left: identity card -->
     <aside class="profile-card">
       <div class="avatar-wrap">
-        <div class="profile-avatar" id="profileAvatar">JD</div>
-        <button class="avatar-edit-btn" id="avatarEditBtn" title="Change avatar color">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-        </button>
+        <div class="profile-avatar" id="profileAvatar">{{ strtoupper(substr(auth()->user()->first_name, 0, 1) . substr(auth()->user()->last_name, 0, 1)) }}</div>
       </div>
-      <div class="profile-name" id="profileNameDisplay">Juan Dela Cruz</div>
-      <div class="profile-role">Records Officer</div>
-      <div class="profile-dept">Document Management Division</div>
+      <div class="profile-name" id="profileNameDisplay">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</div>
+      <div class="profile-role">{{ auth()->user()->role }}</div>
 
       <div class="profile-meta">
         <div class="meta-row">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <span id="profileEmailDisplay">juan.delacruz@gov.ph</span>
+          <span id="profileEmailDisplay">{{ auth()->user()->email }}</span>
         </div>
         <div class="meta-row">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span>Member since January 2024</span>
+          <span>Member since {{ auth()->user()->created_at->format('F Y') }}</span>
         </div>
         <div class="meta-row">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span>Manila, Philippines</span>
+          <span>{{ auth()->user()->department }}</span>
         </div>
       </div>
 
@@ -58,10 +54,25 @@
         <span class="profile-badge">Active</span>
         <span class="profile-badge outline">Level 2 Access</span>
       </div>
+
+      <form method="POST" action="/logout" style="margin-top:1.5rem;width:100%">
+        @csrf
+        <button type="submit" class="btn-logout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </form>
     </aside>
 
     <!-- Right: edit forms -->
     <div class="profile-forms">
+
+      @if (session('status') === 'profile-information-updated')
+        <div class="alert-success">Personal information updated successfully.</div>
+      @endif
+      @if (session('status') === 'password-updated')
+        <div class="alert-success">Password updated successfully.</div>
+      @endif
 
       <!-- Personal Information -->
       <div class="form-card">
@@ -71,59 +82,36 @@
             Personal Information
           </div>
         </div>
-        <div class="form-card-body">
+        <form method="POST" action="/user/profile-information" class="form-card-body">
+          @csrf
+          @method('PUT')
+          @if ($errors->updateProfileInformation->any())
+            <div class="field-error">{{ $errors->updateProfileInformation->first() }}</div>
+          @endif
           <div class="field-row-2">
             <div class="field-group">
               <label>First Name</label>
-              <input type="text" id="firstName" value="Juan">
+              <input type="text" name="first_name" value="{{ auth()->user()->first_name }}">
             </div>
             <div class="field-group">
               <label>Last Name</label>
-              <input type="text" id="lastName" value="Dela Cruz">
+              <input type="text" name="last_name" value="{{ auth()->user()->last_name }}">
             </div>
           </div>
           <div class="field-group">
-            <label>Display Name</label>
-            <input type="text" id="displayName" value="Juan Dela Cruz">
+            <label>Email Address</label>
+            <input type="email" name="email" value="{{ auth()->user()->email }}">
           </div>
           <div class="field-group">
             <label>Position / Role</label>
-            <input type="text" value="Records Officer" disabled>
+            <input type="text" value="{{ auth()->user()->role }}" disabled>
             <span class="field-hint">Contact your administrator to change your role.</span>
           </div>
           <div class="form-actions">
-            <button class="btn-secondary" onclick="resetPersonal()">Discard</button>
-            <button class="btn-primary" onclick="savePersonal()">Save Changes</button>
+            <button type="reset" class="btn-secondary">Discard</button>
+            <button type="submit" class="btn-primary">Save Changes</button>
           </div>
-        </div>
-      </div>
-
-      <!-- Email -->
-      <div class="form-card">
-        <div class="form-card-header">
-          <div class="form-card-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Email Address
-          </div>
-        </div>
-        <div class="form-card-body">
-          <div class="field-group">
-            <label>Current Email</label>
-            <input type="email" id="currentEmail" value="juan.delacruz@gov.ph">
-          </div>
-          <div class="field-group">
-            <label>New Email Address</label>
-            <input type="email" id="newEmail" placeholder="Enter new email address">
-          </div>
-          <div class="field-group">
-            <label>Confirm New Email</label>
-            <input type="email" id="confirmEmail" placeholder="Re-enter new email address">
-          </div>
-          <div class="form-actions">
-            <button class="btn-secondary" onclick="resetEmail()">Discard</button>
-            <button class="btn-primary" onclick="saveEmail()">Update Email</button>
-          </div>
-        </div>
+        </form>
       </div>
 
       <!-- Password -->
@@ -134,11 +122,16 @@
             Change Password
           </div>
         </div>
-        <div class="form-card-body">
+        <form method="POST" action="/user/password" class="form-card-body">
+          @csrf
+          @method('PUT')
+          @if ($errors->updatePassword->any())
+            <div class="field-error">{{ $errors->updatePassword->first() }}</div>
+          @endif
           <div class="field-group">
             <label>Current Password</label>
             <div class="input-wrap">
-              <input type="password" id="currentPassword" placeholder="Enter current password">
+              <input type="password" name="current_password" id="currentPassword" placeholder="Enter current password">
               <button class="toggle-pw" data-target="currentPassword" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
@@ -147,7 +140,7 @@
           <div class="field-group">
             <label>New Password</label>
             <div class="input-wrap">
-              <input type="password" id="newPassword" placeholder="Minimum 8 characters">
+              <input type="password" name="password" id="newPassword" placeholder="Minimum 8 characters">
               <button class="toggle-pw" data-target="newPassword" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
@@ -157,7 +150,7 @@
           <div class="field-group">
             <label>Confirm New Password</label>
             <div class="input-wrap">
-              <input type="password" id="confirmPassword" placeholder="Re-enter new password">
+              <input type="password" name="password_confirmation" id="confirmPassword" placeholder="Re-enter new password">
               <button class="toggle-pw" data-target="confirmPassword" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
@@ -182,10 +175,10 @@
             </div>
           </div>
           <div class="form-actions">
-            <button class="btn-secondary" onclick="resetPassword()">Discard</button>
-            <button class="btn-primary" onclick="savePassword()">Update Password</button>
+            <button type="reset" class="btn-secondary">Discard</button>
+            <button type="submit" class="btn-primary">Update Password</button>
           </div>
-        </div>
+        </form>
       </div>
 
     </div>
@@ -195,6 +188,6 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script src="js/profile.js"></script>
+<script src="{{ asset('js/profile.js') }}"></script>
 </body>
 </html>

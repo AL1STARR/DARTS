@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DARTS – Request Access</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/register.css">
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/register.css') }}">
 </head>
 <body class="reg-body">
 
   <div class="reg-top-bar">
-    <img src="assets/logo.png" alt="DARTS Logo" class="reg-logo">
+    <img src="{{ asset('assets/logo.png') }}" alt="DARTS Logo" class="reg-logo">
   </div>
 
   <main class="reg-main">
@@ -39,7 +39,7 @@
             </li>
           </ul>
           <div class="reg-accent-footer">
-            Already have an account? <a href="login.html">Sign in</a>
+            Already have an account? <a href="{{ route('login') }}">Sign in</a>
           </div>
         </div>
       </div>
@@ -49,31 +49,35 @@
         <h1 class="reg-title">Create your account</h1>
         <p class="reg-subtitle">Fill in your information to request access to DARTS</p>
 
-        <form id="registerForm" novalidate>
+        <form id="registerForm" action="/register" method="POST" novalidate>
+          @csrf
+          @if ($errors->any())
+            <div class="field-error" style="margin-bottom:1rem">{{ $errors->first() }}</div>
+          @endif
 
           <div class="reg-field-row">
             <div class="field-group">
               <label for="firstName">First Name</label>
-              <input type="text" id="firstName" placeholder="Juan" autocomplete="given-name">
+              <input type="text" id="firstName" name="first_name" placeholder="Juan" autocomplete="given-name">
               <span class="field-error" id="firstNameError"></span>
             </div>
             <div class="field-group">
               <label for="lastName">Last Name</label>
-              <input type="text" id="lastName" placeholder="Dela Cruz" autocomplete="family-name">
+              <input type="text" id="lastName" name="last_name" placeholder="Dela Cruz" autocomplete="family-name">
               <span class="field-error" id="lastNameError"></span>
             </div>
           </div>
 
           <div class="field-group">
             <label for="regEmail">Email Address</label>
-            <input type="email" id="regEmail" placeholder="name@example.com" autocomplete="email">
+            <input type="email" id="regEmail" name="email" placeholder="name@example.com" autocomplete="email">
             <span class="field-error" id="regEmailError"></span>
           </div>
 
           <div class="reg-field-row">
             <div class="field-group">
               <label for="department">Department</label>
-              <select id="department">
+              <select id="department" name="department">
                 <option value="" disabled selected>Select department</option>
                 <option>Records Management</option>
                 <option>Accounting</option>
@@ -87,7 +91,7 @@
             </div>
             <div class="field-group">
               <label for="role">Assigned Role</label>
-              <select id="role">
+              <select id="role" name="role">
                 <option value="" disabled selected>Select role</option>
                 <option>Records Officer</option>
                 <option>Department Staff</option>
@@ -102,7 +106,7 @@
             <div class="field-group">
               <label for="regPassword">Password</label>
               <div class="password-wrap">
-                <input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password">
+                <input type="password" id="regPassword" name="password" placeholder="••••••••" autocomplete="new-password">
                 <button type="button" class="toggle-pw" id="togglePw1" aria-label="Show password">
                   <svg id="eyeIcon1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -112,7 +116,7 @@
             <div class="field-group">
               <label for="confirmPassword">Confirm Password</label>
               <div class="password-wrap">
-                <input type="password" id="confirmPassword" placeholder="••••••••" autocomplete="new-password">
+                <input type="password" id="confirmPassword" name="password_confirmation" placeholder="••••••••" autocomplete="new-password">
                 <button type="button" class="toggle-pw" id="togglePw2" aria-label="Show password">
                   <svg id="eyeIcon2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
@@ -128,7 +132,7 @@
           </div>
 
           <div class="reg-terms">
-            <input type="checkbox" id="terms">
+            <input type="checkbox" id="terms" name="terms">
             <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
           </div>
           <span class="field-error" id="termsError"></span>
@@ -150,6 +154,6 @@
     </div>
   </footer>
 
-  <script src="js/register.js"></script>
+  <script src="{{ asset('js/register.js') }}"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   </div>
 
   <nav class="top-nav">
-    <a href="{{ route('dashboard') }}" {{ request()->routeIs('dasboard') ? 'class=active' : '' }}>
+    <a href="{{ route('dashboard') }}" {{ request()->routeIs('dashboard') ? 'class=active' : '' }}>
       <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
     </a>
@@ -33,10 +33,10 @@
     </button>
     <div class="user-chip" onclick="location.href='{{ route('profile') }}'" style="cursor:pointer">
       <div class="user-meta">
-        <div class="user-name">{{ auth()->user()->name }}</div>
-        <div class="user-role">Records Officer</div>
+        <div class="user-name">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</div>
+        <div class="user-role">{{ auth()->user()->role }}</div>
       </div>
-      <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+      <div class="user-avatar">{{ strtoupper(substr(auth()->user()->first_name, 0, 1) . substr(auth()->user()->last_name, 0, 1)) }}</div>
     </div>
   </div>
 </header>

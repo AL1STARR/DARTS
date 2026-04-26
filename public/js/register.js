@@ -74,8 +74,6 @@ document.getElementById('registerForm').addEventListener('submit', e => {
   else document.getElementById('termsError').textContent = '';
 
   if (valid) {
-    // TODO: replace with real submission
-    alert('Access request submitted! An administrator will review your request.');
-    window.location.href = 'login.html';
+    document.getElementById('registerForm').submit();
   }
 });

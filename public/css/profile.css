@@ -56,13 +56,12 @@
 .profile-avatar {
   width: 72px; height: 72px;
   border-radius: 10px;
-  background: var(--accent);
+  background: #0066cc;
   color: #fff;
   font-size: 24px;
   font-weight: 800;
   display: flex; align-items: center; justify-content: center;
   letter-spacing: 1px;
-  transition: background .2s;
 }
 
 .avatar-edit-btn {
@@ -91,13 +90,7 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--accent);
-  margin-bottom: 2px;
-}
-
-.profile-dept {
-  font-size: 11px;
-  color: var(--muted);
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .profile-meta {
@@ -353,3 +346,81 @@
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.success { background: #15803d; }
 .toast.error   { background: var(--red); }
+
+/* ── LOGOUT BUTTON ── */
+.btn-logout {
+  width: 100%;
+  padding: 8px 0;
+  background: #fff0f0;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background .15s, border-color .15s;
+}
+.btn-logout:hover { background: #fee2e2; border-color: #f87171; }
+.btn-logout svg { width: 14px; height: 14px; }
+
+/* ── Avatar image ── */
+img.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* ── Avatar upload button & overlay ── */
+.avatar-upload-btn {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 10px;
+  display: block;
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity .2s;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.avatar-overlay svg {
+  width: 18px;
+  height: 18px;
+}
+
+.avatar-upload-btn:hover .avatar-overlay {
+  opacity: 1;
+}
+
+/* ── Alert success ── */
+.alert-success {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
