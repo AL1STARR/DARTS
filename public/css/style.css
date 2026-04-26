@@ -218,7 +218,7 @@ body {
   border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
 }
-.stat-icon svg { width: 18px; height: 18px; stroke: rgba(255,255,255,.9); }
+.stat-icon svg { width: 24px; height: 24px; stroke: rgba(255,255,255,.9); fill: rgba(255,255,255,.9); }
 
 .stat-num   { font-size: 50px; font-weight: 800; line-height: 1; }
 .stat-label { font-size: 12px; font-weight: 500; opacity: .8; }
