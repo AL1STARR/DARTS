@@ -34,6 +34,7 @@
       </div>
       <div class="profile-name" id="profileNameDisplay">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</div>
       <div class="profile-role">{{ auth()->user()->role }}</div>
+      <div class="profile-dept">{{ auth()->user()->department }}</div>
 
       <div class="profile-meta">
         <div class="meta-row">
@@ -91,11 +92,11 @@
           <div class="field-row-2">
             <div class="field-group">
               <label>First Name</label>
-              <input type="text" name="first_name" value="{{ auth()->user()->first_name }}">
+              <input type="text" name="first_name" id="firstName" value="{{ auth()->user()->first_name }}">
             </div>
             <div class="field-group">
               <label>Last Name</label>
-              <input type="text" name="last_name" value="{{ auth()->user()->last_name }}">
+              <input type="text" name="last_name" id="lastName" value="{{ auth()->user()->last_name }}">
             </div>
           </div>
           <div class="field-group">

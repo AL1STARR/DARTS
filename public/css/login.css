@@ -400,3 +400,8 @@
 }
 
 .modal-close:hover { background: #223a5e; }
+
+/* ── Remove underline from Google button ── */
+.btn-google {
+  text-decoration: none;
+}
