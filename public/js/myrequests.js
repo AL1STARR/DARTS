@@ -132,6 +132,57 @@ document.getElementById('clearFilters').addEventListener('click', () => {
 document.getElementById('prevBtn').addEventListener('click', () => { currentPage--; render(); });
 document.getElementById('nextBtn').addEventListener('click', () => { currentPage++; render(); });
 
+// ── File attachment ──
+let attachedFiles = [];
+
+const dropZone    = document.getElementById('dropZone');
+const fileInput   = document.getElementById('fAttachments');
+const fileList    = document.getElementById('fileList');
+
+document.getElementById('browseLink').addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  addFiles(Array.from(e.dataTransfer.files));
+});
+
+fileInput.addEventListener('change', () => {
+  addFiles(Array.from(fileInput.files));
+  fileInput.value = '';
+});
+
+function addFiles(files) {
+  files.forEach(f => {
+    if (!attachedFiles.find(x => x.name === f.name && x.size === f.size)) {
+      attachedFiles.push(f);
+    }
+  });
+  renderFileList();
+}
+
+function renderFileList() {
+  const docSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+  fileList.innerHTML = attachedFiles.map((f, i) => `
+    <div class="file-item">
+      <div class="file-item-name">${docSvg}<span>${f.name}</span></div>
+      <span class="file-item-size">${(f.size / 1024).toFixed(1)} KB</span>
+      <button class="file-remove-btn" data-index="${i}" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+
+  fileList.querySelectorAll('.file-remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      attachedFiles.splice(parseInt(btn.dataset.index), 1);
+      renderFileList();
+    });
+  });
+}
+
 // ── New Request Modal ──
 const overlay   = document.getElementById('modalOverlay');
 const openModal  = () => { clearErrors(); resetForm(); overlay.classList.add('open'); };
@@ -147,6 +198,8 @@ function resetForm() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  attachedFiles = [];
+  renderFileList();
 }
 
 function clearErrors() {

@@ -183,6 +183,16 @@
         <label>Description</label>
         <textarea id="fDesc" placeholder="Briefly describe the request…" rows="3"></textarea>
       </div>
+      <div class="field-group">
+        <label>Attach Supporting Documents</label>
+        <div class="drop-zone" id="dropZone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          <p>Drag &amp; drop files here or <span class="browse-link" id="browseLink">browse</span></p>
+          <span>PDF, DOCS, XLSX, PPTX supported</span>
+          <input type="file" id="fAttachments" multiple accept=".pdf,.doc,.docx,.xlsx,.pptx" hidden>
+        </div>
+        <div id="fileList" class="file-list"></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" id="modalCancel">Cancel</button>
