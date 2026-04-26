@@ -96,7 +96,13 @@ const submitBtn  = document.getElementById('modalSubmit');
 const requestForm = document.getElementById('requestForm');
 
 const openModal  = () => { clearErrors(); resetForm(); overlay.classList.add('open'); };
-const closeModal = () => overlay.classList.remove('open');
+const closeModal = () => {
+  overlay.classList.remove('open');
+  requestForm.dataset.action = requestForm.dataset.storeAction;
+  delete requestForm.dataset.method;
+  document.getElementById('modalSubmit').textContent = 'Submit Request';
+  document.querySelector('.modal-header h3').textContent = 'New Request';
+};
 
 document.getElementById('newRequestBtn').addEventListener('click', openModal);
 document.getElementById('modalClose').addEventListener('click', closeModal);
@@ -136,8 +142,9 @@ requestForm.addEventListener('submit', async e => {
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
 
-  // Build FormData including attached files
+  const isEdit = requestForm.dataset.method === 'PATCH';
   const formData = new FormData(requestForm);
+  if (isEdit) formData.append('_method', 'PATCH');
   attachedFiles.forEach(f => formData.append('attachments[]', f));
 
   try {
@@ -149,7 +156,7 @@ requestForm.addEventListener('submit', async e => {
 
     if (res.ok) {
       closeModal();
-      showToast('Request submitted successfully.', 'success');
+      showToast(isEdit ? 'Request updated successfully.' : 'Request submitted successfully.', 'success');
       setTimeout(() => location.reload(), 1200);
     } else if (res.status === 422) {
       const json = await res.json();
@@ -169,6 +176,8 @@ requestForm.addEventListener('submit', async e => {
 const detailOverlay = document.getElementById('detailOverlay');
 const detailDrawer  = document.getElementById('detailDrawer');
 let currentDeleteUrl = null;
+let currentUpdateUrl = null;
+let currentEditData  = null;
 
 const statusDrawerClasses = {
   pending:    'status-badge pending',
@@ -195,6 +204,16 @@ document.getElementById('mrBody').addEventListener('click', e => {
   const desc        = btn.dataset.desc || 'No description provided.';
   const attachments = JSON.parse(btn.dataset.attachments || '[]');
   currentDeleteUrl  = btn.dataset.deleteUrl;
+  currentUpdateUrl  = btn.dataset.updateUrl;
+  currentEditData   = { title: btn.dataset.title, category: btn.dataset.category.toLowerCase(), priority: btn.dataset.priority.toLowerCase(), dept: btn.dataset.dept, desc: btn.dataset.desc };
+
+  // Edit button: only active when pending
+  const editBtn = document.getElementById('editRequestBtn');
+  const isPending = status === 'pending';
+  editBtn.disabled = !isPending;
+  editBtn.style.opacity = isPending ? '1' : '.4';
+  editBtn.style.cursor  = isPending ? 'pointer' : 'not-allowed';
+  editBtn.title = isPending ? '' : 'Cannot edit — request is no longer pending';
 
   document.getElementById('drawerReqId').textContent  = `REQ-${String(id).padStart(3,'0')}`;
   document.getElementById('drawerTitle').textContent  = title;
@@ -233,6 +252,30 @@ function closeDrawer() {
 
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 detailOverlay.addEventListener('click', closeDrawer);
+
+// ── Edit ──
+document.getElementById('editRequestBtn').addEventListener('click', () => {
+  if (!currentEditData) return;
+  closeDrawer();
+
+  // Pre-fill the modal
+  document.getElementById('fTitle').value = currentEditData.title;
+  document.getElementById('fCategory').value = currentEditData.category;
+  document.getElementById('fPriority').value = currentEditData.priority;
+  document.getElementById('fDesc').value = currentEditData.desc;
+
+  // Switch dept and reload assign-to users
+  const deptSelect = document.getElementById('fDept');
+  deptSelect.value = currentEditData.dept;
+  deptSelect.dispatchEvent(new Event('change'));
+
+  // Switch modal to edit mode
+  requestForm.dataset.action = currentUpdateUrl;
+  requestForm.dataset.method = 'PATCH';
+  document.getElementById('modalSubmit').textContent = 'Save Changes';
+  document.querySelector('.modal-header h3').textContent = 'Edit Request';
+  overlay.classList.add('open');
+});
 
 // ── Delete ──
 document.getElementById('deleteRequestBtn').addEventListener('click', () => {

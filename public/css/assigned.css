@@ -33,7 +33,6 @@
   align-items: flex-end;
   gap: 12px;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
 }
 
 .filter-group { display: flex; flex-direction: column; gap: 5px; }
@@ -211,44 +210,49 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 12px 18px;
   border-top: 1px solid var(--border);
+  background: #fafbfc;
 }
 
-.pagination-info { font-size: 12.5px; color: var(--muted); }
+.pagination-info { font-size: 12px; color: var(--muted); }
 .pagination-controls { display: flex; align-items: center; gap: 4px; }
 
 .page-btn {
-  background: var(--white);
+  width: 30px; height: 30px;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  width: 32px; height: 32px;
-  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px;
+  background: var(--white);
   cursor: pointer;
-  color: var(--navy);
-  transition: background .12s;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  transition: background .12s, color .12s;
 }
-.page-btn:hover:not(:disabled) { background: var(--bg); }
+.page-btn:hover:not(:disabled) { background: var(--bg); color: var(--navy); }
 .page-btn:disabled { opacity: .4; cursor: not-allowed; }
 .page-btn svg { width: 14px; height: 14px; }
 
 .page-numbers { display: flex; gap: 4px; }
 
 .page-num {
-  background: var(--white);
+  width: 30px; height: 30px;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  width: 32px; height: 32px;
+  border-radius: 6px;
+  background: var(--white);
   font-size: 12.5px;
   font-weight: 500;
+  color: var(--muted);
   cursor: pointer;
-  color: var(--navy);
-  font-family: inherit;
-  transition: all .12s;
   display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+  transition: background .12s, color .12s, border-color .12s;
 }
-.page-num:hover { background: var(--bg); }
+.page-num:hover { background: var(--bg); color: var(--navy); }
 .page-num.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: 700; }
+
+.page-btn,
+.page-num,
+.clear-filters-btn { text-decoration: none; }
 
 /* ── DETAIL DRAWER ── */
 .detail-overlay {

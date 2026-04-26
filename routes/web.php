@@ -19,6 +19,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', fn() => view('profile'))->name('profile');
     Route::get('/myrequests', [DocumentRequestController::class, 'index'])->name('myrequests');
     Route::post('/myrequests', [DocumentRequestController::class, 'store'])->name('myrequests.store');
+    Route::patch('/myrequests/{documentRequest}', [DocumentRequestController::class, 'update'])->name('myrequests.update');
     Route::delete('/myrequests/{documentRequest}', [DocumentRequestController::class, 'destroy'])->name('myrequests.destroy');
     Route::get('/attachments/{attachment}', [DocumentRequestController::class, 'viewAttachment'])->name('attachments.view');
     Route::get('/assigned', [AssignedRequestController::class, 'index'])->name('assigned');

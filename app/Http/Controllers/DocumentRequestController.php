@@ -70,6 +70,25 @@ class DocumentRequestController extends Controller
         return back()->with('success', 'Request submitted successfully.');
     }
 
+    public function update(Request $request, DocumentRequest $documentRequest)
+    {
+        abort_if($documentRequest->user_id !== auth()->id(), 403);
+        abort_if($documentRequest->status !== 'pending', 403);
+
+        $data = $request->validate([
+            'title'       => 'required|string|max:255',
+            'category'    => 'required|string',
+            'priority'    => 'required|string',
+            'department'  => 'required|string',
+            'assigned_to' => 'required|exists:users,id',
+            'description' => 'nullable|string',
+        ]);
+
+        $documentRequest->update($data);
+
+        return response()->json(['message' => 'Request updated successfully.']);
+    }
+
     public function viewAttachment(RequestAttachment $attachment)
     {
         // Allow access if user owns the request or is assigned to it

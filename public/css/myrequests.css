@@ -612,7 +612,30 @@ a.file-item:hover .file-view-icon { stroke: var(--blue); }
   border-top: 1px solid var(--border);
   background: var(--white);
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
+
+.edit-request-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .12s, border-color .12s;
+}
+.edit-request-btn:hover:not(:disabled) { background: var(--bg); border-color: var(--navy); }
+.edit-request-btn svg { width: 15px; height: 15px; }
 
 /* ── EMPTY ROW ── */
 .empty-row {
