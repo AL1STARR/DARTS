@@ -577,6 +577,33 @@
 .file-remove-btn:hover { color: var(--red); }
 .file-remove-btn svg { width: 13px; height: 13px; }
 
+.delete-request-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .12s, border-color .12s;
+}
+.delete-request-btn:hover { background: #fce4ec; border-color: var(--red); }
+.delete-request-btn svg { width: 15px; height: 15px; }
+
+.detail-drawer-footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--white);
+  flex-shrink: 0;
+}
+
 /* ── EMPTY ROW ── */
 .empty-row {
   text-align: center;

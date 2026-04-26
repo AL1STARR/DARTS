@@ -252,7 +252,10 @@ const statusDrawerClasses = {
   'in-review': 'status-badge in-review',
 };
 
+let currentDrawerReqId = null;
+
 function openDrawer(id) {
+  currentDrawerReqId = id;
   const r = requests.find(r => r.id === id);
   if (!r) return;
 
@@ -294,11 +297,41 @@ function closeDrawer() {
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 detailOverlay.addEventListener('click', closeDrawer);
 
+document.getElementById('deleteRequestBtn').addEventListener('click', () => {
+  showConfirmToast('Delete this request? This cannot be undone.', () => {
+    requests = requests.filter(r => r.id !== currentDrawerReqId);
+    closeDrawer();
+    currentPage = 1;
+    render();
+    showToast('Request deleted.', 'success');
+  });
+});
+
 document.getElementById('mrBody').addEventListener('click', e => {
   const btn = e.target.closest('.view-btn');
   if (!btn) return;
   openDrawer(btn.dataset.id);
 });
+
+// ── Confirm toast ──
+function showConfirmToast(message, onConfirm) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast warning show';
+  toast.style.cssText = 'max-width:380px;gap:12px;flex-direction:column;align-items:flex-start;';
+  toast.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px">
+      <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>${message}</span>
+    </div>
+    <div style="display:flex;gap:8px;align-self:flex-end">
+      <button class="confirm-no"  style="padding:5px 14px;border:1px solid #fed7aa;border-radius:5px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:#c2410c">Cancel</button>
+      <button class="confirm-yes" style="padding:5px 14px;border:none;border-radius:5px;background:#c2410c;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Confirm</button>
+    </div>`;
+  container.appendChild(toast);
+  toast.querySelector('.confirm-yes').addEventListener('click', () => { toast.remove(); onConfirm(); });
+  toast.querySelector('.confirm-no').addEventListener('click',  () => { toast.remove(); });
+}
 
 // ── Initial render ──
 render();
