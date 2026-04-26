@@ -34,7 +34,7 @@ class DocumentRequestController extends Controller
             'category'    => 'required|string',
             'priority'    => 'required|string',
             'department'  => 'required|string',
-            'assigned_to' => 'nullable|exists:users,id',
+            'assigned_to' => 'required|exists:users,id',
             'description' => 'nullable|string',
             'attachments.*' => 'nullable|file|max:10240|mimes:pdf',
         ]);

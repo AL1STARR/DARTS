@@ -113,17 +113,17 @@ function resetForm() {
 }
 
 function clearErrors() {
-  ['errTitle','errCategory','errPriority','errDept'].forEach(id => {
+  ['errTitle','errCategory','errPriority','errDept','errAssignTo'].forEach(id => {
     document.getElementById(id).textContent = '';
   });
-  ['fTitle','fCategory','fPriority','fDept'].forEach(id => {
+  ['fTitle','fCategory','fPriority','fDept','fAssignTo'].forEach(id => {
     document.getElementById(id)?.classList.remove('error');
   });
 }
 
 function showFormErrors(errors) {
-  const map = { title: 'errTitle', category: 'errCategory', priority: 'errPriority', department: 'errDept' };
-  const inputMap = { title: 'fTitle', category: 'fCategory', priority: 'fPriority', department: 'fDept' };
+  const map = { title: 'errTitle', category: 'errCategory', priority: 'errPriority', department: 'errDept', assigned_to: 'errAssignTo' };
+  const inputMap = { title: 'fTitle', category: 'fCategory', priority: 'fPriority', department: 'fDept', assigned_to: 'fAssignTo' };
   Object.entries(errors).forEach(([field, messages]) => {
     if (map[field])      document.getElementById(map[field]).textContent = messages[0];
     if (inputMap[field]) document.getElementById(inputMap[field]).classList.add('error');
