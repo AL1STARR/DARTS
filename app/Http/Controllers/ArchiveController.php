@@ -10,17 +10,36 @@ class ArchiveController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ArchiveDocument::with('uploader')->latest();
+        $tab = $request->input('tab', 'general');
 
-        if ($request->filled('tab'))       $query->where('archive_type', $request->tab);
-        if ($request->filled('file_type')) $query->where('file_type',    $request->file_type);
-        if ($request->filled('category'))  $query->where('category',     $request->category);
+        $query = ArchiveDocument::with('uploader')->latest()
+            ->where('archive_type', $tab);
+
+        // Department archive only shows the user's own department
+        if ($tab === 'department') {
+            $query->where('department', auth()->user()->department);
+        }
+
+        if ($request->filled('file_type'))  $query->where('file_type',   $request->file_type);
+        if ($request->filled('category'))   $query->where('category',    $request->category);
         if ($request->filled('department')) $query->where('department',  $request->department);
-        if ($request->filled('search'))    $query->where('title', 'like', '%' . $request->search . '%');
+        if ($request->filled('search'))     $query->where('title', 'like', '%' . $request->search . '%');
 
         $documents = $query->paginate(5)->withQueryString();
 
-        return view('archive', compact('documents'));
+        // Sidebar stats — scoped to current tab (and dept for department tab)
+        $statsQuery = ArchiveDocument::where('archive_type', $tab);
+        if ($tab === 'department') {
+            $statsQuery->where('department', auth()->user()->department);
+        }
+        $allDocs = $statsQuery->with('uploader')->get();
+
+        $fileTypeStats = $allDocs->groupBy('file_type')->map(fn($g) => $g->count());
+        $distStats     = $tab === 'general'
+            ? $allDocs->groupBy('department')->map(fn($g) => $g->count())
+            : $allDocs->groupBy(fn($d) => $d->uploader->first_name . ' ' . $d->uploader->last_name)->map(fn($g) => $g->count());
+
+        return view('archive', compact('documents', 'fileTypeStats', 'distStats', 'tab'));
     }
 
     public function store(Request $request)
@@ -28,7 +47,6 @@ class ArchiveController extends Controller
         $data = $request->validate([
             'title'        => 'required|string|max:255',
             'category'     => 'required|string',
-            'department'   => 'required|string',
             'archive_type' => 'required|in:general,department',
             'file'         => 'required|file|max:20480|mimes:pdf,doc,docx,xlsx,pptx',
         ]);
@@ -41,7 +59,7 @@ class ArchiveController extends Controller
             'uploaded_by'  => auth()->id(),
             'title'        => $data['title'],
             'category'     => $data['category'],
-            'department'   => $data['department'],
+            'department'   => auth()->user()->department,
             'archive_type' => $data['archive_type'],
             'filename'     => $file->getClientOriginalName(),
             'path'         => $path,

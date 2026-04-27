@@ -112,7 +112,7 @@
           <tr>
             <th>Document ID</th>
             <th>Document Name</th>
-            <th id="thDeptUploader">Department</th>
+            <th>{{ $tab === 'department' ? 'Uploader' : 'Department' }}</th>
             <th>Uploaded</th>
             <th>Actions</th>
           </tr>
@@ -145,6 +145,9 @@
             <td><span class="upload-date">{{ $doc->created_at->format('M d, Y') }}</span></td>
             <td>
               <div class="action-btns">
+                        <a href="{{ route('archive.download', $doc) }}" target="_blank" class="action-btn" title="View">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </a>
                 <a href="{{ route('archive.download', $doc) }}" class="action-btn" title="Download">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </a>
@@ -192,17 +195,58 @@
         <span class="title-bar"></span>
         File Type Breakdown
       </div>
-      <div class="stats-sidebar-sub" id="statsSub">General Archive</div>
-      <div class="filetype-cards" id="filetypeCards"></div>
+      <div class="stats-sidebar-sub">{{ $tab === 'general' ? 'General Archive' : 'Department Archive' }}</div>
+      <div class="filetype-cards">
+        @php $totalDocs = $fileTypeStats->sum(); @endphp
+        @forelse($fileTypeStats->sortDesc() as $type => $count)
+          @php $pct = $totalDocs ? round(($count / $totalDocs) * 100) : 0; @endphp
+          <div class="ft-card">
+            <div class="ft-card-top">
+              <span class="ft-label">
+                <span class="ft-dot {{ $type }}"></span>
+                {{ strtoupper($type) }}
+              </span>
+              <span class="ft-pct">{{ $pct }}%</span>
+            </div>
+          </div>
+        @empty
+          <p style="font-size:12px;color:var(--muted);padding:10px 6px">No documents yet.</p>
+        @endforelse
+      </div>
     </aside>
 
     <aside class="stats-sidebar">
       <div class="stats-sidebar-header">
         <span class="title-bar"></span>
-        <span id="distTitle">Upload by Department</span>
+        {{ $tab === 'general' ? 'Upload by Department' : 'Upload by Person' }}
       </div>
-      <div class="stats-sidebar-sub" id="distSub">General Archive</div>
-      <div class="filetype-cards" id="distCards"></div>
+      <div class="stats-sidebar-sub">{{ $tab === 'general' ? 'General Archive' : 'Department Archive' }}</div>
+      <div class="filetype-cards">
+        @php
+          $totalDist = $distStats->sum();
+          $colors = ['#1a2e4a','#2E6DA4','#2e7d32','#6a1b9a','#c62828','#e65100'];
+          $ci = 0;
+        @endphp
+        @forelse($distStats->sortDesc() as $label => $count)
+          @php $pct = $totalDist ? round(($count / $totalDist) * 100) : 0; $color = $colors[$ci++ % count($colors)]; @endphp
+          <div class="ft-card">
+            <div class="ft-card-top">
+              <span class="ft-label" style="gap:8px">
+                @if($tab === 'department')
+                  @php $initials = collect(explode(' ', $label))->map(fn($w) => strtoupper(substr($w,0,1)))->take(2)->join(''); @endphp
+                  <span class="dist-avatar" style="background:{{ $color }}">{{ $initials }}</span>
+                @else
+                  <span class="dist-dot" style="background:{{ $color }}"></span>
+                @endif
+                <span style="font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px" title="{{ $label }}">{{ $label }}</span>
+              </span>
+              <span class="ft-pct">{{ $pct }}%</span>
+            </div>
+          </div>
+        @empty
+          <p style="font-size:12px;color:var(--muted);padding:10px 6px">No documents yet.</p>
+        @endforelse
+      </div>
     </aside>
   </div>
 
@@ -256,22 +300,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
               </div>
             </div>
-          </div>
-          <div class="field-group">
-            <label>Department</label>
-            <div class="select-wrap">
-              <select name="department" id="fDeptModal">
-                <option value="">Select department</option>
-                <option value="Executive Committee">Executive Committee</option>
-                <option value="Internal Affairs">Internal Affairs</option>
-                <option value="External Affairs">External Affairs</option>
-                <option value="Secretariat">Secretariat</option>
-                <option value="Finance">Finance</option>
-                <option value="Audit">Audit</option>
-              </select>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-            <span class="field-error" id="errDept"></span>
           </div>
         </div>
       </div>

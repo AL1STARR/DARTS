@@ -180,6 +180,7 @@
   color: var(--muted);
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
   transition: background .12s, color .12s, border-color .12s;
 }
 .tab-btn:hover { background: var(--bg); color: var(--navy); }
@@ -544,4 +545,6 @@
   font-family: inherit;
   transition: background .15s;
 }
-.btn-upload:hover { background: #223a5e; }
+.page-btn,
+.page-num,
+.clear-filters-btn { text-decoration: none; }
