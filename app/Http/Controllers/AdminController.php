@@ -27,14 +27,19 @@ class AdminController extends Controller
             });
         }
 
+        // Get all filtered users for sidebar stats (unordered for now, we'll order the paginated ones)
+        $allFilteredUsers = (clone $query)->get();
+
+        // Get paginated filtered users for table display
         $users    = $query->orderBy('created_at', 'desc')->paginate(7)->withQueryString();
         $requests = User::where('status', 'pending')->get();
         $settings = Setting::orderBy('group')->orderBy('value')->get()->groupBy('group');
 
-        // Sidebar stats always from full non-pending set
-        $allUsers = User::where('status', '!=', 'pending')->get();
+        // Calculate sidebar stats
+        $roleCounts = $allFilteredUsers->groupBy('role')->map->count();
+        $deptCounts = $allFilteredUsers->groupBy('department')->map->count();
 
-        return view('admin', compact('users', 'requests', 'settings', 'allUsers'));
+        return view('admin', compact('users', 'requests', 'settings', 'allFilteredUsers', 'roleCounts', 'deptCounts'));
     }
 
     public function settingStore(Request $request, string $group)

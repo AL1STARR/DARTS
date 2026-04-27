@@ -17,10 +17,13 @@
     <span class="breadcrumb">Home / <strong>Admin</strong></span>
   </div>
   <div class="subbar-right">
-    <div class="search-bar">
+    <form method="GET" action="{{ route('admin') }}" class="search-bar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Search users…">
-    </div>
+      <input type="text" name="search" placeholder="Search users…" value="{{ request('search') }}" onkeydown="if(event.key==='Enter') this.form.submit()">
+      <input type="hidden" name="role" value="{{ request('role') }}">
+      <input type="hidden" name="department" value="{{ request('department') }}">
+      <input type="hidden" name="status" value="{{ request('status') }}">
+    </form>
     <div class="datetime" id="datetime"></div>
   </div>
 </div>
@@ -95,16 +98,16 @@
       <div class="admin-panel">
 
         <!-- Filters -->
-        <div class="filters-row">
+        <form method="GET" action="{{ route('admin') }}" id="filterForm" class="filters-row">
           <div class="filter-group">
             <label class="filter-label">ROLE</label>
             <div class="select-wrap">
-              <select id="roleFilter">
+              <select name="role" id="roleFilter" onchange="document.getElementById('filterForm').submit()">
                 <option value="">All Roles</option>
-                <option value="Admin">Admin</option>
-                <option value="Records Officer">Records Officer</option>
-                <option value="Department Head">Department Head</option>
-                <option value="Staff">Staff</option>
+                <option value="Admin" {{ request('role') === 'Admin' ? 'selected' : '' }}>Admin</option>
+                <option value="Records Officer" {{ request('role') === 'Records Officer' ? 'selected' : '' }}>Records Officer</option>
+                <option value="Department Head" {{ request('role') === 'Department Head' ? 'selected' : '' }}>Department Head</option>
+                <option value="Staff" {{ request('role') === 'Staff' ? 'selected' : '' }}>Staff</option>
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -112,14 +115,14 @@
           <div class="filter-group">
             <label class="filter-label">DEPARTMENT</label>
             <div class="select-wrap">
-              <select id="deptFilter">
+              <select name="department" id="deptFilter" onchange="document.getElementById('filterForm').submit()">
                 <option value="">All Departments</option>
-                <option value="Executive Committee">Executive Committee</option>
-                <option value="Internal Affairs">Internal Affairs</option>
-                <option value="External Affairs">External Affairs</option>
-                <option value="Secretariat">Secretariat</option>
-                <option value="Finance">Finance</option>
-                <option value="Audit">Audit</option>
+                <option value="Executive Committee" {{ request('department') === 'Executive Committee' ? 'selected' : '' }}>Executive Committee</option>
+                <option value="Internal Affairs" {{ request('department') === 'Internal Affairs' ? 'selected' : '' }}>Internal Affairs</option>
+                <option value="External Affairs" {{ request('department') === 'External Affairs' ? 'selected' : '' }}>External Affairs</option>
+                <option value="Secretariat" {{ request('department') === 'Secretariat' ? 'selected' : '' }}>Secretariat</option>
+                <option value="Finance" {{ request('department') === 'Finance' ? 'selected' : '' }}>Finance</option>
+                <option value="Audit" {{ request('department') === 'Audit' ? 'selected' : '' }}>Audit</option>
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -127,16 +130,16 @@
           <div class="filter-group">
             <label class="filter-label">STATUS</label>
             <div class="select-wrap">
-              <select id="statusFilter">
+              <select name="status" id="statusFilter" onchange="document.getElementById('filterForm').submit()">
                 <option value="">All Statuses</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
-          <button class="clear-filters-btn" id="clearFilters">Clear All Filters</button>
-        </div>
+          <a href="{{ route('admin') }}" class="clear-filters-btn" id="clearFilters">Clear All Filters</a>
+        </form>
 
         <!-- Table -->
         <div class="admin-table-wrap">
@@ -213,15 +216,41 @@
         </div>
 
         <div class="pagination-bar">
-          <span class="pagination-info" id="paginationInfo"></span>
+          <span class="pagination-info" id="paginationInfo">
+            @if($users->count() > 0)
+              Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} users
+            @else
+              No users found
+            @endif
+          </span>
           <div class="pagination-controls">
-            <button class="page-btn" id="prevBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <div class="page-numbers" id="pageNumbers"></div>
-            <button class="page-btn" id="nextBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
+            @if($users->onFirstPage())
+              <button class="page-btn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+            @else
+              <a href="{{ $users->previousPageUrl() }}" class="page-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </a>
+            @endif
+            <div class="page-numbers" id="pageNumbers">
+              @foreach($users->getUrlRange(1, $users->lastPage()) as $page => $url)
+                @if($page == $users->currentPage())
+                  <button class="page-num active" disabled>{{ $page }}</button>
+                @else
+                  <a href="{{ $url }}" class="page-num">{{ $page }}</a>
+                @endif
+              @endforeach
+            </div>
+            @if($users->hasMorePages())
+              <a href="{{ $users->nextPageUrl() }}" class="page-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+            @else
+              <button class="page-btn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            @endif
           </div>
         </div>
 
@@ -335,14 +364,50 @@
           <span class="title-bar"></span>
           Role Breakdown
         </div>
-        <div class="filetype-cards" id="roleCards"></div>
+        <div class="filetype-cards" id="roleCards">
+          @php
+            $total = $allFilteredUsers->count() ?: 1;
+            $roleColors = ['Admin' => '#5b21b6', 'Records Officer' => '#0369a1', 'Department Head' => '#854d0e', 'Staff' => '#475569'];
+          @endphp
+          @foreach($roleCounts as $role => $count)
+            @php
+              $pct = round(($count / $total) * 100);
+              $color = $roleColors[$role] ?? '#64748b';
+            @endphp
+            <div class="ft-card">
+              <div class="ft-card-top">
+                <span class="ft-label"><span class="ft-dot" style="background:{{ $color }}"></span>{{ $role }}</span>
+                <span class="ft-pct">{{ $count }}</span>
+              </div>
+              <div class="ft-bar-track"><div class="ft-bar-fill" style="width:{{ $pct }}%;background:{{ $color }}"></div></div>
+            </div>
+          @endforeach
+        </div>
       </aside>
       <aside class="stats-sidebar">
         <div class="stats-sidebar-header">
           <span class="title-bar"></span>
           By Department
         </div>
-        <div class="filetype-cards" id="deptCards"></div>
+        <div class="filetype-cards" id="deptCards">
+          @php
+            $deptColors = ['#1a2e4a','#2E6DA4','#2e7d32','#c62828','#e65100','#0369a1'];
+          @endphp
+          @foreach($deptCounts as $dept => $count)
+            @php
+              $pct = round(($count / $total) * 100);
+              $colorIndex = array_search($dept, $deptCounts->keys()->toArray()) % count($deptColors);
+              $color = $deptColors[$colorIndex];
+            @endphp
+            <div class="ft-card">
+              <div class="ft-card-top">
+                <span class="ft-label"><span class="ft-dot" style="background:{{ $color }}"></span>{{ $dept }}</span>
+                <span class="ft-pct">{{ $count }}</span>
+              </div>
+              <div class="ft-bar-track"><div class="ft-bar-fill" style="width:{{ $pct }}%;background:{{ $color }}"></div></div>
+            </div>
+          @endforeach
+        </div>
       </aside>
     </div>
 

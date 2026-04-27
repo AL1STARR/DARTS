@@ -15,7 +15,8 @@ setInterval(updateTime, 1000);
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
-    document.getElementById('searchInput').focus();
+    const searchInput = document.querySelector('input[name="search"]');
+    if (searchInput) searchInput.focus();
   }
 });
 
@@ -28,118 +29,6 @@ document.querySelectorAll('.admin-tab').forEach(btn => {
     document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
   });
 });
-
-// ── Filtering + Pagination (client-side on server-rendered rows) ──
-const ROWS_PER_PAGE = 7;
-let currentPage = 1;
-
-function getAllRows() {
-  return Array.from(document.querySelectorAll('#adminBody tr[data-role]'));
-}
-
-function getFilteredRows() {
-  const role   = document.getElementById('roleFilter').value;
-  const dept   = document.getElementById('deptFilter').value;
-  const status = document.getElementById('statusFilter').value;
-  const search = document.getElementById('searchInput').value.toLowerCase();
-
-  return getAllRows().filter(row => {
-    if (role   && row.dataset.role   !== role)   return false;
-    if (dept   && row.dataset.dept   !== dept)   return false;
-    if (status && row.dataset.status !== status) return false;
-    if (search && !row.dataset.name.includes(search) && !row.dataset.email.includes(search)) return false;
-    return true;
-  });
-}
-
-function renderTable() {
-  const filtered   = getFilteredRows();
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE));
-  if (currentPage > totalPages) currentPage = totalPages;
-
-  const start = (currentPage - 1) * ROWS_PER_PAGE;
-
-  getAllRows().forEach(row => row.style.display = 'none');
-  filtered.slice(start, start + ROWS_PER_PAGE).forEach(row => row.style.display = '');
-
-  const total = filtered.length;
-  const from  = total ? start + 1 : 0;
-  const to    = Math.min(start + ROWS_PER_PAGE, total);
-  document.getElementById('paginationInfo').textContent =
-    `Showing ${from} to ${to} of ${total} users`;
-
-  const pn = document.getElementById('pageNumbers');
-  pn.innerHTML = '';
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'page-num' + (i === currentPage ? ' active' : '');
-    btn.textContent = i;
-    btn.addEventListener('click', () => { currentPage = i; renderTable(); });
-    pn.appendChild(btn);
-  }
-
-  document.getElementById('prevBtn').disabled = currentPage === 1;
-  document.getElementById('nextBtn').disabled = currentPage === totalPages;
-}
-
-['roleFilter','deptFilter','statusFilter'].forEach(id =>
-  document.getElementById(id).addEventListener('change', () => { currentPage = 1; renderTable(); })
-);
-document.getElementById('searchInput').addEventListener('input', () => { currentPage = 1; renderTable(); });
-document.getElementById('clearFilters').addEventListener('click', () => {
-  document.getElementById('roleFilter').value   = '';
-  document.getElementById('deptFilter').value   = '';
-  document.getElementById('statusFilter').value = '';
-  document.getElementById('searchInput').value  = '';
-  currentPage = 1;
-  renderTable();
-});
-document.getElementById('prevBtn').addEventListener('click', () => { currentPage--; renderTable(); });
-document.getElementById('nextBtn').addEventListener('click', () => { currentPage++; renderTable(); });
-
-renderTable();
-
-// ── Sidebar breakdowns ──
-const ROLE_COLORS = { 'Admin': '#5b21b6', 'Records Officer': '#0369a1', 'Department Head': '#854d0e', 'Staff': '#475569' };
-const DEPT_COLORS = ['#1a2e4a','#2E6DA4','#2e7d32','#c62828','#e65100','#0369a1'];
-
-function renderSidebars() {
-  const rows  = getAllRows();
-  const total = rows.length || 1;
-
-  const roleCounts = {};
-  const deptCounts = {};
-  rows.forEach(r => {
-    roleCounts[r.dataset.role] = (roleCounts[r.dataset.role] || 0) + 1;
-    deptCounts[r.dataset.dept] = (deptCounts[r.dataset.dept] || 0) + 1;
-  });
-
-  document.getElementById('roleCards').innerHTML = Object.entries(roleCounts).map(([role, count]) => {
-    const pct   = Math.round(count / total * 100);
-    const color = ROLE_COLORS[role] || '#64748b';
-    return `<div class="ft-card">
-      <div class="ft-card-top">
-        <span class="ft-label"><span class="ft-dot" style="background:${color}"></span>${role}</span>
-        <span class="ft-pct">${count}</span>
-      </div>
-      <div class="ft-bar-track"><div class="ft-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('deptCards').innerHTML = Object.entries(deptCounts).map(([dept, count], i) => {
-    const pct   = Math.round(count / total * 100);
-    const color = DEPT_COLORS[i % DEPT_COLORS.length];
-    return `<div class="ft-card">
-      <div class="ft-card-top">
-        <span class="ft-label"><span class="ft-dot" style="background:${color}"></span>${dept}</span>
-        <span class="ft-pct">${count}</span>
-      </div>
-      <div class="ft-bar-track"><div class="ft-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-    </div>`;
-  }).join('');
-}
-
-renderSidebars();
 
 // ── Add / Edit Modal ──
 const overlay    = document.getElementById('modalOverlay');
