@@ -20,37 +20,44 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Data ──
-let routes = [
-  { id: 'RT-001', doc: 'Staff Evaluation Report – Q1',       origin: 'Human Resources',    waypoint: 'Research Department',  status: 'on-time',  priority: 'low'    },
-  { id: 'RT-002', doc: 'User Activity Log Report',            origin: 'IT Department',       waypoint: 'Accounting Department',status: 'delayed',  priority: 'low'    },
-  { id: 'RT-003', doc: 'Document Routing Slip DRS-778',       origin: 'Research Department', waypoint: 'Executive Board',      status: 'delayed',  priority: 'high'   },
-  { id: 'RT-004', doc: 'Annual Budget Proposal FY2026',       origin: 'Accounting Department',waypoint: 'Executive Board',     status: 'on-time',  priority: 'high'   },
-  { id: 'RT-005', doc: 'Procurement Request Form PR-2217',    origin: 'Assets Management',   waypoint: 'Commission on Audit',  status: 'pending',  priority: 'medium' },
-  { id: 'RT-006', doc: 'HR Policy Manual 2026 Edition',       origin: 'Human Resources',     waypoint: 'IT Department',        status: 'completed',priority: 'low'    },
-  { id: 'RT-007', doc: 'Q1 Budget Utilization Report',        origin: 'Accounting Department',waypoint: 'Research Department', status: 'on-time',  priority: 'medium' },
-  { id: 'RT-008', doc: 'COA Compliance Checklist',            origin: 'Commission on Audit', waypoint: 'Executive Board',      status: 'delayed',  priority: 'high'   },
-  { id: 'RT-009', doc: 'Internal Audit Summary Q2',           origin: 'Accounting Department',waypoint: 'Human Resources',     status: 'completed',priority: 'medium' },
-  { id: 'RT-010', doc: 'Office Supplies Requisition Form',    origin: 'Assets Management',   waypoint: 'Accounting Department',status: 'pending',  priority: 'low'    },
-  { id: 'RT-011', doc: 'Research Division Work Plan 2026',    origin: 'Research Department', waypoint: 'Executive Board',      status: 'on-time',  priority: 'medium' },
-  { id: 'RT-012', doc: 'Assets Disposal Request Form',        origin: 'Assets Management',   waypoint: 'Commission on Audit',  status: 'pending',  priority: 'high'   },
-];
-
-let nextId = 13;
-const ROWS_PER_PAGE = 5;
+let routes = [];
 let currentPage = 1;
+let lastPage = 1;
+let totalRoutes = 0;
+const ROWS_PER_PAGE = 5;
 
-// ── Filtering ──
-function getFiltered() {
+const MY_DEPT = document.body.dataset.userDepartment || 'Records Division';
+
+// ── CSRF ──
+function csrfToken() {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.content : '';
+}
+
+// ── Fetch routes ──
+async function fetchRoutes() {
   const status   = document.getElementById('statusFilter').value;
   const priority = document.getElementById('priorityFilter').value;
-  const search   = document.getElementById('searchInput').value.toLowerCase();
+  const search   = document.getElementById('searchInput').value;
 
-  return routes.filter(r => {
-    if (status   && r.status   !== status)   return false;
-    if (priority && r.priority !== priority) return false;
-    if (search   && !r.doc.toLowerCase().includes(search) && !r.id.toLowerCase().includes(search)) return false;
-    return true;
-  });
+  const params = new URLSearchParams();
+  params.append('page', currentPage);
+  if (status)   params.append('status', status);
+  if (priority) params.append('priority', priority);
+  if (search)   params.append('search', search);
+
+  try {
+    const res = await fetch(`/routing/list?${params.toString()}`);
+    const data = await res.json();
+    routes = data.data || [];
+    currentPage = data.current_page || 1;
+    lastPage = data.last_page || 1;
+    totalRoutes = data.total || 0;
+    render();
+  } catch (err) {
+    console.error('Failed to fetch routes:', err);
+    showToast('Failed to load routing records.', 'error');
+  }
 }
 
 // ── Priority icon ──
@@ -66,14 +73,9 @@ const docIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 
 // ── Render ──
 function render() {
-  const filtered   = getFiltered();
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE));
-  if (currentPage > totalPages) currentPage = totalPages;
-
-  const start = (currentPage - 1) * ROWS_PER_PAGE;
-  const page  = filtered.slice(start, start + ROWS_PER_PAGE);
-
+  const page = routes;
   const tbody = document.getElementById('routingBody');
+
   if (!page.length) {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#64748b;font-size:13px;">No routing records found.</td></tr>`;
   } else {
@@ -88,50 +90,57 @@ function render() {
         </td>
         <td><span class="dept-origin">${r.origin}</span></td>
         <td><span class="dept-waypoint">${r.waypoint}</span></td>
-        <td><span class="status-badge ${r.status}">${statusLabel[r.status]}</span></td>
+        <td><span class="status-badge ${r.status}">${statusLabel[r.status] || r.status}</span></td>
         <td><span class="priority-badge ${r.priority}">${priorityIcon[r.priority]} ${priorityLabel[r.priority]}</span></td>
         <td><button class="view-btn">View</button></td>
       </tr>`).join('');
   }
 
   // Pagination info
-  const total = filtered.length;
-  const from  = total ? start + 1 : 0;
-  const to    = Math.min(start + ROWS_PER_PAGE, total);
+  const from  = totalRoutes ? ((currentPage - 1) * ROWS_PER_PAGE) + 1 : 0;
+  const to    = Math.min(currentPage * ROWS_PER_PAGE, totalRoutes);
   document.getElementById('paginationInfo').textContent =
-    `Showing ${from} to ${to} of ${total} document routing`;
+    `Showing ${from} to ${to} of ${totalRoutes} document routing`;
 
   // Page numbers
   const pn = document.getElementById('pageNumbers');
   pn.innerHTML = '';
-  for (let i = 1; i <= totalPages; i++) {
+  for (let i = 1; i <= lastPage; i++) {
     const btn = document.createElement('button');
     btn.className = 'page-num' + (i === currentPage ? ' active' : '');
     btn.textContent = i;
-    btn.addEventListener('click', () => { currentPage = i; render(); });
+    btn.addEventListener('click', () => { currentPage = i; fetchRoutes(); });
     pn.appendChild(btn);
   }
 
   document.getElementById('prevBtn').disabled = currentPage === 1;
-  document.getElementById('nextBtn').disabled = currentPage === totalPages;
+  document.getElementById('nextBtn').disabled = currentPage === lastPage;
 }
 
 // ── Filters ──
-document.getElementById('statusFilter').addEventListener('change',   () => { currentPage = 1; render(); });
-document.getElementById('priorityFilter').addEventListener('change', () => { currentPage = 1; render(); });
-document.getElementById('searchInput').addEventListener('input',     () => { currentPage = 1; render(); });
+document.getElementById('statusFilter').addEventListener('change',   () => { currentPage = 1; fetchRoutes(); });
+document.getElementById('priorityFilter').addEventListener('change', () => { currentPage = 1; fetchRoutes(); });
+document.getElementById('searchInput').addEventListener('input',     debounce(() => { currentPage = 1; fetchRoutes(); }, 300));
 
 document.getElementById('clearFilters').addEventListener('click', () => {
   document.getElementById('statusFilter').value   = '';
   document.getElementById('priorityFilter').value = '';
   document.getElementById('searchInput').value    = '';
   currentPage = 1;
-  render();
+  fetchRoutes();
 });
 
+function debounce(fn, ms) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
+  };
+}
+
 // ── Pagination ──
-document.getElementById('prevBtn').addEventListener('click', () => { currentPage--; render(); });
-document.getElementById('nextBtn').addEventListener('click', () => { currentPage++; render(); });
+document.getElementById('prevBtn').addEventListener('click', () => { if (currentPage > 1) { currentPage--; fetchRoutes(); } });
+document.getElementById('nextBtn').addEventListener('click', () => { if (currentPage < lastPage) { currentPage++; fetchRoutes(); } });
 
 // ── Modal ──
 const overlay   = document.getElementById('modalOverlay');
@@ -147,8 +156,6 @@ const DEPTS = [
   'Human Resources', 'IT Department', 'Research Department',
   'Accounting Department', 'Executive Board', 'Assets Management', 'Commission on Audit'
 ];
-
-const MY_DEPT = 'Records Division';
 
 function deptOptions(selected = '', disabled = false) {
   if (disabled) return `<div class="origin-display">${selected}</div>`;
@@ -205,6 +212,7 @@ function renderStages() {
       renderStages();
     });
   });
+
   // Disable Add Stage if last waypoint === first origin (route has looped back)
   const firstOrigin  = stages[0].origin;
   const lastWaypoint = stages[stages.length - 1].waypoint;
@@ -231,52 +239,45 @@ function resetModal() {
 
 document.getElementById('addStageBtn').addEventListener('click', addStage);
 
-document.getElementById('modalSubmit').addEventListener('click', () => {
+document.getElementById('modalSubmit').addEventListener('click', async () => {
   const doc      = document.getElementById('newDocName').value.trim();
   const priority = document.getElementById('newPriority').value;
-  const status   = 'pending';
 
   if (!doc) { showToast('Please enter a document name.', 'error'); return; }
   if (stages.some(s => !s.waypoint)) { showToast('Please select a waypoint for all stages.', 'error'); return; }
 
-  const origin   = stages[0].origin;
-  const waypoint = stages[stages.length - 1].waypoint;
-  const id = `RT-${String(nextId).padStart(3, '0')}`;
-  nextId++;
-  routes.unshift({ id, doc, origin, waypoint, status, priority, stages: [...stages] });
+  try {
+    const res = await fetch('/routing/store', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken(),
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        title: doc,
+        priority: priority,
+        stages: stages.map(s => ({ origin: s.origin, waypoint: s.waypoint })),
+      }),
+    });
 
-  closeModal();
-  currentPage = 1;
-  render();
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.message || 'Failed to create route.', 'error');
+      return;
+    }
+
+    showToast('Route created successfully.', 'success');
+    closeModal();
+    currentPage = 1;
+    fetchRoutes();
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to create route.', 'error');
+  }
 });
 
-// ── Initial render ──
-render();
-
 // ── Detail panel data ──
-const routeDetails = {
-  'RT-001': {
-    owner: 'Jose Chan', submitted: 'March 17, 2026',
-    originAbbr: 'HRD',
-    paths: [
-      { from: 'Human Resources', to: 'Research',  handler: 'Michael D.',  initials: 'MD', status: 'completed', duration: '30m'    },
-      { from: 'Research',        to: 'Accounting', handler: 'Chloe S.',   initials: 'CS', status: 'completed', duration: '2h 45m' },
-      { from: 'Accounting',      to: 'Budget',     handler: 'Jolina M.',  initials: 'JM', status: 'completed', duration: '7m'     },
-      { from: 'Budget',          to: 'Technical',  handler: 'Juan D.',    initials: 'JD', status: 'active',    duration: '-'      },
-    ],
-    currentHandler: 'Juan Dela Cruz', currentInitials: 'JD',
-  },
-  'RT-002': {
-    owner: 'Maria Santos', submitted: 'March 18, 2026',
-    originAbbr: 'ITD',
-    paths: [
-      { from: 'IT Department', to: 'Accounting', handler: 'Ana Lim',     initials: 'AL', status: 'completed', duration: '1h 10m' },
-      { from: 'Accounting',    to: 'Audit',      handler: 'Roberto R.',  initials: 'RR', status: 'active',    duration: '-'      },
-    ],
-    currentHandler: 'Roberto Reyes', currentInitials: 'RR',
-  },
-};
-
 const statusDisplayMap = {
   'on-time':  { label: 'ON-TIME',   cls: 'on-time',   dot: '#1d4ed8' },
   'delayed':  { label: 'DELAYED',   cls: 'delayed',   dot: '#c62828' },
@@ -285,51 +286,49 @@ const statusDisplayMap = {
 };
 
 // ── Open detail panel ──
-function openDetail(routeId) {
-  const route  = routes.find(r => r.id === routeId);
-  if (!route) return;
+async function openDetail(routeId) {
+  try {
+    const res = await fetch(`/routing/${routeId}/detail`);
+    if (!res.ok) throw new Error('Failed to fetch detail');
+    const detail = await res.json();
 
-  const detail = routeDetails[routeId] || {
-    owner: 'Unknown', submitted: 'N/A', originAbbr: route.origin.split(' ').map(w => w[0]).join('').slice(0,3).toUpperCase(),
-    paths: [
-      { from: route.origin, to: route.waypoint, handler: 'Juan Dela Cruz', initials: 'JD', status: 'active', duration: '-' },
-    ],
-    currentHandler: 'Juan Dela Cruz', currentInitials: 'JD',
-  };
+    const sd = statusDisplayMap[detail.status] || statusDisplayMap['pending'];
 
-  const sd = statusDisplayMap[route.status];
+    document.getElementById('detailRtId').textContent  = detail.id;
+    document.getElementById('detailH2').textContent    = `Tracking Route ${detail.id}`;
+    document.getElementById('detailSub').textContent   = `Path for: ${detail.title}`;
+    document.getElementById('detailDocId').textContent = `ID: ${detail.id}`;
+    document.getElementById('detailDocName').textContent = detail.title;
+    document.getElementById('detailDocMeta').textContent = `Owner: ${detail.owner} • Submitted: ${detail.submitted}`;
+    document.getElementById('detailOrigin').textContent  = detail.originAbbr;
 
-  document.getElementById('detailRtId').textContent  = route.id;
-  document.getElementById('detailH2').textContent    = `Tracking Route ${route.id}`;
-  document.getElementById('detailSub').textContent   = `Path for: ${route.doc}`;
-  document.getElementById('detailDocId').textContent = `ID: ${route.id}`;
-  document.getElementById('detailDocName').textContent = route.doc;
-  document.getElementById('detailDocMeta').textContent = `Owner: ${detail.owner} • Submitted: ${detail.submitted}`;
-  document.getElementById('detailOrigin').textContent  = detail.originAbbr;
+    const statusEl = document.getElementById('detailStatus');
+    statusEl.className = `detail-status ${sd.cls}`;
+    statusEl.innerHTML = `<span class="detail-status-dot" style="background:${sd.dot}"></span>${sd.label}`;
 
-  const statusEl = document.getElementById('detailStatus');
-  statusEl.className = `detail-status ${sd.cls}`;
-  statusEl.innerHTML = `<span class="detail-status-dot" style="background:${sd.dot}"></span>${sd.label}`;
+    // Path table
+    document.getElementById('pathBody').innerHTML = detail.paths.map(p => `
+      <tr>
+        <td><span class="path-label">${p.from} <span class="path-arrow">→</span> ${p.to}</span></td>
+        <td>
+          <div class="handler-cell">
+            <div class="handler-chip">${p.initials}</div>
+            ${p.handler}
+          </div>
+        </td>
+        <td><span class="path-status ${p.status}">${p.status.toUpperCase()}</span></td>
+        <td><span class="path-duration">${p.duration}</span></td>
+      </tr>`).join('');
 
-  // Path table
-  document.getElementById('pathBody').innerHTML = detail.paths.map(p => `
-    <tr>
-      <td><span class="path-label">${p.from} <span class="path-arrow">→</span> ${p.to}</span></td>
-      <td>
-        <div class="handler-cell">
-          <div class="handler-chip">${p.initials}</div>
-          ${p.handler}
-        </div>
-      </td>
-      <td><span class="path-status ${p.status}">${p.status.toUpperCase()}</span></td>
-      <td><span class="path-duration">${p.duration}</span></td>
-    </tr>`).join('');
+    document.getElementById('handlerAvatar').textContent = detail.currentInitials;
+    document.getElementById('handlerName').textContent   = detail.currentHandler;
 
-  document.getElementById('handlerAvatar').textContent = detail.currentInitials;
-  document.getElementById('handlerName').textContent   = detail.currentHandler;
-
-  document.getElementById('detailOverlay').classList.add('open');
-  document.getElementById('detailPanel').classList.add('open');
+    document.getElementById('detailOverlay').classList.add('open');
+    document.getElementById('detailPanel').classList.add('open');
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to load route details.', 'error');
+  }
 }
 
 function closeDetail() {
@@ -340,10 +339,38 @@ function closeDetail() {
 document.getElementById('backBtn').addEventListener('click', closeDetail);
 document.getElementById('detailOverlay').addEventListener('click', closeDetail);
 
-function handleAction(type) {
-  const labels = { received: 'Marked as Received', returned: 'Document Returned', flag: 'Flagged as Missing' };
-  const types  = { received: 'success', returned: 'info', flag: 'warning' };
-  showToast(labels[type], types[type]);
+async function handleAction(type) {
+  const routeId = document.getElementById('detailRtId').textContent;
+  if (!routeId) return;
+
+  try {
+    const res = await fetch(`/routing/${routeId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken(),
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ action: type }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.message || 'Action failed.', 'error');
+      return;
+    }
+
+    const labels = { received: 'Marked as Received', returned: 'Document Returned', flag: 'Flagged as Missing' };
+    const types  = { received: 'success', returned: 'info', flag: 'warning' };
+    showToast(labels[type], types[type]);
+
+    // Refresh detail and list
+    openDetail(routeId);
+    fetchRoutes();
+  } catch (err) {
+    console.error(err);
+    showToast('Action failed.', 'error');
+  }
 }
 
 // ── Wire view buttons (delegate from tbody) ──
@@ -354,3 +381,7 @@ document.getElementById('routingBody').addEventListener('click', e => {
   const id  = row.querySelector('.rt-id').textContent;
   openDetail(id);
 });
+
+// ── Initial load ──
+fetchRoutes();
+
