@@ -59,7 +59,8 @@ function resetUploadForm() {
   uploadForm.reset();
   fileInput.value = '';
   document.getElementById('selectedFile').style.display = 'none';
-  ['errTitle','errCategory','errDept'].forEach(id => document.getElementById(id).textContent = '');
+  ['errTitle', 'errCategory', 'errFile'].forEach(id => document.getElementById(id).textContent = '');
+  ['fTitle', 'fCategory'].forEach(id => document.getElementById(id)?.classList.remove('error'));
 }
 
 uploadForm.addEventListener('submit', async e => {
@@ -84,9 +85,9 @@ uploadForm.addEventListener('submit', async e => {
       setTimeout(() => location.reload(), 1200);
     } else if (res.status === 422) {
       const json = await res.json();
-      if (json.errors?.title)      document.getElementById('errTitle').textContent    = json.errors.title[0];
-      if (json.errors?.category)   document.getElementById('errCategory').textContent = json.errors.category[0];
-      if (json.errors?.department) document.getElementById('errDept').textContent     = json.errors.department[0];
+      if (json.errors?.title)    { document.getElementById('errTitle').textContent    = json.errors.title[0];    document.getElementById('fTitle').classList.add('error'); }
+      if (json.errors?.category) { document.getElementById('errCategory').textContent = json.errors.category[0]; document.getElementById('fCategory').classList.add('error'); }
+      if (json.errors?.file)     { document.getElementById('errFile').textContent     = json.errors.file[0]; }
     } else {
       showToast('Something went wrong.', 'error');
     }

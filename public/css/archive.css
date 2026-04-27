@@ -505,10 +505,21 @@
   font-family: inherit;
   color: var(--navy);
   outline: none;
-  transition: border-color .12px;
+  transition: border-color .15s, box-shadow .15s;
 }
-.field-group input:focus { border-color: var(--blue); }
+.field-group input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(46,109,164,.12);
+}
+.field-group input.error { border-color: var(--red); }
 .field-group .select-wrap select { width: 100%; min-width: unset; }
+.field-group .select-wrap select.error { border-color: var(--red); }
+
+.field-error {
+  font-size: 10px;
+  color: var(--red);
+  min-height: 12px;
+}
 
 .modal-footer {
   display: flex;

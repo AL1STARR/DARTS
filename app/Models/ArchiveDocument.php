@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ArchiveDocument extends Model
 {
     protected $fillable = [
-        'uploaded_by', 'title', 'category', 'department',
+        'uploaded_by', 'title', 'description', 'category', 'department',
         'archive_type', 'filename', 'path', 'file_type', 'size',
     ];
 

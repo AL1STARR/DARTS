@@ -46,6 +46,7 @@ class ArchiveController extends Controller
     {
         $data = $request->validate([
             'title'        => 'required|string|max:255',
+            'description'  => 'nullable|string',
             'category'     => 'required|string',
             'archive_type' => 'required|in:general,department',
             'file'         => 'required|file|max:20480|mimes:pdf,doc,docx,xlsx,pptx',
@@ -58,6 +59,7 @@ class ArchiveController extends Controller
         ArchiveDocument::create([
             'uploaded_by'  => auth()->id(),
             'title'        => $data['title'],
+            'description'  => $data['description'] ?? null,
             'category'     => $data['category'],
             'department'   => auth()->user()->department,
             'archive_type' => $data['archive_type'],
@@ -68,6 +70,15 @@ class ArchiveController extends Controller
         ]);
 
         return response()->json(['message' => 'Document uploaded successfully.']);
+    }
+
+    public function view(ArchiveDocument $archiveDocument)
+    {
+        abort_if(!Storage::disk('public')->exists($archiveDocument->path), 404);
+
+        return Storage::disk('public')->response($archiveDocument->path, $archiveDocument->filename, [
+            'Content-Disposition' => 'inline; filename="' . $archiveDocument->filename . '"',
+        ]);
     }
 
     public function download(ArchiveDocument $archiveDocument)

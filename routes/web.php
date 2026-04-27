@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/archive', [ArchiveController::class, 'store'])->name('archive.store');
     Route::get('/archive/department-docs', [ArchiveController::class, 'departmentDocs'])->name('archive.department-docs');
     Route::get('/archive/{archiveDocument}/download', [ArchiveController::class, 'download'])->name('archive.download');
+    Route::get('/archive/{archiveDocument}/view', [ArchiveController::class, 'view'])->name('archive.view');
     Route::delete('/archive/{archiveDocument}', [ArchiveController::class, 'destroy'])->name('archive.destroy');
     Route::get('/routing', fn() => view('routing'))->name('routing');
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');

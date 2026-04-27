@@ -269,11 +269,16 @@
           <input type="file" id="fileInput" name="file" accept=".pdf,.doc,.docx,.xlsx,.pptx" hidden>
         </div>
         <div id="selectedFile" style="display:none" class="file-selected-info"></div>
+        <span class="field-error" id="errFile"></span>
         <div class="modal-fields">
           <div class="field-group">
             <label>Document Title</label>
             <input type="text" name="title" id="fTitle" placeholder="Enter document title">
             <span class="field-error" id="errTitle"></span>
+          </div>
+          <div class="field-group">
+            <label>Description <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <textarea name="description" id="fDesc" placeholder="Briefly describe the document…" rows="2" style="border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13px;font-family:inherit;color:var(--navy);outline:none;resize:vertical;"></textarea>
           </div>
           <div class="field-row">
             <div class="field-group">
