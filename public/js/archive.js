@@ -99,6 +99,21 @@ uploadForm.addEventListener('submit', async e => {
   }
 });
 
+// ── Print ──
+document.querySelectorAll('.print-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;';
+    iframe.src = btn.dataset.url;
+    document.body.appendChild(iframe);
+    iframe.onload = () => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => iframe.remove(), 2000);
+    };
+  });
+});
+
 // ── Delete ──
 document.querySelectorAll('.delete-doc-btn').forEach(btn => {
   btn.addEventListener('click', () => {

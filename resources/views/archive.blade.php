@@ -50,10 +50,6 @@
         <a href="{{ request()->fullUrlWithQuery(['tab' => 'general', 'page' => 1]) }}" class="tab-btn {{ request('tab', 'general') === 'general' ? 'active' : '' }}">General Archive</a>
         <a href="{{ request()->fullUrlWithQuery(['tab' => 'department', 'page' => 1]) }}" class="tab-btn {{ request('tab') === 'department' ? 'active' : '' }}">Department Archive</a>
       </div>
-      <button class="adv-filter-btn" id="advFilterBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-        Advanced Filters
-      </button>
     </div>
 
     <!-- Filters row -->
@@ -145,14 +141,16 @@
             <td><span class="upload-date">{{ $doc->created_at->format('M d, Y') }}</span></td>
             <td>
               <div class="action-btns">
-                        <a href="{{ route('archive.download', $doc) }}" target="_blank" class="action-btn" title="View">
+                <a href="{{ route('archive.view', $doc) }}" target="_blank" class="action-btn" title="Preview">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </a>
                 <a href="{{ route('archive.download', $doc) }}" class="action-btn" title="Download">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 </a>
-                <button class="action-btn delete-doc-btn" title="Delete"
-                  data-url="{{ route('archive.destroy', $doc) }}">
+                <button class="action-btn print-btn" title="Print" data-url="{{ route('archive.view', $doc) }}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                </button>
+                <button class="action-btn delete-doc-btn" title="Delete" data-url="{{ route('archive.destroy', $doc) }}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                 </button>
               </div>
