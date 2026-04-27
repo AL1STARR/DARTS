@@ -14,10 +14,11 @@ WORKDIR /var/www
 
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-RUN cp .env.example .env && php artisan key:generate
+# Fix storage permissions
+RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8000
 
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan config:cache && php artisan serve --host=0.0.0.0 --port=8000
