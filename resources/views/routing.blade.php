@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/routing.css') }}">
 </head>
-<body>
+<body data-user-department="{{ auth()->user()->department ?? 'Records Division' }}">
 
 @include('partials.nav')
 
