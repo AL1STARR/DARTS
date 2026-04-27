@@ -281,7 +281,7 @@
 
 .archive-table th {
   padding: 11px 18px;
-  text-align: left;
+  text-align: center;
   font-size: 11px;
   font-weight: 700;
   color: var(--muted);
@@ -298,7 +298,16 @@
   color: #374151;
   border-bottom: 1px solid #f0f2f5;
   vertical-align: middle;
+  text-align: center;
 }
+
+.archive-table td:nth-child(2),
+.archive-table th:nth-child(2) { text-align: left; }
+
+.archive-table td:nth-child(3) .uploader-cell,
+.archive-table td:nth-child(3) .dept-badge { margin: 0 auto; }
+
+.archive-table td:nth-child(5) .action-btns { justify-content: center; }
 
 .archive-table tbody tr:last-child td { border-bottom: none; }
 .archive-table tbody tr { transition: background .1s; }

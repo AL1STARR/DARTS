@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DocumentRequest;
+use App\Models\ArchiveDocument;
 
 class DashboardController extends Controller
 {
@@ -10,10 +11,11 @@ class DashboardController extends Controller
     {
         $userId = auth()->id();
 
-        $totalRequests    = DocumentRequest::where('user_id', $userId)->count();
-        $assignedRequests = 0;  // placeholder until assigned requests table exists
-        $departmentArchive = 0; // placeholder until archive table exists
-        $generalArchive    = 0; // placeholder until archive table exists
+        $totalRequests     = DocumentRequest::where('user_id', $userId)->count();
+        $assignedRequests  = DocumentRequest::where('assigned_to', $userId)->count();
+        $departmentArchive = ArchiveDocument::where('archive_type', 'department')
+                                ->where('department', auth()->user()->department)->count();
+        $generalArchive    = ArchiveDocument::where('archive_type', 'general')->count();
 
         $recentRequests = DocumentRequest::where('user_id', $userId)
             ->latest()
