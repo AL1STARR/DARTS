@@ -32,10 +32,16 @@ class AssignedRequestController extends Controller
         abort_if($documentRequest->assigned_to !== auth()->id(), 403);
 
         $data = $request->validate([
-            'status' => 'required|in:in-review,approved,rejected',
+            'status'                  => 'required|in:in-review,approved,rejected',
+            'fulfilled_by_document_id' => 'nullable|exists:archive_documents,id',
         ]);
 
-        $documentRequest->update(['status' => $data['status']]);
+        $update = ['status' => $data['status']];
+        if (array_key_exists('fulfilled_by_document_id', $data)) {
+            $update['fulfilled_by_document_id'] = $data['fulfilled_by_document_id'];
+        }
+
+        $documentRequest->update($update);
 
         return response()->json(['message' => 'Status updated.']);
     }

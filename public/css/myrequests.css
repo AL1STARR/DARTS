@@ -403,9 +403,10 @@
 
 .detail-drawer {
   position: fixed;
-  top: 0; right: 0; bottom: 0;
+  top: 0; right: 0;
   width: 520px;
   max-width: 100vw;
+  height: 100vh;
   background: #f0f2f5;
   box-shadow: -4px 0 32px rgba(0,0,0,.15);
   transform: translateX(100%);
@@ -422,6 +423,7 @@
   border-bottom: 1px solid var(--border);
   padding: 0 24px;
   height: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -449,7 +451,8 @@
 .drawer-req-id { font-size: 12.5px; font-weight: 700; color: var(--navy); font-family: 'Courier New', monospace; }
 
 .detail-drawer-body {
-  flex: 1;
+  flex: 1 1 auto;
+  height: 0;
   overflow-y: auto;
   padding: 24px;
   display: flex;
@@ -485,19 +488,20 @@
   border-radius: 8px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  overflow: hidden;
 }
 
 .drawer-info-item {
-  padding: 14px 18px;
+  padding: 10px 14px;
   border-bottom: 1px solid #f0f2f5;
   border-right: 1px solid #f0f2f5;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 .drawer-info-item:nth-child(even) { border-right: none; }
 .drawer-info-item:nth-last-child(-n+2) { border-bottom: none; }
+.drawer-info-item:last-child { border-bottom: none; }
+.drawer-info-item:last-child { border-bottom: none; }
 
 .drawer-info-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.6px; }
 .drawer-info-value { font-size: 13px; font-weight: 600; color: var(--navy); }

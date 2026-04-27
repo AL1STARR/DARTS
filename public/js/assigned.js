@@ -25,10 +25,11 @@ document.getElementById('searchInput').addEventListener('keydown', e => {
 const detailOverlay = document.getElementById('detailOverlay');
 const detailDrawer  = document.getElementById('detailDrawer');
 
-let currentStatusUrl   = null;
-let currentTransferUrl = null;
+let currentStatusUrl    = null;
+let currentTransferUrl  = null;
 let currentDeptUsersUrl = null;
-let currentStatus      = null;
+let currentDeptDocsUrl  = null;
+let currentStatus       = null;
 
 const statusClasses = {
   'pending':   'badge-status pending',
@@ -45,8 +46,9 @@ const statusLabels = {
 };
 
 function renderPrimaryBtn(status) {
-  const btn = document.getElementById('mgmtPrimary');
-  const rejectBtn = document.getElementById('mgmtReject');
+  const btn        = document.getElementById('mgmtPrimary');
+  const rejectBtn  = document.getElementById('mgmtReject');
+  const pickerWrap = document.getElementById('docPickerWrap');
 
   if (status === 'pending') {
     btn.className = 'mgmt-btn mgmt-received';
@@ -54,12 +56,14 @@ function renderPrimaryBtn(status) {
     btn.disabled = false;
     rejectBtn.disabled = false;
     rejectBtn.style.opacity = '1';
+    pickerWrap.style.display = 'none';
   } else if (status === 'in-review') {
     btn.className = 'mgmt-btn mgmt-approved';
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> MARK AS APPROVED`;
     btn.disabled = false;
     rejectBtn.disabled = false;
     rejectBtn.style.opacity = '1';
+    pickerWrap.style.display = 'block';
   } else {
     btn.className = 'mgmt-btn mgmt-approved';
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> ${statusLabels[status] || status}`;
@@ -67,6 +71,20 @@ function renderPrimaryBtn(status) {
     btn.style.opacity = '.5';
     rejectBtn.disabled = true;
     rejectBtn.style.opacity = '.5';
+    pickerWrap.style.display = 'none';
+  }
+}
+
+async function loadDepartmentDocs(url, department) {
+  const select = document.getElementById('docPickerSelect');
+  select.innerHTML = '<option value="">Loading…</option>';
+  try {
+    const res = await fetch(`${url}?department=${encodeURIComponent(department)}`);
+    const docs = await res.json();
+    select.innerHTML = '<option value="">Select document to attach…</option>' +
+      docs.map(d => `<option value="${d.id}">[${d.file_type.toUpperCase()}] ${d.title}</option>`).join('');
+  } catch {
+    select.innerHTML = '<option value="">Failed to load documents</option>';
   }
 }
 
@@ -101,6 +119,7 @@ document.getElementById('assignedBody').addEventListener('click', e => {
   currentStatusUrl    = btn.dataset.statusUrl;
   currentTransferUrl  = btn.dataset.transferUrl;
   currentDeptUsersUrl = btn.dataset.departmentUsersUrl;
+  currentDeptDocsUrl  = btn.dataset.departmentDocsUrl;
   currentStatus       = status;
 
   document.getElementById('drawerReqId').textContent    = `REQ-${String(id).padStart(3,'0')}`;
@@ -131,6 +150,7 @@ document.getElementById('assignedBody').addEventListener('click', e => {
 
   renderPrimaryBtn(status);
   loadDepartmentUsers(currentDeptUsersUrl, dept);
+  if (status === 'in-review') loadDepartmentDocs(currentDeptDocsUrl, dept);
 
   detailOverlay.classList.add('open');
   detailDrawer.classList.add('open');
@@ -149,7 +169,9 @@ const csrfToken = () =>
   document.querySelector('meta[name="csrf-token"]')?.content ||
   document.querySelector('input[name="_token"]')?.value;
 
-async function patchStatus(newStatus) {
+async function patchStatus(newStatus, fulfilledByDocumentId = null) {
+  const body = { status: newStatus };
+  if (fulfilledByDocumentId) body.fulfilled_by_document_id = fulfilledByDocumentId;
   const res = await fetch(currentStatusUrl, {
     method: 'PATCH',
     headers: {
@@ -158,7 +180,7 @@ async function patchStatus(newStatus) {
       'Accept': 'application/json',
       'X-CSRF-TOKEN': csrfToken(),
     },
-    body: JSON.stringify({ status: newStatus }),
+    body: JSON.stringify(body),
   });
   return res;
 }
@@ -166,8 +188,11 @@ async function patchStatus(newStatus) {
 // ── Primary action button ──
 document.getElementById('mgmtPrimary').addEventListener('click', async () => {
   const nextStatus = currentStatus === 'pending' ? 'in-review' : 'approved';
+  const docId = nextStatus === 'approved'
+    ? (document.getElementById('docPickerSelect').value || null)
+    : null;
   try {
-    const res = await patchStatus(nextStatus);
+    const res = await patchStatus(nextStatus, docId);
     if (res.ok) {
       currentStatus = nextStatus;
       const statusEl = document.getElementById('drawerStatus');

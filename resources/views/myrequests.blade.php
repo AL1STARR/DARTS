@@ -140,6 +140,8 @@
                 data-date="{{ $req->created_at->format('M d, Y') }}"
                 data-desc="{{ $req->description ?? '' }}"
                 data-assigned="{{ $req->assignedTo ? $req->assignedTo->first_name . ' ' . $req->assignedTo->last_name : 'Unassigned' }}"
+                data-fulfilled-doc="{{ $req->fulfilledBy ? $req->fulfilledBy->title : '' }}"
+                data-fulfilled-url="{{ $req->fulfilledBy ? route('archive.download', $req->fulfilledBy) : '' }}"
                 data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB', 'url' => route('attachments.view', $a)])->toJson() }}"
                 data-delete-url="{{ route('myrequests.destroy', $req) }}"
                 data-update-url="{{ route('myrequests.update', $req) }}">
@@ -324,6 +326,10 @@
     <div class="drawer-attachments-card">
       <div class="drawer-desc-label">ATTACHMENTS</div>
       <div id="dInfoAttachments" class="drawer-attachments-list"></div>
+    </div>
+    <div class="drawer-attachments-card" id="fulfilledDocCard" style="display:none">
+      <div class="drawer-desc-label">FULFILLED DOCUMENT</div>
+      <div id="dInfoFulfilledDoc" class="drawer-attachments-list"></div>
     </div>
   </div>
   <div class="detail-drawer-footer">
