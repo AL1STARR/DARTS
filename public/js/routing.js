@@ -28,6 +28,9 @@ const ROWS_PER_PAGE = 5;
 
 const MY_DEPT = document.body.dataset.userDepartment || 'Records Division';
 
+// ── Fetch departments on page load ──
+fetchDepartments();
+
 // ── CSRF ──
 function csrfToken() {
   const meta = document.querySelector('meta[name="csrf-token"]');
@@ -152,17 +155,25 @@ document.getElementById('modalClose').addEventListener('click', closeModal);
 document.getElementById('modalCancel').addEventListener('click', closeModal);
 overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
-const DEPTS = [
-  'Human Resources', 'IT Department', 'Research Department',
-  'Accounting Department', 'Executive Board', 'Assets Management', 'Commission on Audit'
-];
+let DEPTS = [];
 
-function deptOptions(selected = '', disabled = false) {
+async function fetchDepartments() {
+  try {
+    const res = await fetch('/routing/departments');
+    const data = await res.json();
+    DEPTS = data.departments || [];
+  } catch (err) {
+    console.error('Failed to fetch departments:', err);
+    showToast('Failed to load departments.', 'error');
+  }
+}
+
+function deptOptions(selected = '', disabled = false, disableOption = '') {
   if (disabled) return `<div class="origin-display">${selected}</div>`;
   return `
     <select class="waypoint-select">
       <option value="">Select department</option>
-      ${DEPTS.map(d => `<option value="${d}" ${d === selected ? 'selected' : ''}>${d}</option>`).join('')}
+      ${DEPTS.map(d => `<option value="${d}" ${d === selected ? 'selected' : ''} ${d === disableOption ? 'disabled' : ''}>${d}</option>`).join('')}
     </select>`;
 }
 
@@ -182,7 +193,7 @@ function renderStages() {
       </div>
       <div class="stage-field">
         <label>Waypoint</label>
-        ${deptOptions(s.waypoint, false)}
+        ${deptOptions(s.waypoint, false, s.origin)}
       </div>
       <button class="remove-stage-btn" data-index="${i}" ${stages.length === 1 ? 'disabled style="opacity:.3;cursor:not-allowed"' : ''}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>

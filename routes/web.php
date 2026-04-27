@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/archive/{archiveDocument}', [ArchiveController::class, 'update'])->name('archive.update');
     Route::delete('/archive/{archiveDocument}', [ArchiveController::class, 'destroy'])->name('archive.destroy');
 Route::get('/routing', [RoutingController::class, 'index'])->name('routing');
+    Route::get('/routing/departments', [RoutingController::class, 'getDepartments'])->name('routing.departments');
     Route::get('/routing/list', [RoutingController::class, 'list'])->name('routing.list');
     Route::post('/routing/store', [RoutingController::class, 'store'])->name('routing.store');
     Route::get('/routing/{routeId}/detail', [RoutingController::class, 'detail'])->name('routing.detail');

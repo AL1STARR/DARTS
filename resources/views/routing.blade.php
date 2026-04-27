@@ -184,68 +184,7 @@
         <div class="detail-doc-meta" id="detailDocMeta"></div>
       </div>
       <div class="detail-stat-block">
-        <div class="detail-stat-label">STATUS</div>                        ┌───────────────┐
-                                │     USER      │
-                                ├───────────────┤
-                                │ Name          │
-                                │ Email         │
-                                │ Role          │
-                                │ Department    │
-                                │ Status        │
-                                └───────┬───────┘
-                                        │
-                      ┌─────────────────┼──────────────────┐
-                      │                 │                  │
-                 submits           is assigned to     belongs to
-                      │                 │                  │
-                      ▼                 ▼                  ▼
-             ┌────────────────┐         │         ┌────────────────┐
-             │    REQUEST     │◄────────┘         │   DEPARTMENT   │
-             ├────────────────┤                   ├────────────────┤
-             │ Request ID     │                   │ Name           │
-             │ Status         │                   │ Type           │
-             │ Priority       │                   └───────┬────────┘
-             │ Deadline       │                           │
-             └───────┬────────┘                      belongs to
-                     │                                    │
-                  is for                                  ▼
-                     │                          ┌─────────────────┐
-                     ▼                          │    DOCUMENT     │
-             ┌───────────────┐◄─────────────────├─────────────────┤
-             │   DOCUMENT    │   is subject of  │ Title           │
-             ├───────────────┤                  │ File Type       │
-             │ Title         │                  │ Category        │
-             │ File Type     │                  │ Archive Type    │
-             │ Category      │                  │ Upload Date     │
-             │ Archive Type  │                  └─────────────────┘
-             │ Upload Date   │
-             └───────┬───────┘
-                     │
-                 is routed via
-                     │
-                     ▼
-             ┌───────────────┐
-             │     ROUTE     │
-             ├───────────────┤
-             │ Route ID      │
-             │ Status        │
-             │ Priority      │
-             └───────┬───────┘
-                     │
-               consists of
-                     │
-                     ▼
-             ┌───────────────┐
-             │  ROUTE STAGE  │
-             ├───────────────┤
-             │ Stage Order   │
-             │ From Dept     │
-             │ To Dept       │
-             │ Handler       │
-             │ Status        │
-             │ Duration      │
-             └───────────────┘
-
+        <div class="detail-stat-label">STATUS</div>
         <div class="detail-status" id="detailStatus"></div>
       </div>
       <div class="detail-divider-v"></div>

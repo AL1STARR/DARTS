@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DocumentRoute;
 use App\Models\RouteStage;
 use App\Models\User;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,6 +14,12 @@ class RoutingController extends Controller
     public function index()
     {
         return view('routing');
+    }
+
+    public function getDepartments()
+    {
+        $departments = Setting::getGroup('departments');
+        return response()->json(['departments' => $departments]);
     }
 
     public function list(Request $request)
