@@ -21,8 +21,12 @@ RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8000
 
+<<<<<<< HEAD
 <<<<<<< HEAD:dockerfile
 CMD php artisan config:cache && php artisan serve --host=0.0.0.0 --port=8000
 =======
 CMD php artisan serve --host=0.0.0.0 --port=8000
 >>>>>>> c57f7fba84bb4bfa138b09cdd9a0c198475c6ae2:Dockerfile
+=======
+CMD php artisan serve --host=0.0.0.0 --port=8000
+>>>>>>> c57f7fba84bb4bfa138b09cdd9a0c198475c6ae2
