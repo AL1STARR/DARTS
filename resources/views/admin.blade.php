@@ -235,11 +235,7 @@
             @endif
             <div class="page-numbers" id="pageNumbers">
               @foreach($users->getUrlRange(1, $users->lastPage()) as $page => $url)
-                @if($page == $users->currentPage())
-                  <button class="page-num active" disabled>{{ $page }}</button>
-                @else
-                  <a href="{{ $url }}" class="page-num">{{ $page }}</a>
-                @endif
+                <a href="{{ $url }}" class="page-num {{ $page == $users->currentPage() ? 'active' : '' }}">{{ $page }}</a>
               @endforeach
             </div>
             @if($users->hasMorePages())

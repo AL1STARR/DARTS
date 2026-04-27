@@ -421,6 +421,7 @@
   margin-left: auto;
   align-self: flex-end;
   transition: background .12s;
+  text-decoration: none;
 }
 .clear-filters-btn:hover { background: var(--bg); }
 
