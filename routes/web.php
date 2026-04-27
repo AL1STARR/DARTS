@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentRequestController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AssignedRequestController;
 use App\Http\Controllers\GoogleAuthController;
 
@@ -26,7 +27,11 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/assigned/{documentRequest}/status', [AssignedRequestController::class, 'updateStatus'])->name('assigned.status');
     Route::patch('/assigned/{documentRequest}/transfer', [AssignedRequestController::class, 'transfer'])->name('assigned.transfer');
     Route::get('/assigned/department-users', [AssignedRequestController::class, 'departmentUsers'])->name('assigned.department-users');
-    Route::get('/archive', fn() => view('archive'))->name('archive');
+    Route::get('/archive', [ArchiveController::class, 'index'])->name('archive');
+    Route::post('/archive', [ArchiveController::class, 'store'])->name('archive.store');
+    Route::get('/archive/department-docs', [ArchiveController::class, 'departmentDocs'])->name('archive.department-docs');
+    Route::get('/archive/{archiveDocument}/download', [ArchiveController::class, 'download'])->name('archive.download');
+    Route::delete('/archive/{archiveDocument}', [ArchiveController::class, 'destroy'])->name('archive.destroy');
     Route::get('/routing', fn() => view('routing'))->name('routing');
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');
     Route::post('/admin/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('admin.users.toggle-admin');
