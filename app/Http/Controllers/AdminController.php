@@ -8,17 +8,33 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 
-        $users    = User::where('status', '!=', 'pending')->get();
+        $query = User::where('status', '!=', 'pending');
+
+        if ($request->filled('role'))       $query->where('role',       $request->role);
+        if ($request->filled('department')) $query->where('department', $request->department);
+        if ($request->filled('status'))     $query->where('status',     $request->status);
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$s}%"])
+                  ->orWhere('email', 'like', "%{$s}%");
+            });
+        }
+
+        $users    = $query->orderBy('created_at', 'desc')->paginate(7)->withQueryString();
         $requests = User::where('status', 'pending')->get();
         $settings = Setting::orderBy('group')->orderBy('value')->get()->groupBy('group');
 
-        return view('admin', compact('users', 'requests', 'settings'));
+        // Sidebar stats always from full non-pending set
+        $allUsers = User::where('status', '!=', 'pending')->get();
+
+        return view('admin', compact('users', 'requests', 'settings', 'allUsers'));
     }
 
     public function settingStore(Request $request, string $group)

@@ -223,15 +223,13 @@
       </button>
 
       <!-- Document attachment (shown only when marking as approved) -->
-      <div id="docPickerWrap" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid #eee;">
+      <div id="docPickerWrap" class="doc-picker-wrap">
         <div class="mgmt-title">ATTACH DOCUMENT FROM ARCHIVE</div>
-        <input 
-          type="text" 
-          id="docSearchInput" 
-          placeholder="Search by Document ID (e.g., DOC-0001) or title…" 
-          class="doc-search-input"
-          style="width:100%; padding:6px 10px; margin-bottom:8px; border:1px solid #ccc; border-radius:4px; font-size:13px; font-family:inherit;">
-        <div id="docResultsList" class="doc-results-list" style="max-height:100px; overflow-y:auto; border:1px solid #ccc; border-radius:4px;"></div>
+        <div class="doc-search-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="docSearchInput" placeholder="Search by ID or title…">
+        </div>
+        <div id="docResultsList" class="doc-results-list"></div>
       </div>
 
       <div class="mgmt-divider"></div>

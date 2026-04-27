@@ -55,24 +55,20 @@ function renderPrimaryBtn(status) {
   if (status === 'pending') {
     btn.className = 'mgmt-btn mgmt-received';
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> MARK AS RECEIVED`;
-    btn.disabled = false;
-    rejectBtn.disabled = false;
-    rejectBtn.style.opacity = '1';
+    btn.disabled = false; btn.style.opacity = '';
+    rejectBtn.disabled = false; rejectBtn.style.opacity = '';
     pickerWrap.style.display = 'none';
   } else if (status === 'in-review') {
     btn.className = 'mgmt-btn mgmt-approved';
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> MARK AS APPROVED`;
-    btn.disabled = false;
-    rejectBtn.disabled = false;
-    rejectBtn.style.opacity = '1';
+    btn.disabled = false; btn.style.opacity = '';
+    rejectBtn.disabled = false; rejectBtn.style.opacity = '';
     pickerWrap.style.display = 'block';
   } else {
     btn.className = 'mgmt-btn mgmt-approved';
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> ${statusLabels[status] || status}`;
-    btn.disabled = true;
-    btn.style.opacity = '.5';
-    rejectBtn.disabled = true;
-    rejectBtn.style.opacity = '.5';
+    btn.disabled = true; btn.style.opacity = '.5';
+    rejectBtn.disabled = true; rejectBtn.style.opacity = '.5';
     pickerWrap.style.display = 'none';
   }
 }
@@ -95,13 +91,9 @@ function initDocumentSearch(url, department) {
     if (searchTimeout) clearTimeout(searchTimeout);
     
     if (!searchTerm) {
-      // Hide results if search is empty
       resultsList.innerHTML = '';
     } else {
-      // Show loading state
-      resultsList.innerHTML = '<div style="padding:10px; color:#999;">Searching…</div>';
-      
-      // Debounce server request
+      resultsList.innerHTML = '<div class="doc-result-empty">Searching…</div>';
       searchTimeout = setTimeout(() => {
         searchDocumentsServer(url, department, searchTerm, resultsList);
       }, 300);
@@ -115,49 +107,35 @@ async function searchDocumentsServer(url, department, searchTerm, resultsList) {
     const docs = await res.json();
     
     if (docs.length === 0) {
-      resultsList.innerHTML = '<div style="padding:10px; color:#999;">No documents found</div>';
+      resultsList.innerHTML = '<div class="doc-result-empty">No documents found</div>';
     } else {
       displayDocResults(docs, resultsList);
     }
   } catch {
-    resultsList.innerHTML = '<div style="padding:12px; color:#e74c3c;">Failed to search documents</div>';
+    resultsList.innerHTML = '<div class="doc-result-empty" style="color:#f87171;">Failed to search documents</div>';
   }
 }
 
 function displayDocResults(docs, resultsList) {
-  const badgeColors = {
-    'pdf': '#dc3545',    // red
-    'docs': '#0d6efd',   // blue
-    'xlsx': '#198754',   // green
-    'pptx': '#fd7e14'    // orange
-  };
-  
+  const typeClass = { pdf: 'pdf', docs: 'docs', xlsx: 'xlsx', pptx: 'pptx' };
+  const checkSvg = `<svg class="doc-result-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+
   resultsList.innerHTML = docs.map(d => {
     const docId = `DOC-${String(d.id).padStart(4, '0')}`;
     const isSelected = selectedDocId === d.id;
-    const badgeColor = badgeColors[d.file_type.toLowerCase()] || '#6c757d'; // gray as default
-    
+    const tc = typeClass[d.file_type.toLowerCase()] || 'default';
     return `
-      <div class="doc-result-item" data-id="${d.id}" style="
-        padding:8px 10px;
-        border-bottom:1px solid #f0f0f0;
-        cursor:pointer;
-        background-color:${isSelected ? '#f8f9fa' : 'transparent'};
-        border-left:3px solid ${isSelected ? '#27ae60' : 'transparent'};
-        transition:all 0.2s;
-      ">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:10px; font-weight:600; color:#fff; background:${badgeColor}; padding:1px 4px; border-radius:3px;">${d.file_type.toUpperCase()}</span>
-          <span style="font-weight:600; color:${isSelected ? '#2c3e50' : '#fff'}; font-size:12px;">${docId}</span>
-          ${isSelected ? '<span style="margin-left:auto; color:#27ae60; font-size:12px;">✓</span>' : ''}
+      <div class="doc-result-item${isSelected ? ' selected' : ''}" data-id="${d.id}">
+        <span class="doc-result-type ${tc}">${d.file_type.toUpperCase()}</span>
+        <div class="doc-result-info">
+          <div class="doc-result-id">${docId}</div>
+          <div class="doc-result-title">${d.title}</div>
         </div>
-        <div style="font-size:12px; color:${isSelected ? '#555' : '#ccc'}; margin-top:2px;">${d.title}</div>
-      </div>
-    `;
+        ${isSelected ? checkSvg : ''}
+      </div>`;
   }).join('');
-  
-  // Add click handlers
-  document.querySelectorAll('.doc-result-item').forEach(item => {
+
+  resultsList.querySelectorAll('.doc-result-item').forEach(item => {
     item.addEventListener('click', () => {
       selectedDocId = parseInt(item.dataset.id);
       displayDocResults(docs, resultsList);
