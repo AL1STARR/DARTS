@@ -251,9 +251,11 @@
   display: flex; align-items: center; justify-content: center;
   color: var(--muted);
   transition: background .12s, color .12s;
+  text-decoration: none;
 }
-.page-btn:hover:not(:disabled) { background: var(--bg); color: var(--navy); }
-.page-btn:disabled { opacity: .4; cursor: not-allowed; }
+.page-btn:hover:not(:disabled):not(.disabled) { background: var(--bg); color: var(--navy); }
+.page-btn:disabled,
+.page-btn.disabled { opacity: .4; cursor: not-allowed; }
 .page-btn svg { width: 14px; height: 14px; }
 
 .page-numbers { display: flex; gap: 4px; }
