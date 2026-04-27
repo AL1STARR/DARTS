@@ -217,21 +217,23 @@
       <div class="mgmt-title">MANAGEMENT ACTIONS</div>
       <button class="mgmt-btn mgmt-received" id="mgmtPrimary"></button>
 
-      <!-- Document picker (shown only when marking as received) -->
-      <div id="docPickerWrap" style="display:none">
-        <div class="mgmt-title" style="margin-top:4px">ATTACH DOCUMENT FROM ARCHIVE</div>
-        <div class="select-wrap transfer-select-wrap">
-          <select id="docPickerSelect">
-            <option value="">Loading department documents…</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-
       <button class="mgmt-btn mgmt-flag" id="mgmtReject">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         MARK AS REJECTED
       </button>
+
+      <!-- Document attachment (shown only when marking as approved) -->
+      <div id="docPickerWrap" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid #eee;">
+        <div class="mgmt-title">ATTACH DOCUMENT FROM ARCHIVE</div>
+        <input 
+          type="text" 
+          id="docSearchInput" 
+          placeholder="Search by Document ID (e.g., DOC-0001) or title…" 
+          class="doc-search-input"
+          style="width:100%; padding:6px 10px; margin-bottom:8px; border:1px solid #ccc; border-radius:4px; font-size:13px; font-family:inherit;">
+        <div id="docResultsList" class="doc-results-list" style="max-height:100px; overflow-y:auto; border:1px solid #ccc; border-radius:4px;"></div>
+      </div>
+
       <div class="mgmt-divider"></div>
       <div class="mgmt-transfer">
         <div class="mgmt-title">TRANSFER REQUEST</div>

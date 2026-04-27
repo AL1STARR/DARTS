@@ -30,6 +30,8 @@ let currentTransferUrl  = null;
 let currentDeptUsersUrl = null;
 let currentDeptDocsUrl  = null;
 let currentStatus       = null;
+let selectedDocId       = null; // Track selected document
+let searchTimeout       = null; // Debounce search requests
 
 const statusClasses = {
   'pending':   'badge-status pending',
@@ -75,17 +77,92 @@ function renderPrimaryBtn(status) {
   }
 }
 
-async function loadDepartmentDocs(url, department) {
-  const select = document.getElementById('docPickerSelect');
-  select.innerHTML = '<option value="">Loading…</option>';
+function initDocumentSearch(url, department) {
+  const searchInput = document.getElementById('docSearchInput');
+  const resultsList = document.getElementById('docResultsList');
+  
+  // Clear search and results initially
+  searchInput.value = '';
+  resultsList.innerHTML = '';
+  selectedDocId = null;
+  
+  // Add search event listener with debounce
+  searchInput.oninput = null; // Remove previous listeners
+  searchInput.addEventListener('input', () => {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    
+    // Clear previous timeout
+    if (searchTimeout) clearTimeout(searchTimeout);
+    
+    if (!searchTerm) {
+      // Hide results if search is empty
+      resultsList.innerHTML = '';
+    } else {
+      // Show loading state
+      resultsList.innerHTML = '<div style="padding:10px; color:#999;">Searching…</div>';
+      
+      // Debounce server request
+      searchTimeout = setTimeout(() => {
+        searchDocumentsServer(url, department, searchTerm, resultsList);
+      }, 300);
+    }
+  });
+}
+
+async function searchDocumentsServer(url, department, searchTerm, resultsList) {
   try {
-    const res = await fetch(`${url}?department=${encodeURIComponent(department)}`);
+    const res = await fetch(`${url}?department=${encodeURIComponent(department)}&search=${encodeURIComponent(searchTerm)}`);
     const docs = await res.json();
-    select.innerHTML = '<option value="">Select document to attach…</option>' +
-      docs.map(d => `<option value="${d.id}">[${d.file_type.toUpperCase()}] ${d.title}</option>`).join('');
+    
+    if (docs.length === 0) {
+      resultsList.innerHTML = '<div style="padding:10px; color:#999;">No documents found</div>';
+    } else {
+      displayDocResults(docs, resultsList);
+    }
   } catch {
-    select.innerHTML = '<option value="">Failed to load documents</option>';
+    resultsList.innerHTML = '<div style="padding:12px; color:#e74c3c;">Failed to search documents</div>';
   }
+}
+
+function displayDocResults(docs, resultsList) {
+  const badgeColors = {
+    'pdf': '#dc3545',    // red
+    'docs': '#0d6efd',   // blue
+    'xlsx': '#198754',   // green
+    'pptx': '#fd7e14'    // orange
+  };
+  
+  resultsList.innerHTML = docs.map(d => {
+    const docId = `DOC-${String(d.id).padStart(4, '0')}`;
+    const isSelected = selectedDocId === d.id;
+    const badgeColor = badgeColors[d.file_type.toLowerCase()] || '#6c757d'; // gray as default
+    
+    return `
+      <div class="doc-result-item" data-id="${d.id}" style="
+        padding:8px 10px;
+        border-bottom:1px solid #f0f0f0;
+        cursor:pointer;
+        background-color:${isSelected ? '#f8f9fa' : 'transparent'};
+        border-left:3px solid ${isSelected ? '#27ae60' : 'transparent'};
+        transition:all 0.2s;
+      ">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span style="font-size:10px; font-weight:600; color:#fff; background:${badgeColor}; padding:1px 4px; border-radius:3px;">${d.file_type.toUpperCase()}</span>
+          <span style="font-weight:600; color:${isSelected ? '#2c3e50' : '#fff'}; font-size:12px;">${docId}</span>
+          ${isSelected ? '<span style="margin-left:auto; color:#27ae60; font-size:12px;">✓</span>' : ''}
+        </div>
+        <div style="font-size:12px; color:${isSelected ? '#555' : '#ccc'}; margin-top:2px;">${d.title}</div>
+      </div>
+    `;
+  }).join('');
+  
+  // Add click handlers
+  document.querySelectorAll('.doc-result-item').forEach(item => {
+    item.addEventListener('click', () => {
+      selectedDocId = parseInt(item.dataset.id);
+      displayDocResults(docs, resultsList);
+    });
+  });
 }
 
 async function loadDepartmentUsers(url, department) {
@@ -150,7 +227,7 @@ document.getElementById('assignedBody').addEventListener('click', e => {
 
   renderPrimaryBtn(status);
   loadDepartmentUsers(currentDeptUsersUrl, dept);
-  if (status === 'in-review') loadDepartmentDocs(currentDeptDocsUrl, dept);
+  if (status === 'in-review') initDocumentSearch(currentDeptDocsUrl, dept);
 
   detailOverlay.classList.add('open');
   detailDrawer.classList.add('open');
@@ -159,6 +236,8 @@ document.getElementById('assignedBody').addEventListener('click', e => {
 function closeDrawer() {
   detailOverlay.classList.remove('open');
   detailDrawer.classList.remove('open');
+  selectedDocId = null;
+  document.getElementById('docSearchInput').value = '';
 }
 
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
@@ -188,9 +267,14 @@ async function patchStatus(newStatus, fulfilledByDocumentId = null) {
 // ── Primary action button ──
 document.getElementById('mgmtPrimary').addEventListener('click', async () => {
   const nextStatus = currentStatus === 'pending' ? 'in-review' : 'approved';
-  const docId = nextStatus === 'approved'
-    ? (document.getElementById('docPickerSelect').value || null)
-    : null;
+  
+  // Require document selection when approving
+  if (nextStatus === 'approved' && !selectedDocId) {
+    showToast('Please select a document from the archive to approve this request.', 'warning');
+    return;
+  }
+  
+  const docId = nextStatus === 'approved' ? selectedDocId : null;
   try {
     const res = await patchStatus(nextStatus, docId);
     if (res.ok) {

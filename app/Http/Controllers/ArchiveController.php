@@ -120,8 +120,18 @@ class ArchiveController extends Controller
 
     public function departmentDocs(Request $request)
     {
-        $docs = ArchiveDocument::where('department', $request->query('department'))
-            ->latest()
+        $query = ArchiveDocument::where('department', $request->query('department'));
+
+        // Support searching by document ID or title
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhereRaw('CONCAT("DOC-", LPAD(id, 4, "0")) LIKE ?', ['%' . $search . '%']);
+            });
+        }
+
+        $docs = $query->latest()
             ->get(['id', 'title', 'file_type', 'category', 'archive_type']);
 
         return response()->json($docs);
