@@ -82,6 +82,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
+        @if(request('tab', 'general') === 'general')
         <div class="filter-group">
           <label class="filter-label">DEPARTMENT</label>
           <div class="select-wrap">
@@ -97,6 +98,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
         </div>
+        @endif
         <a href="{{ route('archive', ['tab' => request('tab', 'general')]) }}" class="clear-filters-btn">Clear All Filters</a>
       </div>
     </form>
@@ -108,6 +110,7 @@
           <tr>
             <th>Document ID</th>
             <th>Document Name</th>
+            <th>Category</th>
             <th>{{ $tab === 'department' ? 'Uploader' : 'Department' }}</th>
             <th>Uploaded</th>
             <th>Actions</th>
@@ -128,6 +131,7 @@
                 </div>
               </div>
             </td>
+            <td><span class="category-badge">{{ ucfirst($doc->category) }}</span></td>
             <td id="thDeptUploaderVal">
               @if($doc->archive_type === 'department')
                 <div class="uploader-cell">
@@ -150,6 +154,17 @@
                 <button class="action-btn print-btn" title="Print" data-url="{{ route('archive.view', $doc) }}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                 </button>
+                @if($doc->uploaded_by === auth()->id())
+                <button class="action-btn edit-doc-btn" title="Edit"
+                  data-id="{{ $doc->id }}"
+                  data-title="{{ $doc->title }}"
+                  data-description="{{ $doc->description ?? '' }}"
+                  data-category="{{ $doc->category }}"
+                  data-archive-type="{{ $doc->archive_type }}"
+                  data-url="{{ route('archive.update', $doc) }}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                @endif
                 <button class="action-btn delete-doc-btn" title="Delete" data-url="{{ route('archive.destroy', $doc) }}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                 </button>
@@ -157,7 +172,7 @@
             </td>
           </tr>
           @empty
-          <tr><td colspan="5" class="empty-row">No documents found.</td></tr>
+          <tr><td colspan="6" class="empty-row">No documents found.</td></tr>
           @endforelse
         </tbody>
       </table>
@@ -309,6 +324,61 @@
       <div class="modal-footer">
         <button type="button" class="btn-cancel" id="modalCancel">Cancel</button>
         <button type="submit" class="btn-upload" id="uploadSubmit">Upload Document</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Document</h3>
+      <button class="modal-close" id="editModalClose">✕</button>
+    </div>
+    <form id="editForm" novalidate>
+      @csrf
+      <div class="modal-body">
+        <div class="modal-fields">
+          <div class="field-group">
+            <label>Document Title</label>
+            <input type="text" name="title" id="eFTitle" placeholder="Enter document title">
+            <span class="field-error" id="eErrTitle"></span>
+          </div>
+          <div class="field-group">
+            <label>Description <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <textarea name="description" id="eFDesc" placeholder="Briefly describe the document…" rows="2" style="border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13px;font-family:inherit;color:var(--navy);outline:none;resize:vertical;"></textarea>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label>Category</label>
+              <div class="select-wrap">
+                <select name="category" id="eFCategory">
+                  <option value="letters">Letters</option>
+                  <option value="memorandum">Memorandum</option>
+                  <option value="minutes">Minutes of the Meeting</option>
+                  <option value="notice">Notice of the Meeting</option>
+                </select>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <span class="field-error" id="eErrCategory"></span>
+            </div>
+            <div class="field-group">
+              <label>Archive Type</label>
+              <div class="select-wrap">
+                <select name="archive_type" id="eFArchiveType">
+                  <option value="general">General Archive</option>
+                  <option value="department">Department Archive</option>
+                </select>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="editModalCancel">Cancel</button>
+        <button type="submit" class="btn-upload" id="editSubmit">Save Changes</button>
       </div>
     </form>
   </div>

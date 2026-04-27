@@ -12,22 +12,28 @@ class ArchiveController extends Controller
     {
         $tab = $request->input('tab', 'general');
 
-        $query = ArchiveDocument::with('uploader')->latest()
-            ->where('archive_type', $tab);
+        $query = ArchiveDocument::with('uploader')->latest();
 
-        // Department archive only shows the user's own department
-        if ($tab === 'department') {
-            $query->where('department', auth()->user()->department);
+        // If searching, search across both tabs but still scope department tab to user's dept
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhereRaw('CONCAT("DOC-", LPAD(id, 4, "0")) LIKE ?', ['%' . $request->search . '%']);
+            });
+        } else {
+            $query->where('archive_type', $tab);
+            if ($tab === 'department') {
+                $query->where('department', auth()->user()->department);
+            }
         }
 
-        if ($request->filled('file_type'))  $query->where('file_type',   $request->file_type);
-        if ($request->filled('category'))   $query->where('category',    $request->category);
-        if ($request->filled('department')) $query->where('department',  $request->department);
-        if ($request->filled('search'))     $query->where('title', 'like', '%' . $request->search . '%');
+        if ($request->filled('file_type'))  $query->where('file_type',  $request->file_type);
+        if ($request->filled('category'))   $query->where('category',   $request->category);
+        if ($request->filled('department')) $query->where('department', $request->department);
 
         $documents = $query->paginate(5)->withQueryString();
 
-        // Sidebar stats — scoped to current tab (and dept for department tab)
+        // Sidebar stats — always scoped to current tab
         $statsQuery = ArchiveDocument::where('archive_type', $tab);
         if ($tab === 'department') {
             $statsQuery->where('department', auth()->user()->department);
@@ -53,8 +59,8 @@ class ArchiveController extends Controller
         ]);
 
         $file      = $request->file('file');
-        $path      = $file->store('archive-documents', 'public');
         $fileType  = in_array($file->getClientOriginalExtension(), ['doc', 'docx']) ? 'docs' : $file->getClientOriginalExtension();
+        $path      = $file->store('archive-documents', 'public');
 
         ArchiveDocument::create([
             'uploaded_by'  => auth()->id(),
@@ -70,6 +76,22 @@ class ArchiveController extends Controller
         ]);
 
         return response()->json(['message' => 'Document uploaded successfully.']);
+    }
+
+    public function update(Request $request, ArchiveDocument $archiveDocument)
+    {
+        abort_if($archiveDocument->uploaded_by !== auth()->id(), 403);
+
+        $data = $request->validate([
+            'title'        => 'required|string|max:255',
+            'description'  => 'nullable|string',
+            'category'     => 'required|string',
+            'archive_type' => 'required|in:general,department',
+        ]);
+
+        $archiveDocument->update($data);
+
+        return response()->json(['message' => 'Document updated successfully.']);
     }
 
     public function view(ArchiveDocument $archiveDocument)

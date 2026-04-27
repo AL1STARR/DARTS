@@ -301,19 +301,33 @@
   text-align: center;
 }
 
-.archive-table td:nth-child(2),
-.archive-table th:nth-child(2) { text-align: left; }
+.archive-table th:nth-child(1),
+.archive-table td:nth-child(1) { width: 110px; white-space: nowrap; }
 
-.archive-table td:nth-child(3) .uploader-cell,
-.archive-table td:nth-child(3) .dept-badge { margin: 0 auto; }
+.archive-table th:nth-child(2) { text-align: center; }
+.archive-table td:nth-child(2) { text-align: left; width: 200px; }
 
-.archive-table td:nth-child(5) .action-btns { justify-content: center; }
+.archive-table th:nth-child(3),
+.archive-table td:nth-child(3) { width: 130px; white-space: nowrap; }
+
+.archive-table th:nth-child(4),
+.archive-table td:nth-child(4) { width: 150px; }
+
+.archive-table th:nth-child(5),
+.archive-table td:nth-child(5) { width: 110px; white-space: nowrap; }
+
+.archive-table th:nth-child(6),
+.archive-table td:nth-child(6) { width: 130px; white-space: nowrap; }
+
+.archive-table td:nth-child(4) .uploader-cell { justify-content: center; }
+.archive-table td:nth-child(4) .dept-badge { display: block; margin: 0 auto; width: fit-content; }
+.archive-table td:nth-child(6) .action-btns { justify-content: center; }
 
 .archive-table tbody tr:last-child td { border-bottom: none; }
 .archive-table tbody tr { transition: background .1s; }
 .archive-table tbody tr:hover { background: #f5f7fa; }
 
-.doc-id-cell { font-size: 13px; font-weight: 600; color: var(--navy); }
+.doc-id-cell { font-size: 13px; font-weight: 600; color: var(--navy); display: block; text-align: center; }
 
 .doc-name-cell { display: flex; align-items: center; gap: 12px; }
 
@@ -334,7 +348,7 @@
 .doc-type-icon.xlsx svg { stroke: #2e7d32; }
 .doc-type-icon.pptx svg { stroke: #e65100; }
 
-.doc-title { font-size: 13px; font-weight: 600; color: var(--navy); }
+.doc-title { font-size: 13px; font-weight: 600; color: var(--navy); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .doc-ext   { font-size: 11px; color: var(--muted); margin-top: 1px; text-transform: uppercase; }
 
 .dept-badge {
@@ -375,6 +389,9 @@
   font-weight: 600;
   color: var(--navy);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
 }
 
 /* ── ACTION BUTTONS ── */

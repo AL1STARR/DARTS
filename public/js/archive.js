@@ -17,6 +17,7 @@ document.getElementById('searchInput').addEventListener('keydown', e => {
     const url = new URL(window.location.href);
     url.searchParams.set('search', e.target.value);
     url.searchParams.delete('page');
+    if (!url.searchParams.get('tab')) url.searchParams.set('tab', 'general');
     window.location.href = url.toString();
   }
 });
@@ -96,6 +97,63 @@ uploadForm.addEventListener('submit', async e => {
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Upload Document';
+  }
+});
+
+// ── Edit modal ──
+const editOverlay = document.getElementById('editModalOverlay');
+const editForm    = document.getElementById('editForm');
+
+const closeEditModal = () => editOverlay.classList.remove('open');
+
+document.getElementById('editModalClose').addEventListener('click', closeEditModal);
+document.getElementById('editModalCancel').addEventListener('click', closeEditModal);
+editOverlay.addEventListener('click', e => { if (e.target === editOverlay) closeEditModal(); });
+
+document.querySelectorAll('.edit-doc-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('eFTitle').value       = btn.dataset.title;
+    document.getElementById('eFDesc').value        = btn.dataset.description;
+    document.getElementById('eFCategory').value    = btn.dataset.category;
+    document.getElementById('eFArchiveType').value = btn.dataset.archiveType;
+    editForm.dataset.url = btn.dataset.url;
+    ['eErrTitle','eErrCategory'].forEach(id => document.getElementById(id).textContent = '');
+    ['eFTitle','eFCategory'].forEach(id => document.getElementById(id).classList.remove('error'));
+    editOverlay.classList.add('open');
+  });
+});
+
+editForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const submitBtn = document.getElementById('editSubmit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saving…';
+
+  const formData = new FormData(editForm);
+  formData.append('_method', 'PATCH');
+
+  try {
+    const res = await fetch(editForm.dataset.url, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
+      body: formData,
+    });
+    if (res.ok) {
+      closeEditModal();
+      showToast('Document updated successfully.', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } else if (res.status === 422) {
+      const json = await res.json();
+      if (json.errors?.title)    { document.getElementById('eErrTitle').textContent    = json.errors.title[0];    document.getElementById('eFTitle').classList.add('error'); }
+      if (json.errors?.category) { document.getElementById('eErrCategory').textContent = json.errors.category[0]; document.getElementById('eFCategory').classList.add('error'); }
+    } else {
+      showToast('Something went wrong.', 'error');
+    }
+  } catch {
+    showToast('Network error.', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Save Changes';
   }
 });
 
