@@ -69,6 +69,7 @@ class RoutingController extends Controller
             'stages.*.origin'     => 'required|string',
             'stages.*.waypoint'   => 'required|string',
             'stages.*.handler_id' => 'nullable|exists:users,id',
+            'stages.*.instructions' => 'required|string|max:1000',
         ]);
 
         $user = auth()->user();
@@ -94,6 +95,7 @@ class RoutingController extends Controller
                     'origin_department'   => $stage['origin'],
                     'waypoint_department' => $stage['waypoint'],
                     'handler_id'          => $stage['handler_id'] ?? null,
+                    'instructions'        => $stage['instructions'],
                     'status'              => $index === 0 ? 'active' : 'pending',
                     'duration'            => null,
                 ]);
@@ -135,13 +137,14 @@ class RoutingController extends Controller
             $handler     = $stage->handler;
             $handlerName = $handler ? ($handler->first_name . ' ' . $handler->last_name) : 'Unassigned';
             return [
-                'from'        => $stage->origin_department,
-                'to'          => $stage->waypoint_department,
-                'handler'     => $handlerName,
-                'initials'    => $this->initials($handlerName),
-                'status'      => $stage->status,
-                'duration'    => $stage->duration ?? '-',
-                'received_at' => $stage->received_at ? $stage->received_at->format('M j, Y g:i A') : null,
+                'from'         => $stage->origin_department,
+                'to'           => $stage->waypoint_department,
+                'handler'      => $handlerName,
+                'initials'     => $this->initials($handlerName),
+                'status'       => $stage->status,
+                'duration'     => $stage->duration ?? '-',
+                'instructions' => $stage->instructions ?? '',
+                'received_at'  => $stage->received_at ? $stage->received_at->format('M j, Y g:i A') : null,
             ];
         });
 

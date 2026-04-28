@@ -177,7 +177,8 @@ let stages = [];
 function renderStages() {
   const list = document.getElementById('stagesList');
   list.innerHTML = stages.map((s, i) => `
-    <div class="stage-row" data-index="${i}">
+    <div class="stage-card" data-index="${i}">
+    <div class="stage-row">
       <div class="stage-num">${i + 1}</div>
       <div class="stage-field">
         <label>Origin</label>
@@ -200,6 +201,11 @@ function renderStages() {
       <button class="remove-stage-btn" data-index="${i}" ${stages.length === 1 ? 'disabled style="opacity:.3;cursor:not-allowed"' : ''}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
+    </div>
+    <div class="stage-instructions-row">
+      <label>Request Instructions <span style="color:#ef4444">*</span></label>
+      <textarea class="instructions-input" data-index="${i}" rows="2" placeholder="Enter instructions for this stage…">${s.instructions || ''}</textarea>
+    </div>
     </div>`).join('');
 
   // Waypoint change — load users and chain next origin
@@ -218,6 +224,13 @@ function renderStages() {
   list.querySelectorAll('.handler-select').forEach(sel => {
     sel.addEventListener('change', () => {
       stages[parseInt(sel.dataset.index)].handler_id = sel.value;
+    });
+  });
+
+  // Instructions change
+  list.querySelectorAll('.instructions-input').forEach(ta => {
+    ta.addEventListener('input', () => {
+      stages[parseInt(ta.dataset.index)].instructions = ta.value;
     });
   });
 
@@ -254,12 +267,12 @@ async function loadUsersForStage(index, department) {
 
 function addStage() {
   const prevWaypoint = stages.length ? stages[stages.length - 1].waypoint : MY_DEPT;
-  stages.push({ origin: prevWaypoint || MY_DEPT, waypoint: '', handler_id: '', users: [] });
+  stages.push({ origin: prevWaypoint || MY_DEPT, waypoint: '', handler_id: '', instructions: '', users: [] });
   renderStages();
 }
 
 function resetModal() {
-  stages = [{ origin: MY_DEPT, waypoint: '', handler_id: '', users: [] }];
+  stages = [{ origin: MY_DEPT, waypoint: '', handler_id: '', instructions: '', users: [] }];
   document.getElementById('newDocName').value  = '';
   document.getElementById('newPriority').value = 'low';
   document.getElementById('newDeadline').value = '';
@@ -275,6 +288,7 @@ document.getElementById('modalSubmit').addEventListener('click', async () => {
 
   if (!doc) { showToast('Please enter a document name.', 'error'); return; }
   if (stages.some(s => !s.waypoint)) { showToast('Please select a waypoint for all stages.', 'error'); return; }
+  if (stages.some(s => !s.instructions || !s.instructions.trim())) { showToast('Please enter instructions for all stages.', 'error'); return; }
 
   try {
     const res = await fetch('/routing/store', {
@@ -288,7 +302,7 @@ document.getElementById('modalSubmit').addEventListener('click', async () => {
         title:    doc,
         priority: priority,
         deadline: deadline,
-        stages:   stages.map(s => ({ origin: s.origin, waypoint: s.waypoint, handler_id: s.handler_id || null })),
+        stages:   stages.map(s => ({ origin: s.origin, waypoint: s.waypoint, handler_id: s.handler_id || null, instructions: s.instructions })),
       }),
     });
 
@@ -344,7 +358,7 @@ async function openDetail(routeId) {
 
     document.getElementById('pathBody').innerHTML = detail.paths.map(p => `
       <tr>
-        <td><span class="path-label">${p.from} <span class="path-arrow">→</span> ${p.to}</span></td>
+        <td><span class="path-label">${p.from} <span class="path-arrow">→</span> ${p.to}</span>${p.instructions ? `<div style="font-size:11px;color:#64748b;margin-top:3px">${p.instructions}</div>` : ''}</td>
         <td>
           <div class="handler-cell">
             <div class="handler-chip">${p.initials}</div>
