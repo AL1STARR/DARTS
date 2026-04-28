@@ -369,16 +369,23 @@ async function openDetail(routeId) {
         ? MY_USER_ID === detail.activeHandlerId
         : MY_DEPT === detail.activeWaypoint
     );
-    document.querySelectorAll('.mgmt-btn:not(.republish):not(.delete)').forEach(btn => {
+    // All action buttons except republish/delete follow canAct
+    document.querySelectorAll('.mgmt-btn:not(.republish):not(.delete):not(.accomplished)').forEach(btn => {
       btn.disabled      = !canAct;
       btn.style.opacity = canAct ? '1' : '0.35';
       btn.style.cursor  = canAct ? 'pointer' : 'not-allowed';
     });
+    // ACCOMPLISHED only enabled after RECEIVED has been marked on the active stage
+    const accomplishedBtn = document.querySelector('.mgmt-btn.accomplished');
+    const canAccomplish   = canAct && detail.activeStageReceived;
+    accomplishedBtn.disabled      = !canAccomplish;
+    accomplishedBtn.style.opacity = canAccomplish ? '1' : '0.35';
+    accomplishedBtn.style.cursor  = canAccomplish ? 'pointer' : 'not-allowed';
 
     // Remarks block (returned) + missing notice + republish
     const remarksBlock = document.getElementById('mgmtRemarks');
     const republishBtn = document.getElementById('republishBtn');
-    const canRepublish = MY_DEPT === detail.originDept;
+    const canRepublish = MY_DEPT === detail.activeStageOrigin;
 
     if (isReturned) {
       document.getElementById('mgmtRemarksText').textContent = detail.remarks || '';
@@ -494,8 +501,8 @@ async function submitAction(type, routeId, remarks) {
       return;
     }
 
-    const labels = { received: 'Marked as Received', returned: 'Document Returned', flag: 'Flagged as Missing' };
-    const types  = { received: 'success', returned: 'info', flag: 'warning' };
+    const labels = { received: 'Marked as Received', accomplished: 'Stage Accomplished', returned: 'Document Returned', flag: 'Flagged as Missing' };
+    const types  = { received: 'success', accomplished: 'success', returned: 'info', flag: 'warning' };
     showToast(labels[type], types[type]);
 
     openDetail(routeId);

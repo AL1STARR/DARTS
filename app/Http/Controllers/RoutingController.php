@@ -133,12 +133,13 @@ class RoutingController extends Controller
             $handler     = $stage->handler;
             $handlerName = $handler ? ($handler->first_name . ' ' . $handler->last_name) : 'Unassigned';
             return [
-                'from'     => $stage->origin_department,
-                'to'       => $stage->waypoint_department,
-                'handler'  => $handlerName,
-                'initials' => $this->initials($handlerName),
-                'status'   => $stage->status,
-                'duration' => $stage->duration ?? '-',
+                'from'        => $stage->origin_department,
+                'to'          => $stage->waypoint_department,
+                'handler'     => $handlerName,
+                'initials'    => $this->initials($handlerName),
+                'status'      => $stage->status,
+                'duration'    => $stage->duration ?? '-',
+                'received_at' => $stage->received_at ? $stage->received_at->format('M j, Y g:i A') : null,
             ];
         });
 
@@ -165,6 +166,8 @@ class RoutingController extends Controller
             'id'                     => $documentRoute->formattedId(),
             'activeWaypoint'         => $activeStage ? $activeStage->waypoint_department : null,
             'activeHandlerId'        => $activeStage ? $activeStage->handler_id : null,
+            'activeStageReceived'    => $activeStage ? !is_null($activeStage->received_at) : false,
+            'activeStageOrigin'      => $activeStage ? $activeStage->origin_department : null,
             'deadline'               => $documentRoute->deadline?->format('F j, Y g:i A'),
             'remarks'                => $fresh->remarks,
             'returnedByDepartment'   => $fresh->returned_by_department,
@@ -179,7 +182,7 @@ class RoutingController extends Controller
         $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
 
         $data = $request->validate([
-            'action'  => 'required|in:received,returned,flag',
+            'action'  => 'required|in:received,accomplished,returned,flag',
             'remarks' => 'nullable|string|max:500',
         ]);
 
@@ -212,7 +215,14 @@ class RoutingController extends Controller
 
         DB::transaction(function () use ($documentRoute, $action, $data, $activeStage, $user) {
             if ($action === 'received') {
-                $activeStage->update(['status' => 'completed']);
+                // Mark the stage as physically received — does NOT advance
+                $activeStage->update(['received_at' => now()]);
+                if ($documentRoute->status === 'pending') {
+                    $documentRoute->update(['status' => 'on-time']);
+                }
+            } elseif ($action === 'accomplished') {
+                // Complete the stage and advance to the next
+                $activeStage->update(['status' => 'completed', 'received_at' => $activeStage->received_at ?? now()]);
                 $nextStage = $documentRoute->stages()
                     ->where('stage_order', '>', $activeStage->stage_order)
                     ->where('status', 'pending')
@@ -220,17 +230,17 @@ class RoutingController extends Controller
                 if ($nextStage) {
                     $nextStage->update(['status' => 'active']);
                     $documentRoute->update([
-                        'current_waypoint'      => $nextStage->waypoint_department,
-                        'status'                => 'on-time',
-                        'remarks'               => null,
-                        'returned_by_department'=> null,
+                        'current_waypoint'       => $nextStage->waypoint_department,
+                        'status'                 => 'on-time',
+                        'remarks'                => null,
+                        'returned_by_department' => null,
                     ]);
                 } else {
                     $documentRoute->update([
-                        'status'                => 'completed',
-                        'current_waypoint'      => $activeStage->waypoint_department,
-                        'remarks'               => null,
-                        'returned_by_department'=> null,
+                        'status'                 => 'completed',
+                        'current_waypoint'       => $activeStage->waypoint_department,
+                        'remarks'                => null,
+                        'returned_by_department' => null,
                     ]);
                 }
             } elseif ($action === 'returned') {
@@ -256,9 +266,12 @@ class RoutingController extends Controller
             return response()->json(['message' => 'Only returned or missing routes can be republished.'], 422);
         }
 
-        // Only the origin department (the department that owns the route) can republish
-        if (auth()->user()->department !== $documentRoute->origin_department) {
-            return response()->json(['message' => 'Only the origin department can republish this route.'], 403);
+        // Only the active stage's origin department can republish
+        $activeStage = $documentRoute->stages()->where('status', 'active')->first()
+            ?? $documentRoute->stages()->orderBy('stage_order')->first();
+
+        if (!$activeStage || auth()->user()->department !== $activeStage->origin_department) {
+            return response()->json(['message' => 'Only the origin department of the current stage can republish this route.'], 403);
         }
 
         DB::transaction(function () use ($documentRoute) {

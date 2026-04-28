@@ -61,7 +61,7 @@ function renderPrimaryBtn(status) {
   } else if (status === 'in-review') {
     btn.className = 'mgmt-btn mgmt-approved';
     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> MARK AS APPROVED`;
-    btn.disabled = false; btn.style.opacity = '';
+    btn.disabled = !selectedDocId; btn.style.opacity = selectedDocId ? '' : '.5';
     rejectBtn.disabled = false; rejectBtn.style.opacity = '';
     pickerWrap.style.display = 'block';
   } else {
@@ -139,6 +139,7 @@ function displayDocResults(docs, resultsList) {
     item.addEventListener('click', () => {
       selectedDocId = parseInt(item.dataset.id);
       displayDocResults(docs, resultsList);
+      renderPrimaryBtn(currentStatus);
     });
   });
 }
