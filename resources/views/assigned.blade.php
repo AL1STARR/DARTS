@@ -96,7 +96,7 @@
         <tbody id="assignedBody">
           @forelse($requests as $req)
           <tr>
-            <td class="req-id-cell">REQ-{{ str_pad($req->id, 3, '0', STR_PAD_LEFT) }}</td>
+            <td class="req-id-cell">{{ $req->formattedId() }}</td>
             <td class="doc-name-td">{{ $req->title }}</td>
             <td><span class="category-badge">{{ ucfirst($req->category) }}</span></td>
             <td>
@@ -119,6 +119,7 @@
                 data-desc="{{ $req->description ?? '' }}"
                 data-requestor="{{ $req->user->first_name }} {{ $req->user->last_name }}"
                 data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB', 'url' => route('attachments.view', $a)])->toJson() }}"
+                data-formatted-id="{{ $req->formattedId() }}"
                 data-status-url="{{ route('assigned.status', $req) }}"
                 data-transfer-url="{{ route('assigned.transfer', $req) }}"
                 data-department-users-url="{{ route('assigned.department-users') }}"

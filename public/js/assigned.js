@@ -121,7 +121,7 @@ function displayDocResults(docs, resultsList) {
   const checkSvg = `<svg class="doc-result-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
 
   resultsList.innerHTML = docs.map(d => {
-    const docId = `DOC-${String(d.id).padStart(4, '0')}`;
+    const docId = d.formatted_id || `DOC-${String(d.id).padStart(4, '0')}`;
     const isSelected = selectedDocId === d.id;
     const tc = typeClass[d.file_type.toLowerCase()] || 'default';
     return `
@@ -162,6 +162,7 @@ document.getElementById('assignedBody').addEventListener('click', e => {
   if (!btn) return;
 
   const id          = btn.dataset.id;
+  const formattedId = btn.dataset.formattedId || `REQ-${String(id).padStart(3,'0')}`;
   const title       = btn.dataset.title;
   const category    = btn.dataset.category;
   const priority    = btn.dataset.priority;
@@ -178,10 +179,10 @@ document.getElementById('assignedBody').addEventListener('click', e => {
   currentDeptDocsUrl  = btn.dataset.departmentDocsUrl;
   currentStatus       = status;
 
-  document.getElementById('drawerReqId').textContent    = `REQ-${String(id).padStart(3,'0')}`;
+  document.getElementById('drawerReqId').textContent    = formattedId;
   document.getElementById('drawerTitle').textContent    = title;
   document.getElementById('drawerSub').textContent      = `Submitted on ${date} · ${dept}`;
-  document.getElementById('dInfoId').textContent        = `REQ-${String(id).padStart(3,'0')}`;
+  document.getElementById('dInfoId').textContent        = formattedId;
   document.getElementById('dInfoCategory').textContent  = category;
   document.getElementById('dInfoPriority').textContent  = priority;
   document.getElementById('dInfoRequestor').textContent = requestor;

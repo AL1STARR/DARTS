@@ -104,7 +104,7 @@
         <tbody id="mrBody">
           @forelse($requests as $req)
           <tr>
-            <td><span class="mr-req-id">REQ-{{ str_pad($req->id, 3, '0', STR_PAD_LEFT) }}</span></td>
+            <td><span class="mr-req-id">{{ $req->formattedId() }}</span></td>
             <td>
               <div class="mr-doc-cell">
                 <div class="mr-doc-icon">
@@ -138,10 +138,12 @@
                 data-dept="{{ $req->department }}"
                 data-date="{{ $req->created_at->format('M d, Y') }}"
                 data-desc="{{ $req->description ?? '' }}"
+                data-deadline="{{ $req->deadline ? $req->deadline->format('Y-m-d\TH:i') : '' }}"
                 data-assigned="{{ $req->assignedTo ? $req->assignedTo->first_name . ' ' . $req->assignedTo->last_name : 'Unassigned' }}"
                 data-fulfilled-doc="{{ $req->fulfilledBy ? $req->fulfilledBy->title : '' }}"
                 data-fulfilled-url="{{ $req->fulfilledBy ? route('archive.download', $req->fulfilledBy) : '' }}"
                 data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB', 'url' => route('attachments.view', $a)])->toJson() }}"
+                data-formatted-id="{{ $req->formattedId() }}"
                 data-delete-url="{{ route('myrequests.destroy', $req) }}"
                 data-update-url="{{ route('myrequests.update', $req) }}">
                 View
@@ -234,15 +236,22 @@
           </div>
           <span class="field-error" id="errDept"></span>
         </div>
-        <div class="field-group">
-          <label>Assign To</label>
-          <div class="select-wrap">
-            <select name="assigned_to" id="fAssignTo" disabled>
-              <option value="">Select department first…</option>
-            </select>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="field-row">
+          <div class="field-group">
+            <label>Assign To</label>
+            <div class="select-wrap">
+              <select name="assigned_to" id="fAssignTo" disabled>
+                <option value="">Select department first…</option>
+              </select>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <span class="field-error" id="errAssignTo"></span>
           </div>
-          <span class="field-error" id="errAssignTo"></span>
+          <div class="field-group">
+            <label>Deadline</label>
+            <input type="datetime-local" name="deadline" id="fDeadline">
+            <span class="field-error" id="errDeadline"></span>
+          </div>
         </div>
         <div class="field-group">
           <label>Description</label>

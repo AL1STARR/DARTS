@@ -173,7 +173,20 @@ document.querySelectorAll('.print-btn').forEach(btn => {
 });
 
 // ── Delete ──
+const CURRENT_USER_ID = parseInt(document.body.dataset.userId) || 0;
+
 document.querySelectorAll('.delete-doc-btn').forEach(btn => {
+  const isOwner      = parseInt(btn.dataset.owner) === CURRENT_USER_ID;
+  const isGeneral    = btn.dataset.archiveType === 'general';
+
+  if (isGeneral && !isOwner) {
+    btn.disabled = true;
+    btn.style.opacity = '0.35';
+    btn.style.cursor  = 'not-allowed';
+    btn.title = 'Only the uploader can delete this document';
+    return;
+  }
+
   btn.addEventListener('click', () => {
     const url = btn.dataset.url;
     showConfirmToast('Delete this document? This cannot be undone.', async () => {

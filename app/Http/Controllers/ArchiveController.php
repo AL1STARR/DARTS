@@ -17,9 +17,9 @@ class ArchiveController extends Controller
 
         // If searching, search across both tabs but still scope department tab to user's dept
         if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhereRaw('CONCAT("DOC-", LPAD(id, 4, "0")) LIKE ?', ['%' . $request->search . '%']);
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%');
             });
         } else {
             $query->where('archive_type', $tab);
@@ -66,17 +66,20 @@ class ArchiveController extends Controller
         $fileType  = in_array($file->getClientOriginalExtension(), ['doc', 'docx']) ? 'docs' : $file->getClientOriginalExtension();
         $path      = $file->store('archive-documents', 'public');
 
+        $dept = auth()->user()->department;
+
         ArchiveDocument::create([
             'uploaded_by'  => auth()->id(),
             'title'        => $data['title'],
             'description'  => $data['description'] ?? null,
             'category'     => $data['category'],
-            'department'   => auth()->user()->department,
+            'department'   => $dept,
             'archive_type' => $data['archive_type'],
             'filename'     => $file->getClientOriginalName(),
             'path'         => $path,
             'file_type'    => $fileType,
             'size'         => $file->getSize(),
+            'number'       => (ArchiveDocument::where('department', $dept)->max('number') ?? 0) + 1,
         ]);
 
         return response()->json(['message' => 'Document uploaded successfully.']);
@@ -118,6 +121,7 @@ class ArchiveController extends Controller
     {
         Storage::disk('public')->delete($archiveDocument->path);
         $archiveDocument->delete();
+        ArchiveDocument::renumber();
 
         return response()->json(['message' => 'Document deleted.']);
     }
@@ -129,15 +133,18 @@ class ArchiveController extends Controller
         // Support searching by document ID or title
         if ($request->filled('search')) {
             $search = $request->query('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhereRaw('CONCAT("DOC-", LPAD(id, 4, "0")) LIKE ?', ['%' . $search . '%']);
-            });
+            $query->where('title', 'like', '%' . $search . '%');
         }
 
-        $docs = $query->latest()
-            ->get(['id', 'title', 'file_type', 'category', 'archive_type']);
+        $docs = $query->latest()->with('uploader')->get();
 
-        return response()->json($docs);
+        return response()->json($docs->map(fn($d) => [
+            'id'           => $d->id,
+            'formatted_id' => $d->formattedId(),
+            'title'        => $d->title,
+            'file_type'    => $d->file_type,
+            'category'     => $d->category,
+            'archive_type' => $d->archive_type,
+        ]));
     }
 }

@@ -22,12 +22,22 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
 
+        // 2 nearest deadline requests assigned to the user that are not done
+        $nearDeadlineRequests = DocumentRequest::where('assigned_to', $userId)
+            ->whereNotNull('deadline')
+            ->whereNotIn('status', ['approved', 'rejected'])
+            ->where('deadline', '>=', now())
+            ->orderBy('deadline', 'asc')
+            ->take(2)
+            ->get();
+
         return view('index', compact(
             'totalRequests',
             'assignedRequests',
             'departmentArchive',
             'generalArchive',
-            'recentRequests'
+            'recentRequests',
+            'nearDeadlineRequests'
         ));
     }
 }
