@@ -417,11 +417,15 @@ body {
   border-radius: 8px;
   border: 1px solid var(--border);
   overflow: hidden;
-  display: flex;
+  display: none;
   flex-direction: column;
-  position: sticky;
-  top: 24px;
-  max-height: calc(100vh - 160px);
+  position: absolute;
+  top: 60px;
+  right: 32px;
+  width: 320px;
+  max-height: calc(100vh - 120px);
+  box-shadow: 0 8px 24px rgba(26,46,74,.15);
+  z-index: 1000;
 }
 
 .notif-count {
@@ -485,6 +489,23 @@ body {
 .notif-dismiss:hover { color: var(--red); }
 
 .notif-empty { padding: 32px 16px; text-align: center; color: var(--muted); font-size: 12.5px; }
+
+/* ── RIGHT NOTIFICATION PANEL ── */
+.notif-panel-right {
+  background: var(--white);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+}
+
+.notif-panel-right .notif-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 500px;
+}
 
 /* ── TOAST POPUP ── */
 #toast-container {

@@ -48,8 +48,23 @@
   </div>
 </header>
 
+<!-- Notification dropdown panel (shared across all pages) -->
+<div class="notif-panel" id="notifPanel">
+  <div class="panel-header">
+    <div class="panel-title">
+      <span class="title-bar"></span>
+      Notifications
+      <span class="notif-count" id="notifBadge">0</span>
+    </div>
+    <button class="clear-btn" id="clearAll">Clear all</button>
+  </div>
+  <div class="notif-list" id="notifList"></div>
+</div>
+
 <!-- Toast container (shared across all pages) -->
 <div id="toast-container"></div>
+
+<script src="{{ asset('js/main.js') }}"></script>
 
 <script>
 function showToast(message, type = 'success') {

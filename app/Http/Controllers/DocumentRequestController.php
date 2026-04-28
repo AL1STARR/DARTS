@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DocumentRequest;
 use App\Models\RequestAttachment;
 use App\Models\Setting;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -59,6 +60,15 @@ class DocumentRequestController extends Controller
             'status'      => 'pending',
         ]);
 
+        // Send notification to assigned user
+        if ($data['assigned_to']) {
+            NotificationService::notifyRequestAssigned(
+                $data['assigned_to'],
+                $data['title'],
+                str_pad($docRequest->id, 3, '0', STR_PAD_LEFT)
+            );
+        }
+
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('request-attachments', 'public');
@@ -89,6 +99,15 @@ class DocumentRequestController extends Controller
             'priority'    => 'required|string',
             'department'  => ['required', 'string', function ($attr, $value, $fail) {
                 if ($value === auth()->user()->department) {
+        // Send notification if assigned_to changed
+        if ($data['assigned_to'] !== $documentRequest->assigned_to) {
+            NotificationService::notifyRequestAssigned(
+                $data['assigned_to'],
+                $data['title'],
+                str_pad($documentRequest->id, 3, '0', STR_PAD_LEFT)
+            );
+        }
+
                     $fail('You cannot submit a request to your own department.');
                 }
             }],
