@@ -104,7 +104,7 @@
         <tbody id="mrBody">
           @forelse($requests as $req)
           <tr>
-            <td><span class="mr-req-id">REQ-{{ str_pad($req->id, 3, '0', STR_PAD_LEFT) }}</span></td>
+            <td><span class="mr-req-id">{{ $req->formattedId() }}</span></td>
             <td>
               <div class="mr-doc-cell">
                 <div class="mr-doc-icon">
@@ -138,10 +138,12 @@
                 data-dept="{{ $req->department }}"
                 data-date="{{ $req->created_at->format('M d, Y') }}"
                 data-desc="{{ $req->description ?? '' }}"
+                data-deadline="{{ $req->deadline ? $req->deadline->format('Y-m-d\TH:i') : '' }}"
                 data-assigned="{{ $req->assignedTo ? $req->assignedTo->first_name . ' ' . $req->assignedTo->last_name : 'Unassigned' }}"
                 data-fulfilled-doc="{{ $req->fulfilledBy ? $req->fulfilledBy->title : '' }}"
                 data-fulfilled-url="{{ $req->fulfilledBy ? route('archive.download', $req->fulfilledBy) : '' }}"
                 data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB', 'url' => route('attachments.view', $a)])->toJson() }}"
+                data-formatted-id="{{ $req->formattedId() }}"
                 data-delete-url="{{ route('myrequests.destroy', $req) }}"
                 data-update-url="{{ route('myrequests.update', $req) }}">
                 View
@@ -247,6 +249,10 @@
         <div class="field-group">
           <label>Description</label>
           <textarea name="description" id="fDesc" placeholder="Briefly describe the request…" rows="3"></textarea>
+        </div>
+        <div class="field-group">
+          <label>Deadline <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input type="datetime-local" name="deadline" id="fDeadline">
         </div>
         <div class="field-group">
           <label>Attachment</label>

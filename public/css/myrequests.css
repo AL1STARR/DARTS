@@ -147,7 +147,7 @@
 .mr-table tbody tr { transition: background .1s; }
 .mr-table tbody tr:hover { background: #f8f9fb; }
 
-.mr-req-id { font-weight: 500; color: var(--navy); font-size: 13px; }
+.mr-req-id { font-size: 13px; font-weight: 600; color: var(--navy); }
 
 .mr-doc-cell { display: flex; align-items: center; gap: 10px; }
 .mr-doc-icon {
@@ -334,6 +334,7 @@
 .field-group label { font-size: 11.5px; font-weight: 600; color: var(--navy); }
 
 .field-group input,
+.field-group input[type="datetime-local"],
 .field-group textarea {
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -450,7 +451,7 @@
 .back-btn:hover { color: #0052a3; }
 .back-btn svg { width: 14px; height: 14px; }
 
-.drawer-req-id { font-size: 12.5px; font-weight: 700; color: var(--navy); font-family: 'Courier New', monospace; }
+.drawer-req-id { font-size: 13px; font-weight: 600; color: var(--navy); }
 
 .detail-drawer-body {
   flex: 1 1 auto;

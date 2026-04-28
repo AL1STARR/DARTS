@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/archive.css') }}">
 </head>
-<body>
+<body data-user-id="{{ auth()->id() }}">
 
 @include('partials.nav')
 
@@ -115,7 +115,7 @@
         <tbody id="archiveBody">
           @forelse($documents as $doc)
           <tr>
-            <td><span class="doc-id-cell">DOC-{{ str_pad($doc->id, 4, '0', STR_PAD_LEFT) }}</span></td>
+            <td><span class="doc-id-cell">{{ $doc->formattedId() }}</span></td>
             <td>
               <div class="doc-name-cell">
                 <div class="doc-type-icon {{ $doc->file_type }}">
@@ -161,7 +161,10 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
                 @endif
-                <button class="action-btn delete-doc-btn" title="Delete" data-url="{{ route('archive.destroy', $doc) }}">
+                <button class="action-btn delete-doc-btn" title="Delete"
+                  data-url="{{ route('archive.destroy', $doc) }}"
+                  data-owner="{{ $doc->uploaded_by }}"
+                  data-archive-type="{{ $doc->archive_type }}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                 </button>
               </div>

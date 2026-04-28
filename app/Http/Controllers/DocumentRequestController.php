@@ -20,8 +20,7 @@ class DocumentRequestController extends Controller
         if ($request->filled('priority')) $query->where('priority', $request->priority);
         if ($request->filled('category')) $query->where('category', $request->category);
         if ($request->filled('search'))   $query->where(function ($q) use ($request) {
-            $q->where('title', 'like', '%' . $request->search . '%')
-              ->orWhereRaw('CONCAT("REQ-", LPAD(id, 3, "0")) LIKE ?', ['%' . $request->search . '%']);
+            $q->where('title', 'like', '%' . $request->search . '%');
         });
 
         $requests    = $query->paginate(5)->withQueryString();
@@ -45,6 +44,7 @@ class DocumentRequestController extends Controller
             }],
             'assigned_to' => 'required|exists:users,id',
             'description' => 'nullable|string',
+            'deadline'    => 'nullable|date|after:now',
             'attachments.*' => 'nullable|file|max:10240|mimes:pdf',
         ]);
 
@@ -56,7 +56,9 @@ class DocumentRequestController extends Controller
             'priority'    => $data['priority'],
             'department'  => $data['department'],
             'description' => $data['description'] ?? null,
+            'deadline'    => $data['deadline'] ?? null,
             'status'      => 'pending',
+            'number'      => (DocumentRequest::where('department', $data['department'])->max('number') ?? 0) + 1,
         ]);
 
         if ($request->hasFile('attachments')) {
@@ -94,6 +96,7 @@ class DocumentRequestController extends Controller
             }],
             'assigned_to' => 'required|exists:users,id',
             'description' => 'nullable|string',
+            'deadline'    => 'nullable|date',
         ]);
 
         $documentRequest->update($data);
@@ -124,6 +127,7 @@ class DocumentRequestController extends Controller
         }
 
         $documentRequest->delete();
+        DocumentRequest::renumber();
 
         if (request()->expectsJson()) {
             return response()->json(['message' => 'Request deleted.']);

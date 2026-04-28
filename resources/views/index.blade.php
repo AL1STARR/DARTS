@@ -85,26 +85,31 @@
           <a href="#" class="see-all">View All</a>
         </div>
         <div class="deadline-strip">
+          @forelse($nearDeadlineRequests as $dl)
+          @php
+            $diff    = now()->diff($dl->deadline);
+            $mins    = (int) now()->diffInMinutes($dl->deadline);
+            $hours   = (int) now()->diffInHours($dl->deadline);
+            $days    = (int) now()->diffInDays($dl->deadline);
+            if ($mins < 60)       { $timeStr = "Due in {$mins} min" . ($mins !== 1 ? 's' : ''); $badgeCls = 'red'; $borderCls = 'urgent-border'; }
+            elseif ($hours < 24)  { $timeStr = "Due in {$hours} hour" . ($hours !== 1 ? 's' : ''); $badgeCls = 'orange'; $borderCls = 'warning-border'; }
+            else                  { $timeStr = "Due in {$days} day" . ($days !== 1 ? 's' : ''); $badgeCls = 'orange'; $borderCls = 'warning-border'; }
+          @endphp
           <div class="deadline-item">
-            <div class="dl-left urgent-border">
-              <span class="dl-badge red">
-                <span class="pulse-dot"></span>Due in 25 mins
+            <div class="dl-left {{ $borderCls }}">
+              <span class="dl-badge {{ $badgeCls }}">
+                @if($badgeCls === 'red')<span class="pulse-dot"></span>@endif
+                {{ $timeStr }}
               </span>
-              <div class="dl-id">#REQ-025</div>
-              <div class="dl-desc">Q4 financial report for 2026.</div>
-              <div class="dl-meta">Accounting Dept.</div>
+              <div class="dl-id">{{ $dl->formattedId() }}</div>
+              <div class="dl-desc">{{ $dl->title }}</div>
+              <div class="dl-meta">{{ $dl->department }}</div>
             </div>
-            <a href="#" class="dl-action">Open Task</a>
+            <a href="{{ route('assigned') }}" class="dl-action">Open Task</a>
           </div>
-          <div class="deadline-item">
-            <div class="dl-left warning-border">
-              <span class="dl-badge orange">Due in 4 hours</span>
-              <div class="dl-id">#REQ-030</div>
-              <div class="dl-desc">Document logs of different departments for the month of August.</div>
-              <div class="dl-meta">Commission on Audit</div>
-            </div>
-            <a href="#" class="dl-action">Open Task</a>
-          </div>
+          @empty
+          <div style="padding:20px 18px;font-size:13px;color:var(--muted);">No upcoming deadlines.</div>
+          @endforelse
         </div>
       </div>
 
@@ -130,7 +135,7 @@
           <tbody>
             @forelse($recentRequests as $req)
             <tr>
-              <td><span class="req-id">REQ-{{ str_pad($req->id, 3, '0', STR_PAD_LEFT) }}</span></td>
+              <td><span class="req-id">{{ $req->formattedId() }}</span></td>
               <td>{{ $req->title }}</td>
               <td><span class="badge-status {{ $req->status }}">{{ ucfirst(str_replace('-', ' ', $req->status)) }}</span></td>
               <td><span class="badge-priority {{ $req->priority }}">{{ ucfirst($req->priority) }}</span></td>

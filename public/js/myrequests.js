@@ -113,6 +113,7 @@ function resetForm() {
   requestForm.reset();
   attachedFiles = [];
   renderFileList();
+  document.getElementById('fDeadline').value = '';
   const assignSelect = document.getElementById('fAssignTo');
   assignSelect.innerHTML = '<option value="">Select department first…</option>';
   assignSelect.disabled = true;
@@ -195,6 +196,7 @@ document.getElementById('mrBody').addEventListener('click', e => {
   if (!btn) return;
 
   const id          = btn.dataset.id;
+  const formattedId = btn.dataset.formattedId || `REQ-${String(id).padStart(3,'0')}`;
   const title       = btn.dataset.title;
   const category    = btn.dataset.category;
   const priority    = btn.dataset.priority;
@@ -205,7 +207,7 @@ document.getElementById('mrBody').addEventListener('click', e => {
   const attachments = JSON.parse(btn.dataset.attachments || '[]');
   currentDeleteUrl  = btn.dataset.deleteUrl;
   currentUpdateUrl  = btn.dataset.updateUrl;
-  currentEditData   = { title: btn.dataset.title, category: btn.dataset.category.toLowerCase(), priority: btn.dataset.priority.toLowerCase(), dept: btn.dataset.dept, desc: btn.dataset.desc };
+  currentEditData   = { title: btn.dataset.title, category: btn.dataset.category.toLowerCase(), priority: btn.dataset.priority.toLowerCase(), dept: btn.dataset.dept, desc: btn.dataset.desc, deadline: btn.dataset.deadline };
 
   // Edit button: only active when pending
   const editBtn = document.getElementById('editRequestBtn');
@@ -215,10 +217,10 @@ document.getElementById('mrBody').addEventListener('click', e => {
   editBtn.style.cursor  = isPending ? 'pointer' : 'not-allowed';
   editBtn.title = isPending ? '' : 'Cannot edit — request is no longer pending';
 
-  document.getElementById('drawerReqId').textContent  = `REQ-${String(id).padStart(3,'0')}`;
+  document.getElementById('drawerReqId').textContent  = formattedId;
   document.getElementById('drawerTitle').textContent  = title;
   document.getElementById('drawerSub').textContent    = `Submitted on ${date} · ${dept}`;
-  document.getElementById('dInfoId').textContent      = `REQ-${String(id).padStart(3,'0')}`;
+  document.getElementById('dInfoId').textContent      = formattedId;
   document.getElementById('dInfoCategory').textContent = category;
   document.getElementById('dInfoPriority').textContent = priority;
   document.getElementById('dInfoAssigned').textContent  = btn.dataset.assigned;
@@ -276,10 +278,11 @@ document.getElementById('editRequestBtn').addEventListener('click', () => {
   closeDrawer();
 
   // Pre-fill the modal
-  document.getElementById('fTitle').value = currentEditData.title;
+  document.getElementById('fTitle').value    = currentEditData.title;
   document.getElementById('fCategory').value = currentEditData.category;
   document.getElementById('fPriority').value = currentEditData.priority;
-  document.getElementById('fDesc').value = currentEditData.desc;
+  document.getElementById('fDesc').value     = currentEditData.desc;
+  document.getElementById('fDeadline').value = currentEditData.deadline || '';
 
   // Switch dept and reload assign-to users
   const deptSelect = document.getElementById('fDept');

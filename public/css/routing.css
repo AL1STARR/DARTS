@@ -149,7 +149,7 @@
 .routing-table tbody tr:hover { background: #f8f9fb; }
 
 /* Routing ID */
-.rt-id { font-size: 13px; font-weight: 700; color: var(--navy); font-family: 'Courier New', monospace; }
+.rt-id { font-size: 13px; font-weight: 600; color: var(--navy); }
 
 /* Document name cell */
 .doc-name-cell { display: flex; align-items: center; gap: 12px; }
@@ -462,7 +462,7 @@
 .back-btn svg { width: 14px; height: 14px; }
 
 .breadcrumb-sep { color: var(--border); font-size: 14px; }
-.detail-rt-id { font-size: 12.5px; font-weight: 700; color: var(--navy); font-family: 'Courier New', monospace; }
+.detail-rt-id { font-size: 13px; font-weight: 600; color: var(--navy); }
 
 /* Body */
 .detail-body {

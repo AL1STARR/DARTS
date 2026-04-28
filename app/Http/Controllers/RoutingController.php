@@ -32,8 +32,7 @@ class RoutingController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhereRaw('CONCAT("RT-", LPAD(id, 3, "0")) LIKE ?', ['%' . $search . '%']);
+                $q->where('title', 'like', '%' . $search . '%');
             });
         }
 
@@ -75,6 +74,8 @@ class RoutingController extends Controller
         $user = auth()->user();
 
         $route = DB::transaction(function () use ($data, $user) {
+            $originDept = $data['stages'][0]['origin'];
+            $nextNumber = (DocumentRoute::where('origin_department', $originDept)->max('number') ?? 0) + 1;
             $documentRoute = DocumentRoute::create([
                 'user_id'           => $user->id,
                 'title'             => $data['title'],
@@ -83,6 +84,7 @@ class RoutingController extends Controller
                 'origin_department' => $data['stages'][0]['origin'],
                 'current_waypoint'  => $data['stages'][count($data['stages']) - 1]['waypoint'] ?? null,
                 'deadline'          => $data['deadline'] ?? null,
+                'number'            => $nextNumber,
             ]);
 
             foreach ($data['stages'] as $index => $stage) {
@@ -308,6 +310,7 @@ class RoutingController extends Controller
 
         $documentRoute->stages()->delete();
         $documentRoute->delete();
+        DocumentRoute::renumber();
 
         return response()->json(['message' => 'Route deleted successfully.']);
     }

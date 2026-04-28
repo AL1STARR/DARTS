@@ -382,7 +382,7 @@ body {
 .data-table tbody tr { transition: background .1s; cursor: pointer; }
 .data-table tbody tr:hover { background: #f5f7fa; }
 
-.req-id { color: var(--blue); font-weight: 700; font-size: 12.5px; }
+.req-id { font-size: 13px; font-weight: 600; color: var(--navy); }
 
 .badge-status, .badge-priority {
   display: inline-flex; align-items: center; gap: 5px;
