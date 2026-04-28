@@ -35,8 +35,8 @@ document.getElementById('fDept').addEventListener('change', async function () {
   try {
     const res = await fetch(`/assigned/department-users?department=${encodeURIComponent(dept)}`);
     const users = await res.json();
-    assignSelect.innerHTML = '<option value="">Select person (optional)…</option>' +
-      users.map(u => `<option value="${u.id}">${u.first_name} ${u.last_name} — ${u.role}</option>`).join('');
+    assignSelect.innerHTML = '<option value="">Select person…</option>' +
+      users.map(u => `<option value="${u.id}">${u.first_name} ${u.last_name}</option>`).join('');
     assignSelect.disabled = false;
   } catch {
     assignSelect.innerHTML = '<option value="">Failed to load users</option>';
@@ -120,7 +120,7 @@ function resetForm() {
 }
 
 function clearErrors() {
-  ['errTitle','errCategory','errPriority','errDept','errAssignTo'].forEach(id => {
+  ['errTitle','errCategory','errPriority','errDept','errAssignTo','errDeadline'].forEach(id => {
     document.getElementById(id).textContent = '';
   });
   ['fTitle','fCategory','fPriority','fDept','fAssignTo'].forEach(id => {
@@ -129,8 +129,8 @@ function clearErrors() {
 }
 
 function showFormErrors(errors) {
-  const map = { title: 'errTitle', category: 'errCategory', priority: 'errPriority', department: 'errDept', assigned_to: 'errAssignTo' };
-  const inputMap = { title: 'fTitle', category: 'fCategory', priority: 'fPriority', department: 'fDept', assigned_to: 'fAssignTo' };
+  const map = { title: 'errTitle', category: 'errCategory', priority: 'errPriority', department: 'errDept', assigned_to: 'errAssignTo', deadline: 'errDeadline' };
+  const inputMap = { title: 'fTitle', category: 'fCategory', priority: 'fPriority', department: 'fDept', assigned_to: 'fAssignTo', deadline: 'fDeadline' };
   Object.entries(errors).forEach(([field, messages]) => {
     if (map[field])      document.getElementById(map[field]).textContent = messages[0];
     if (inputMap[field]) document.getElementById(inputMap[field]).classList.add('error');

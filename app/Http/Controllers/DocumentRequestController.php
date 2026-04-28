@@ -44,7 +44,7 @@ class DocumentRequestController extends Controller
             }],
             'assigned_to' => 'required|exists:users,id',
             'description' => 'nullable|string',
-            'deadline'    => 'nullable|date|after:now',
+            'deadline'    => 'required|date|after:now',
             'attachments.*' => 'nullable|file|max:10240|mimes:pdf',
         ]);
 
@@ -96,7 +96,7 @@ class DocumentRequestController extends Controller
             }],
             'assigned_to' => 'required|exists:users,id',
             'description' => 'nullable|string',
-            'deadline'    => 'nullable|date',
+            'deadline'    => 'required|date',
         ]);
 
         $documentRequest->update($data);
