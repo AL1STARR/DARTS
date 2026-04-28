@@ -117,7 +117,7 @@ class RoutingController extends Controller
 
     public function detail($routeId)
     {
-        $numericId     = (int) str_replace('RT-', '', $routeId);
+        $numericId     = $this->resolveRouteId($routeId);
         $documentRoute = DocumentRoute::with(['user', 'stages.handler'])->findOrFail($numericId);
 
         // Auto-mark delayed if past deadline and not yet completed/returned
@@ -180,7 +180,7 @@ class RoutingController extends Controller
 
     public function updateStatus(Request $request, $routeId)
     {
-        $numericId     = (int) str_replace('RT-', '', $routeId);
+        $numericId     = $this->resolveRouteId($routeId);
         $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
 
         $data = $request->validate([
@@ -224,7 +224,12 @@ class RoutingController extends Controller
                 }
             } elseif ($action === 'accomplished') {
                 // Complete the stage and advance to the next
-                $activeStage->update(['status' => 'completed', 'received_at' => $activeStage->received_at ?? now()]);
+                $receivedAt = $activeStage->received_at ?? now();
+                $diff       = $receivedAt->diff(now());
+                $duration   = $diff->days > 0
+                    ? $diff->days . 'd ' . $diff->h . 'h ' . $diff->i . 'm'
+                    : ($diff->h > 0 ? $diff->h . 'h ' . $diff->i . 'm' : $diff->i . 'm');
+                $activeStage->update(['status' => 'completed', 'received_at' => $receivedAt, 'duration' => $duration]);
                 $nextStage = $documentRoute->stages()
                     ->where('stage_order', '>', $activeStage->stage_order)
                     ->where('status', 'pending')
@@ -261,7 +266,7 @@ class RoutingController extends Controller
 
     public function republish(Request $request, $routeId)
     {
-        $numericId     = (int) str_replace('RT-', '', $routeId);
+        $numericId     = $this->resolveRouteId($routeId);
         $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
 
         if (!in_array($documentRoute->status, ['returned', 'missing'])) {
@@ -297,7 +302,7 @@ class RoutingController extends Controller
 
     public function destroy($routeId)
     {
-        $numericId     = (int) str_replace('RT-', '', $routeId);
+        $numericId     = $this->resolveRouteId($routeId);
         $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
 
         if (auth()->id() !== $documentRoute->user_id) {
@@ -313,6 +318,13 @@ class RoutingController extends Controller
         DocumentRoute::renumber();
 
         return response()->json(['message' => 'Route deleted successfully.']);
+    }
+
+    private function resolveRouteId(string $routeId): int
+    {
+        // Handles formats like RT-IT-001 or RT-001
+        preg_match('/-(\d+)$/', $routeId, $matches);
+        return isset($matches[1]) ? (int) $matches[1] : 0;
     }
 
     private function abbr(string $text): string

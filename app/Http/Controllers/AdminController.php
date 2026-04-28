@@ -65,6 +65,10 @@ class AdminController extends Controller
     {
         if (!auth()->user()->isAdmin()) abort(403);
 
+        if ($setting->is_protected) {
+            return back()->with('error', "'{$setting->value}' is a protected setting and cannot be removed.");
+        }
+
         $setting->delete();
 
         return back()->with('success', "Option removed.");
