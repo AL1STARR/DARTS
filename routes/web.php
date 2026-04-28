@@ -41,6 +41,7 @@ Route::get('/routing', [RoutingController::class, 'index'])->name('routing');
     Route::post('/routing/store', [RoutingController::class, 'store'])->name('routing.store');
     Route::get('/routing/{routeId}/detail', [RoutingController::class, 'detail'])->name('routing.detail');
     Route::patch('/routing/{routeId}/status', [RoutingController::class, 'updateStatus'])->name('routing.status');
+    Route::patch('/routing/{routeId}/republish', [RoutingController::class, 'republish'])->name('routing.republish');
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');
     Route::post('/admin/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('admin.users.toggle-admin');
     Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');

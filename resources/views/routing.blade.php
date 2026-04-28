@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/routing.css') }}">
 </head>
-<body data-user-department="{{ auth()->user()->department ?? 'Records Division' }}">
+<body data-user-department="{{ auth()->user()->department ?? 'Records Division' }}" data-user-id="{{ auth()->user()->id }}">
 
 @include('partials.nav')
 
@@ -131,6 +131,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
+      <div class="field-group">
+        <label>Deadline</label>
+        <input type="datetime-local" id="newDeadline">
+      </div>
 
       <!-- Routing stages -->
       <div class="stages-label">
@@ -225,6 +229,16 @@
           FLAG AS MISSING
         </button>
         <div class="mgmt-divider"></div>
+        <!-- Remarks card (shown when status is returned) -->
+        <div class="mgmt-remarks" id="mgmtRemarks" style="display:none">
+          <div class="mgmt-remarks-label">RETURN REMARKS</div>
+          <p class="mgmt-remarks-text" id="mgmtRemarksText"></p>
+          <button class="mgmt-btn republish" id="republishBtn" onclick="handleRepublish()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            RE-PUBLISH ROUTE
+          </button>
+        </div>
+        <div class="mgmt-divider"></div>
         <div class="current-handler">
           <div class="handler-avatar" id="handlerAvatar"></div>
           <div>
@@ -233,6 +247,22 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Remarks Prompt -->
+<div class="remarks-overlay" id="remarksOverlay">
+  <div class="remarks-card">
+    <div class="remarks-card-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+      <h4>Return Document</h4>
+    </div>
+    <p class="remarks-card-sub">Please provide a reason for returning this document.</p>
+    <textarea id="remarksInput" placeholder="Enter remarks…" rows="4"></textarea>
+    <div class="remarks-card-footer">
+      <button class="btn-cancel" id="remarksCancelBtn">Cancel</button>
+      <button class="btn-create" id="remarksConfirmBtn">Confirm Return</button>
     </div>
   </div>
 </div>

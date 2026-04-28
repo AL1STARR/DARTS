@@ -9,8 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class DocumentRoute extends Model
 {
     protected $fillable = [
-        'user_id', 'title', 'status', 'priority', 'origin_department', 'current_waypoint',
+        'user_id', 'title', 'status', 'priority', 'origin_department', 'current_waypoint', 'deadline', 'remarks', 'returned_by_department',
     ];
+
+    protected $casts = ['deadline' => 'datetime'];
 
     public function user(): BelongsTo
     {

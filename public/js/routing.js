@@ -26,7 +26,8 @@ let lastPage = 1;
 let totalRoutes = 0;
 const ROWS_PER_PAGE = 5;
 
-const MY_DEPT = document.body.dataset.userDepartment || 'Records Division';
+const MY_DEPT    = document.body.dataset.userDepartment || '';
+const MY_USER_ID = parseInt(document.body.dataset.userId) || 0;
 
 // ── Fetch departments on page load ──
 fetchDepartments();
@@ -68,21 +69,20 @@ const upArrow   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const downArrow = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`;
 const dashIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
 
-const priorityIcon = { high: upArrow, medium: dashIcon, low: downArrow };
+const priorityIcon  = { high: upArrow, medium: dashIcon, low: downArrow };
 const priorityLabel = { high: 'High', medium: 'Medium', low: 'Low' };
-const statusLabel   = { 'on-time': 'On-time', delayed: 'Delayed', pending: 'Pending', completed: 'Completed' };
+const statusLabel = { 'on-time': 'On-time', delayed: 'Delayed', pending: 'Pending', returned: 'Returned', completed: 'Completed' };
 
 const docIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
 
 // ── Render ──
 function render() {
-  const page = routes;
   const tbody = document.getElementById('routingBody');
 
-  if (!page.length) {
+  if (!routes.length) {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#64748b;font-size:13px;">No routing records found.</td></tr>`;
   } else {
-    tbody.innerHTML = page.map(r => `
+    tbody.innerHTML = routes.map(r => `
       <tr>
         <td><span class="rt-id">${r.id}</span></td>
         <td>
@@ -99,13 +99,11 @@ function render() {
       </tr>`).join('');
   }
 
-  // Pagination info
-  const from  = totalRoutes ? ((currentPage - 1) * ROWS_PER_PAGE) + 1 : 0;
-  const to    = Math.min(currentPage * ROWS_PER_PAGE, totalRoutes);
+  const from = totalRoutes ? ((currentPage - 1) * ROWS_PER_PAGE) + 1 : 0;
+  const to   = Math.min(currentPage * ROWS_PER_PAGE, totalRoutes);
   document.getElementById('paginationInfo').textContent =
     `Showing ${from} to ${to} of ${totalRoutes} document routing`;
 
-  // Page numbers
   const pn = document.getElementById('pageNumbers');
   pn.innerHTML = '';
   for (let i = 1; i <= lastPage; i++) {
@@ -135,18 +133,15 @@ document.getElementById('clearFilters').addEventListener('click', () => {
 
 function debounce(fn, ms) {
   let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
 }
 
 // ── Pagination ──
-document.getElementById('prevBtn').addEventListener('click', () => { if (currentPage > 1) { currentPage--; fetchRoutes(); } });
+document.getElementById('prevBtn').addEventListener('click', () => { if (currentPage > 1)        { currentPage--; fetchRoutes(); } });
 document.getElementById('nextBtn').addEventListener('click', () => { if (currentPage < lastPage) { currentPage++; fetchRoutes(); } });
 
-// ── Modal ──
-const overlay   = document.getElementById('modalOverlay');
+// ── Create Modal ──
+const overlay    = document.getElementById('modalOverlay');
 const openModal  = () => { resetModal(); overlay.classList.add('open'); };
 const closeModal = () => overlay.classList.remove('open');
 
@@ -159,7 +154,7 @@ let DEPTS = [];
 
 async function fetchDepartments() {
   try {
-    const res = await fetch('/routing/departments');
+    const res  = await fetch('/routing/departments');
     const data = await res.json();
     DEPTS = data.departments || [];
   } catch (err) {
@@ -195,28 +190,41 @@ function renderStages() {
         <label>Waypoint</label>
         ${deptOptions(s.waypoint, false, s.origin)}
       </div>
+      <div class="stage-field">
+        <label>Assigned To</label>
+        <select class="handler-select" data-index="${i}" ${!s.waypoint ? 'disabled' : ''}>
+          <option value="">${!s.waypoint ? 'Select waypoint first' : s.loadingUsers ? 'Loading...' : 'Select person (optional)'}</option>
+          ${(s.users || []).map(u => `<option value="${u.id}" ${u.id == s.handler_id ? 'selected' : ''}>${u.first_name} ${u.last_name} — ${u.role}</option>`).join('')}
+        </select>
+      </div>
       <button class="remove-stage-btn" data-index="${i}" ${stages.length === 1 ? 'disabled style="opacity:.3;cursor:not-allowed"' : ''}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>`).join('');
 
-  // Waypoint change — auto-fill next stage origin
+  // Waypoint change — load users and chain next origin
   list.querySelectorAll('.waypoint-select').forEach((sel, i) => {
+    sel.addEventListener('change', async () => {
+      stages[i].waypoint   = sel.value;
+      stages[i].handler_id = '';
+      stages[i].users      = [];
+      if (stages[i + 1]) stages[i + 1].origin = sel.value;
+      if (sel.value) await loadUsersForStage(i, sel.value);
+      renderStages();
+    });
+  });
+
+  // Handler change
+  list.querySelectorAll('.handler-select').forEach(sel => {
     sel.addEventListener('change', () => {
-      stages[i].waypoint = sel.value;
-      if (stages[i + 1]) {
-        stages[i + 1].origin = sel.value;
-        renderStages();
-      }
+      stages[parseInt(sel.dataset.index)].handler_id = sel.value;
     });
   });
 
   // Remove stage
   list.querySelectorAll('.remove-stage-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const idx = parseInt(btn.dataset.index);
-      stages.splice(idx, 1);
-      // Re-chain origins
+      stages.splice(parseInt(btn.dataset.index), 1);
       for (let j = 1; j < stages.length; j++) {
         stages[j].origin = stages[j - 1].waypoint || stages[j].origin;
       }
@@ -224,27 +232,37 @@ function renderStages() {
     });
   });
 
-  // Disable Add Stage if last waypoint === first origin (route has looped back)
-  const firstOrigin  = stages[0].origin;
-  const lastWaypoint = stages[stages.length - 1].waypoint;
-  const looped = lastWaypoint && lastWaypoint === firstOrigin;
+  // Disable Add Stage if looped back
+  const looped = stages[stages.length - 1].waypoint && stages[stages.length - 1].waypoint === stages[0].origin;
   const addBtn = document.getElementById('addStageBtn');
-  addBtn.disabled = looped;
+  addBtn.disabled      = looped;
   addBtn.style.opacity = looped ? '.4' : '1';
   addBtn.style.cursor  = looped ? 'not-allowed' : 'pointer';
-  addBtn.title = looped ? 'Route has returned to the starting department' : '';
+  addBtn.title         = looped ? 'Route has returned to the starting department' : '';
+}
+
+async function loadUsersForStage(index, department) {
+  stages[index].loadingUsers = true;
+  try {
+    const res = await fetch(`/assigned/department-users?department=${encodeURIComponent(department)}`);
+    stages[index].users = await res.json();
+  } catch {
+    stages[index].users = [];
+  }
+  stages[index].loadingUsers = false;
 }
 
 function addStage() {
   const prevWaypoint = stages.length ? stages[stages.length - 1].waypoint : MY_DEPT;
-  stages.push({ origin: prevWaypoint || MY_DEPT, waypoint: '' });
+  stages.push({ origin: prevWaypoint || MY_DEPT, waypoint: '', handler_id: '', users: [] });
   renderStages();
 }
 
 function resetModal() {
-  stages = [{ origin: MY_DEPT, waypoint: '' }];
+  stages = [{ origin: MY_DEPT, waypoint: '', handler_id: '', users: [] }];
   document.getElementById('newDocName').value  = '';
   document.getElementById('newPriority').value = 'low';
+  document.getElementById('newDeadline').value = '';
   renderStages();
 }
 
@@ -253,6 +271,7 @@ document.getElementById('addStageBtn').addEventListener('click', addStage);
 document.getElementById('modalSubmit').addEventListener('click', async () => {
   const doc      = document.getElementById('newDocName').value.trim();
   const priority = document.getElementById('newPriority').value;
+  const deadline = document.getElementById('newDeadline').value || null;
 
   if (!doc) { showToast('Please enter a document name.', 'error'); return; }
   if (stages.some(s => !s.waypoint)) { showToast('Please select a waypoint for all stages.', 'error'); return; }
@@ -266,9 +285,10 @@ document.getElementById('modalSubmit').addEventListener('click', async () => {
         'Accept': 'application/json',
       },
       body: JSON.stringify({
-        title: doc,
+        title:    doc,
         priority: priority,
-        stages: stages.map(s => ({ origin: s.origin, waypoint: s.waypoint })),
+        deadline: deadline,
+        stages:   stages.map(s => ({ origin: s.origin, waypoint: s.waypoint, handler_id: s.handler_id || null })),
       }),
     });
 
@@ -288,16 +308,19 @@ document.getElementById('modalSubmit').addEventListener('click', async () => {
   }
 });
 
-// ── Detail panel data ──
+// ── Detail panel ──
 const statusDisplayMap = {
   'on-time':  { label: 'ON-TIME',   cls: 'on-time',   dot: '#1d4ed8' },
   'delayed':  { label: 'DELAYED',   cls: 'delayed',   dot: '#c62828' },
-  'pending':  { label: 'PENDING',   cls: 'pending',   dot: '#c2410c' },
+  'pending':  { label: 'PENDING',   cls: 'pending',   dot: '#ca8a04' },
+  'returned': { label: 'RETURNED',  cls: 'returned',  dot: '#7c3aed' },
   'completed':{ label: 'COMPLETED', cls: 'completed', dot: '#15803d' },
 };
 
-// ── Open detail panel ──
+let currentDetailRouteId = null;
+
 async function openDetail(routeId) {
+  currentDetailRouteId = routeId;
   try {
     const res = await fetch(`/routing/${routeId}/detail`);
     if (!res.ok) throw new Error('Failed to fetch detail');
@@ -305,19 +328,19 @@ async function openDetail(routeId) {
 
     const sd = statusDisplayMap[detail.status] || statusDisplayMap['pending'];
 
-    document.getElementById('detailRtId').textContent  = detail.id;
-    document.getElementById('detailH2').textContent    = `Tracking Route ${detail.id}`;
-    document.getElementById('detailSub').textContent   = `Path for: ${detail.title}`;
-    document.getElementById('detailDocId').textContent = `ID: ${detail.id}`;
+    document.getElementById('detailRtId').textContent    = detail.id;
+    document.getElementById('detailH2').textContent      = `Tracking Route ${detail.id}`;
+    document.getElementById('detailSub').textContent     = `Path for: ${detail.title}`;
+    document.getElementById('detailDocId').textContent   = `ID: ${detail.id}`;
     document.getElementById('detailDocName').textContent = detail.title;
-    document.getElementById('detailDocMeta').textContent = `Owner: ${detail.owner} • Submitted: ${detail.submitted}`;
+    document.getElementById('detailDocMeta').textContent =
+      `Owner: ${detail.owner} • Submitted: ${detail.submitted}${detail.deadline ? ' • Deadline: ' + detail.deadline : ''}`;
     document.getElementById('detailOrigin').textContent  = detail.originAbbr;
 
     const statusEl = document.getElementById('detailStatus');
     statusEl.className = `detail-status ${sd.cls}`;
     statusEl.innerHTML = `<span class="detail-status-dot" style="background:${sd.dot}"></span>${sd.label}`;
 
-    // Path table
     document.getElementById('pathBody').innerHTML = detail.paths.map(p => `
       <tr>
         <td><span class="path-label">${p.from} <span class="path-arrow">→</span> ${p.to}</span></td>
@@ -334,6 +357,36 @@ async function openDetail(routeId) {
     document.getElementById('handlerAvatar').textContent = detail.currentInitials;
     document.getElementById('handlerName').textContent   = detail.currentHandler;
 
+    // Enable management actions based on handler assignment
+    const isCompleted = detail.status === 'completed';
+    const isReturned  = detail.status === 'returned';
+    const hasHandler  = !!detail.activeHandlerId;
+    const canAct = !isCompleted && !isReturned && detail.activeWaypoint && (
+      hasHandler
+        ? MY_USER_ID === detail.activeHandlerId
+        : MY_DEPT === detail.activeWaypoint
+    );
+    document.querySelectorAll('.mgmt-btn:not(.republish)').forEach(btn => {
+      btn.disabled      = !canAct;
+      btn.style.opacity = canAct ? '1' : '0.35';
+      btn.style.cursor  = canAct ? 'pointer' : 'not-allowed';
+    });
+
+    // Remarks + republish block
+    const remarksBlock = document.getElementById('mgmtRemarks');
+    const republishBtn = document.getElementById('republishBtn');
+    if (isReturned && detail.remarks) {
+      document.getElementById('mgmtRemarksText').textContent = detail.remarks;
+      remarksBlock.style.display = 'block';
+      // Only the origin department (route creator's dept) can republish
+      const canRepublish = MY_DEPT === detail.originDept;
+      republishBtn.style.display = canRepublish ? 'flex' : 'none';
+      republishBtn.disabled      = !canRepublish;
+    } else {
+      remarksBlock.style.display = 'none';
+      republishBtn.style.display = 'none';
+    }
+
     document.getElementById('detailOverlay').classList.add('open');
     document.getElementById('detailPanel').classList.add('open');
   } catch (err) {
@@ -343,17 +396,52 @@ async function openDetail(routeId) {
 }
 
 function closeDetail() {
+  currentDetailRouteId = null;
   document.getElementById('detailOverlay').classList.remove('open');
   document.getElementById('detailPanel').classList.remove('open');
 }
 
 document.getElementById('backBtn').addEventListener('click', closeDetail);
 document.getElementById('detailOverlay').addEventListener('click', closeDetail);
+document.getElementById('republishBtn').addEventListener('click', handleRepublish);
 
+// ── Remarks prompt ──
+const remarksOverlay = document.getElementById('remarksOverlay');
+let pendingReturnRouteId = null;
+
+function openRemarksPrompt(routeId) {
+  pendingReturnRouteId = routeId;
+  document.getElementById('remarksInput').value = '';
+  remarksOverlay.classList.add('open');
+}
+
+function closeRemarksPrompt() {
+  remarksOverlay.classList.remove('open');
+  pendingReturnRouteId = null;
+}
+
+document.getElementById('remarksCancelBtn').addEventListener('click', closeRemarksPrompt);
+remarksOverlay.addEventListener('click', e => { if (e.target === remarksOverlay) closeRemarksPrompt(); });
+
+document.getElementById('remarksConfirmBtn').addEventListener('click', async () => {
+  const remarks = document.getElementById('remarksInput').value.trim();
+  if (!remarks) { showToast('Please enter remarks before confirming.', 'error'); return; }
+  const routeId = pendingReturnRouteId;
+  closeRemarksPrompt();
+  await submitAction('returned', routeId, remarks);
+});
+
+// ── Handle action ──
 async function handleAction(type) {
-  const routeId = document.getElementById('detailRtId').textContent;
-  if (!routeId) return;
+  if (!currentDetailRouteId) return;
+  if (type === 'returned') {
+    openRemarksPrompt(currentDetailRouteId);
+    return;
+  }
+  await submitAction(type, currentDetailRouteId, null);
+}
 
+async function submitAction(type, routeId, remarks) {
   try {
     const res = await fetch(`/routing/${routeId}/status`, {
       method: 'PATCH',
@@ -362,7 +450,7 @@ async function handleAction(type) {
         'X-CSRF-TOKEN': csrfToken(),
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ action: type }),
+      body: JSON.stringify({ action: type, remarks: remarks }),
     });
 
     if (!res.ok) {
@@ -375,7 +463,6 @@ async function handleAction(type) {
     const types  = { received: 'success', returned: 'info', flag: 'warning' };
     showToast(labels[type], types[type]);
 
-    // Refresh detail and list
     openDetail(routeId);
     fetchRoutes();
   } catch (err) {
@@ -384,15 +471,34 @@ async function handleAction(type) {
   }
 }
 
-// ── Wire view buttons (delegate from tbody) ──
+async function handleRepublish() {
+  if (!currentDetailRouteId) return;
+  try {
+    const res = await fetch(`/routing/${currentDetailRouteId}/republish`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.message || 'Failed to republish.', 'error');
+      return;
+    }
+    showToast('Route republished successfully.', 'success');
+    openDetail(currentDetailRouteId);
+    fetchRoutes();
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to republish.', 'error');
+  }
+}
+
+// ── Wire view buttons ──
 document.getElementById('routingBody').addEventListener('click', e => {
   const btn = e.target.closest('.view-btn');
   if (!btn) return;
-  const row = btn.closest('tr');
-  const id  = row.querySelector('.rt-id').textContent;
-  openDetail(id);
+  openDetail(btn.closest('tr').querySelector('.rt-id').textContent);
 });
 
 // ── Initial load ──
 fetchRoutes();
-
