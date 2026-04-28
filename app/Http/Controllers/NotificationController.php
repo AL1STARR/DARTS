@@ -9,17 +9,22 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
+        return view('notifications');
+    }
+
+    public function data(Request $request)
+    {
         $notifications = Notification::where('user_id', auth()->id())
             ->where('dismissed', false)
             ->latest()
             ->get()
             ->map(function ($notif) {
                 return [
-                    'id' => $notif->id,
-                    'title' => $notif->title,
+                    'id'          => $notif->id,
+                    'title'       => $notif->title,
                     'description' => $notif->description,
-                    'read' => $notif->read,
-                    'created_at' => $notif->created_at->format('Y-m-d H:i:s'),
+                    'read'        => $notif->read,
+                    'created_at'  => $notif->created_at->format('Y-m-d H:i:s'),
                 ];
             });
 
@@ -30,7 +35,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'notifications' => $notifications,
-            'unreadCount' => $unreadCount,
+            'unreadCount'   => $unreadCount,
         ]);
     }
 
