@@ -104,10 +104,9 @@
             <div class="select-wrap">
               <select name="role" id="roleFilter" onchange="document.getElementById('filterForm').submit()">
                 <option value="">All Roles</option>
-                <option value="Admin" {{ request('role') === 'Admin' ? 'selected' : '' }}>Admin</option>
-                <option value="Records Officer" {{ request('role') === 'Records Officer' ? 'selected' : '' }}>Records Officer</option>
-                <option value="Department Head" {{ request('role') === 'Department Head' ? 'selected' : '' }}>Department Head</option>
-                <option value="Staff" {{ request('role') === 'Staff' ? 'selected' : '' }}>Staff</option>
+                @foreach($roles as $role)
+                  <option value="{{ $role }}" {{ request('role') === $role ? 'selected' : '' }}>{{ $role }}</option>
+                @endforeach
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -117,12 +116,9 @@
             <div class="select-wrap">
               <select name="department" id="deptFilter" onchange="document.getElementById('filterForm').submit()">
                 <option value="">All Departments</option>
-                <option value="Executive Committee" {{ request('department') === 'Executive Committee' ? 'selected' : '' }}>Executive Committee</option>
-                <option value="Internal Affairs" {{ request('department') === 'Internal Affairs' ? 'selected' : '' }}>Internal Affairs</option>
-                <option value="External Affairs" {{ request('department') === 'External Affairs' ? 'selected' : '' }}>External Affairs</option>
-                <option value="Secretariat" {{ request('department') === 'Secretariat' ? 'selected' : '' }}>Secretariat</option>
-                <option value="Finance" {{ request('department') === 'Finance' ? 'selected' : '' }}>Finance</option>
-                <option value="Audit" {{ request('department') === 'Audit' ? 'selected' : '' }}>Audit</option>
+                @foreach($departments as $dept)
+                  <option value="{{ $dept }}" {{ request('department') === $dept ? 'selected' : '' }}>{{ $dept }}</option>
+                @endforeach
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -449,10 +445,9 @@
             <label>Role</label>
             <div class="select-wrap">
               <select id="fRole" name="role">
-                <option value="Admin">Admin</option>
-                <option value="Records Officer">Records Officer</option>
-                <option value="Department Head">Department Head</option>
-                <option value="Staff">Staff</option>
+                @foreach($roles as $role)
+                  <option value="{{ $role }}">{{ $role }}</option>
+                @endforeach
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -461,12 +456,9 @@
             <label>Department</label>
             <div class="select-wrap">
               <select id="fDept" name="department">
-                <option value="Executive Committee">Executive Committee</option>
-                <option value="Internal Affairs">Internal Affairs</option>
-                <option value="External Affairs">External Affairs</option>
-                <option value="Secretariat">Secretariat</option>
-                <option value="Finance">Finance</option>
-                <option value="Audit">Audit</option>
+                @foreach($departments as $dept)
+                  <option value="{{ $dept }}">{{ $dept }}</option>
+                @endforeach
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>

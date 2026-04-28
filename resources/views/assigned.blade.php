@@ -56,9 +56,9 @@
           <div class="select-wrap">
             <select name="priority" id="priorityFilter" onchange="document.getElementById('filterForm').submit()">
               <option value="">All Priorities</option>
-              <option value="high"   {{ request('priority') === 'high'   ? 'selected' : '' }}>High</option>
-              <option value="medium" {{ request('priority') === 'medium' ? 'selected' : '' }}>Medium</option>
-              <option value="low"    {{ request('priority') === 'low'    ? 'selected' : '' }}>Low</option>
+              @foreach($priorities as $p)
+                <option value="{{ strtolower($p) }}" {{ request('priority') === strtolower($p) ? 'selected' : '' }}>{{ $p }}</option>
+              @endforeach
             </select>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
@@ -68,10 +68,9 @@
           <div class="select-wrap">
             <select name="category" id="categoryFilter" onchange="document.getElementById('filterForm').submit()">
               <option value="">All Categories</option>
-              <option value="letters"    {{ request('category') === 'letters'    ? 'selected' : '' }}>Letters</option>
-              <option value="memorandum" {{ request('category') === 'memorandum' ? 'selected' : '' }}>Memorandum</option>
-              <option value="minutes"    {{ request('category') === 'minutes'    ? 'selected' : '' }}>Minutes of the Meeting</option>
-              <option value="notice"     {{ request('category') === 'notice'     ? 'selected' : '' }}>Notice of the Meeting</option>
+              @foreach($categories as $cat)
+                <option value="{{ strtolower($cat) }}" {{ request('category') === strtolower($cat) ? 'selected' : '' }}>{{ $cat }}</option>
+              @endforeach
             </select>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>

@@ -63,9 +63,9 @@
         <div class="select-wrap">
           <select id="priorityFilter">
             <option value="">All Priorities</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            @foreach($priorities as $p)
+              <option value="{{ strtolower($p) }}">{{ $p }}</option>
+            @endforeach
           </select>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
@@ -124,9 +124,9 @@
         <label>Priority</label>
         <div class="select-wrap">
           <select id="newPriority">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            @foreach($priorities as $p)
+              <option value="{{ strtolower($p) }}">{{ $p }}</option>
+            @endforeach
           </select>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>

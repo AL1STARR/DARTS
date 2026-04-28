@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArchiveDocument;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -45,7 +46,10 @@ class ArchiveController extends Controller
             ? $allDocs->groupBy('department')->map(fn($g) => $g->count())
             : $allDocs->groupBy(fn($d) => $d->uploader->first_name . ' ' . $d->uploader->last_name)->map(fn($g) => $g->count());
 
-        return view('archive', compact('documents', 'fileTypeStats', 'distStats', 'tab'));
+        $categories  = Setting::getGroup('categories');
+        $departments = Setting::getGroup('departments');
+
+        return view('archive', compact('documents', 'fileTypeStats', 'distStats', 'tab', 'categories', 'departments'));
     }
 
     public function store(Request $request)

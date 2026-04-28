@@ -13,7 +13,8 @@ class RoutingController extends Controller
 {
     public function index()
     {
-        return view('routing');
+        $priorities = Setting::getGroup('priorities');
+        return view('routing', compact('priorities'));
     }
 
     public function getDepartments()

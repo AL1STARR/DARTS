@@ -35,11 +35,14 @@ class AdminController extends Controller
         $requests = User::where('status', 'pending')->get();
         $settings = Setting::orderBy('group')->orderBy('value')->get()->groupBy('group');
 
+        $departments = Setting::getGroup('departments');
+        $roles       = Setting::getGroup('roles');
+
         // Calculate sidebar stats
         $roleCounts = $allFilteredUsers->groupBy('role')->map->count();
         $deptCounts = $allFilteredUsers->groupBy('department')->map->count();
 
-        return view('admin', compact('users', 'requests', 'settings', 'allFilteredUsers', 'roleCounts', 'deptCounts'));
+        return view('admin', compact('users', 'requests', 'settings', 'allFilteredUsers', 'roleCounts', 'deptCounts', 'departments', 'roles'));
     }
 
     public function settingStore(Request $request, string $group)

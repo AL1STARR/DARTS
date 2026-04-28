@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DocumentRequest;
 use App\Models\RequestAttachment;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,9 +24,12 @@ class DocumentRequestController extends Controller
               ->orWhereRaw('CONCAT("REQ-", LPAD(id, 3, "0")) LIKE ?', ['%' . $request->search . '%']);
         });
 
-        $requests = $query->paginate(5)->withQueryString();
+        $requests    = $query->paginate(5)->withQueryString();
+        $departments = Setting::getGroup('departments');
+        $categories  = Setting::getGroup('categories');
+        $priorities  = Setting::getGroup('priorities');
 
-        return view('myrequests', compact('requests'));
+        return view('myrequests', compact('requests', 'departments', 'categories', 'priorities'));
     }
 
     public function store(Request $request)

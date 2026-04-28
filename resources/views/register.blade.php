@@ -79,13 +79,9 @@
               <label for="department">Department</label>
               <select id="department" name="department">
                 <option value="" disabled selected>Select department</option>
-                <option>Records Management</option>
-                <option>Accounting</option>
-                <option>Human Resources</option>
-                <option>Commission on Audit</option>
-                <option>Information Technology</option>
-                <option>Legal</option>
-                <option>Other</option>
+                @foreach($departments as $dept)
+                  <option value="{{ $dept }}">{{ $dept }}</option>
+                @endforeach
               </select>
               <span class="field-error" id="departmentError"></span>
             </div>
@@ -93,10 +89,9 @@
               <label for="role">Assigned Role</label>
               <select id="role" name="role">
                 <option value="" disabled selected>Select role</option>
-                <option>Records Officer</option>
-                <option>Department Staff</option>
-                <option>Auditor</option>
-                <option>Viewer</option>
+                @foreach($roles as $role)
+                  <option value="{{ $role }}">{{ $role }}</option>
+                @endforeach
               </select>
               <span class="field-error" id="roleError"></span>
             </div>

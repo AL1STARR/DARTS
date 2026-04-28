@@ -64,9 +64,9 @@
           <div class="select-wrap">
             <select name="priority" id="priorityFilter" onchange="document.getElementById('filterForm').submit()">
               <option value="">All Priorities</option>
-              <option value="high"   {{ request('priority') === 'high'   ? 'selected' : '' }}>High</option>
-              <option value="medium" {{ request('priority') === 'medium' ? 'selected' : '' }}>Medium</option>
-              <option value="low"    {{ request('priority') === 'low'    ? 'selected' : '' }}>Low</option>
+              @foreach($priorities as $p)
+                <option value="{{ strtolower($p) }}" {{ request('priority') === strtolower($p) ? 'selected' : '' }}>{{ $p }}</option>
+              @endforeach
             </select>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
@@ -76,10 +76,9 @@
           <div class="select-wrap">
             <select name="category" id="categoryFilter" onchange="document.getElementById('filterForm').submit()">
               <option value="">All Categories</option>
-              <option value="letters"    {{ request('category') === 'letters'    ? 'selected' : '' }}>Letters</option>
-              <option value="memorandum" {{ request('category') === 'memorandum' ? 'selected' : '' }}>Memorandum</option>
-              <option value="minutes"    {{ request('category') === 'minutes'    ? 'selected' : '' }}>Minutes of the Meeting</option>
-              <option value="notice"     {{ request('category') === 'notice'     ? 'selected' : '' }}>Notice of the Meeting</option>
+              @foreach($categories as $cat)
+                <option value="{{ strtolower($cat) }}" {{ request('category') === strtolower($cat) ? 'selected' : '' }}>{{ $cat }}</option>
+              @endforeach
             </select>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
@@ -200,10 +199,9 @@
             <div class="select-wrap">
               <select name="category" id="fCategory">
                 <option value="">Select category</option>
-                <option value="letters">Letters</option>
-                <option value="memorandum">Memorandum</option>
-                <option value="minutes">Minutes of the Meeting</option>
-                <option value="notice">Notice of the Meeting</option>
+                @foreach($categories as $cat)
+                  <option value="{{ strtolower($cat) }}">{{ $cat }}</option>
+                @endforeach
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -214,9 +212,9 @@
             <div class="select-wrap">
               <select name="priority" id="fPriority">
                 <option value="">Select priority</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                @foreach($priorities as $p)
+                  <option value="{{ strtolower($p) }}">{{ $p }}</option>
+                @endforeach
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -228,12 +226,9 @@
           <div class="select-wrap">
             <select name="department" id="fDept">
               <option value="">Select department</option>
-              <option>Executive Committee</option>
-              <option>Internal Affairs</option>
-              <option>External Affairs</option>
-              <option>Secretariat</option>
-              <option>Finance</option>
-              <option>Audit</option>
+              @foreach($departments as $dept)
+                <option value="{{ $dept }}">{{ $dept }}</option>
+              @endforeach
             </select>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>

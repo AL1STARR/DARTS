@@ -22,9 +22,11 @@ class AssignedRequestController extends Controller
               ->orWhereRaw('CONCAT("REQ-", LPAD(id, 3, "0")) LIKE ?', ['%' . $request->search . '%']);
         });
 
-        $requests = $query->paginate(5)->withQueryString();
+        $requests   = $query->paginate(5)->withQueryString();
+        $categories = \App\Models\Setting::getGroup('categories');
+        $priorities = \App\Models\Setting::getGroup('priorities');
 
-        return view('assigned', compact('requests'));
+        return view('assigned', compact('requests', 'categories', 'priorities'));
     }
 
     public function updateStatus(Request $request, DocumentRequest $documentRequest)
