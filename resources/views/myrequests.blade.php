@@ -139,6 +139,7 @@
                 data-date="{{ $req->created_at->format('M d, Y') }}"
                 data-desc="{{ $req->description ?? '' }}"
                 data-deadline="{{ $req->deadline ? $req->deadline->format('Y-m-d\TH:i') : '' }}"
+                data-deadline-display="{{ $req->deadline ? $req->deadline->format('M d, Y g:i A') : 'No deadline' }}"
                 data-assigned="{{ $req->assignedTo ? $req->assignedTo->first_name . ' ' . $req->assignedTo->last_name : 'Unassigned' }}"
                 data-fulfilled-doc="{{ $req->fulfilledBy ? $req->fulfilledBy->title : '' }}"
                 data-fulfilled-url="{{ $req->fulfilledBy ? route('archive.download', $req->fulfilledBy) : '' }}"
@@ -321,6 +322,10 @@
       <div class="drawer-info-item">
         <span class="drawer-info-label">DATE SUBMITTED</span>
         <span class="drawer-info-value" id="dInfoDate"></span>
+      </div>
+      <div class="drawer-info-item">
+        <span class="drawer-info-label">DEADLINE</span>
+        <span class="drawer-info-value" id="dInfoDeadline"></span>
       </div>
     </div>
     <div class="drawer-desc-card">

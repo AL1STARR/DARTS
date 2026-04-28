@@ -17,7 +17,8 @@ class DashboardController extends Controller
                                 ->where('department', auth()->user()->department)->count();
         $generalArchive    = ArchiveDocument::where('archive_type', 'general')->count();
 
-        $recentRequests = DocumentRequest::where('user_id', $userId)
+        $recentRequests = DocumentRequest::where('assigned_to', $userId)
+            ->whereIn('status', ['pending', 'in-review'])
             ->latest()
             ->take(3)
             ->get();

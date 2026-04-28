@@ -82,7 +82,7 @@
             <span class="title-bar"></span>
             Near Deadline Requests
           </div>
-          <a href="#" class="see-all">View All</a>
+          <a href="{{ route('assigned') }}" class="see-all">View All</a>
         </div>
         <div class="deadline-strip">
           @forelse($nearDeadlineRequests as $dl)
@@ -120,7 +120,7 @@
             <span class="title-bar"></span>
             My Assigned Requests
           </div>
-          <a href="#" class="see-all">View All</a>
+          <a href="{{ route('assigned') }}" class="see-all">View All</a>
         </div>
         <table class="data-table">
           <thead>
@@ -139,10 +139,10 @@
               <td>{{ $req->title }}</td>
               <td><span class="badge-status {{ $req->status }}">{{ ucfirst(str_replace('-', ' ', $req->status)) }}</span></td>
               <td><span class="badge-priority {{ $req->priority }}">{{ ucfirst($req->priority) }}</span></td>
-              <td><a href="{{ route('myrequests') }}" class="row-action">View</a></td>
+              <td><a href="{{ route('assigned') }}" class="row-action">View</a></td>
             </tr>
             @empty
-            <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">No requests yet.</td></tr>
+            <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">No assigned requests yet.</td></tr>
             @endforelse
           </tbody>
         </table>

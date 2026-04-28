@@ -201,9 +201,10 @@
   color: var(--blue);
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
   transition: background .12s, border-color .12s;
 }
-.view-btn:hover { background: #eff6ff; border-color: var(--blue); }
+.view-btn:hover { background: #eff6ff; border-color: var(--blue); text-decoration: none; }
 
 /* ── PAGINATION ── */
 .pagination-bar {

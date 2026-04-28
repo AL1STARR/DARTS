@@ -117,6 +117,7 @@
                 data-dept="{{ $req->department }}"
                 data-date="{{ $req->created_at->format('M d, Y') }}"
                 data-desc="{{ $req->description ?? '' }}"
+                data-deadline-display="{{ $req->deadline ? $req->deadline->format('M d, Y g:i A') : 'No deadline' }}"
                 data-requestor="{{ $req->user->first_name }} {{ $req->user->last_name }}"
                 data-attachments="{{ $req->attachments->map(fn($a) => ['name' => $a->filename, 'size' => round($a->size / 1024, 1) . ' KB', 'url' => route('attachments.view', $a)])->toJson() }}"
                 data-formatted-id="{{ $req->formattedId() }}"
@@ -203,6 +204,10 @@
       <div class="drawer-info-item">
         <span class="drawer-info-label">DATE SUBMITTED</span>
         <span class="drawer-info-value" id="dInfoDate"></span>
+      </div>
+      <div class="drawer-info-item">
+        <span class="drawer-info-label">DEADLINE</span>
+        <span class="drawer-info-value" id="dInfoDeadline"></span>
       </div>
     </div>
     <div class="drawer-desc-card">

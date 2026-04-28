@@ -188,6 +188,7 @@ document.getElementById('assignedBody').addEventListener('click', e => {
   document.getElementById('dInfoRequestor').textContent = requestor;
   document.getElementById('dInfoDept').textContent      = dept;
   document.getElementById('dInfoDate').textContent      = date;
+  document.getElementById('dInfoDeadline').textContent  = btn.dataset.deadlineDisplay || 'No deadline';
   document.getElementById('dInfoDesc').textContent      = desc;
 
   const statusEl = document.getElementById('drawerStatus');

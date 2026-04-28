@@ -227,6 +227,7 @@ document.getElementById('mrBody').addEventListener('click', e => {
   document.getElementById('dInfoDept').textContent     = dept;
   document.getElementById('dInfoDate').textContent     = date;
   document.getElementById('dInfoDesc').textContent     = desc;
+  document.getElementById('dInfoDeadline').textContent = btn.dataset.deadlineDisplay || 'No deadline';
 
   const statusEl = document.getElementById('drawerStatus');
   statusEl.className   = statusDrawerClasses[status] || 'status-badge pending';

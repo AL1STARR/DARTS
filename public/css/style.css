@@ -407,9 +407,11 @@ body {
   color: var(--blue);
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
+  display: inline-block;
   transition: background .12s, border-color .12s;
 }
-.row-action:hover { background: #e3f2fd; border-color: var(--blue); }
+.row-action:hover { background: #e3f2fd; border-color: var(--blue); text-decoration: none; }
 
 /* ── NOTIFICATIONS ── */
 .notif-panel {
