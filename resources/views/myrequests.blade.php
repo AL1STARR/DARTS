@@ -224,10 +224,10 @@
         <div class="field-group">
           <label>Department</label>
           <div class="select-wrap">
-            <select name="department" id="fDept">
+            <select name="department" id="fDept" data-user-dept="{{ auth()->user()->department }}">
               <option value="">Select department</option>
               @foreach($departments as $dept)
-                <option value="{{ $dept }}">{{ $dept }}</option>
+                <option value="{{ $dept }}" @if($dept === auth()->user()->department) disabled @endif>{{ $dept }}{{ $dept === auth()->user()->department ? ' (Your Department)' : '' }}</option>
               @endforeach
             </select>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>

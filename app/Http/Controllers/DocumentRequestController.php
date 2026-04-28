@@ -38,7 +38,11 @@ class DocumentRequestController extends Controller
             'title'       => 'required|string|max:255',
             'category'    => 'required|string',
             'priority'    => 'required|string',
-            'department'  => 'required|string',
+            'department'  => ['required', 'string', function ($attr, $value, $fail) {
+                if ($value === auth()->user()->department) {
+                    $fail('You cannot submit a request to your own department.');
+                }
+            }],
             'assigned_to' => 'required|exists:users,id',
             'description' => 'nullable|string',
             'attachments.*' => 'nullable|file|max:10240|mimes:pdf',
@@ -83,7 +87,11 @@ class DocumentRequestController extends Controller
             'title'       => 'required|string|max:255',
             'category'    => 'required|string',
             'priority'    => 'required|string',
-            'department'  => 'required|string',
+            'department'  => ['required', 'string', function ($attr, $value, $fail) {
+                if ($value === auth()->user()->department) {
+                    $fail('You cannot submit a request to your own department.');
+                }
+            }],
             'assigned_to' => 'required|exists:users,id',
             'description' => 'nullable|string',
         ]);
