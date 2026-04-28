@@ -1,0 +1,186 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background: #f4f5f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* HEADER */
+.header {
+    width: 100%;
+    padding: 20px 40px;
+}
+
+.header-logo {
+    height: 65px;
+    width:auto;
+}
+
+/* MAIN CONTAINER */
+.container {
+    display: flex;
+    width: 900px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+/* LEFT SIDE */
+.left {
+    width: 50%;
+    background: linear-gradient(rgba(10,20,40,0.7), rgba(10,20,40,0.7)),
+                url("Login_Card_Image.jpg");
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 30px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.left-content h2 {
+    font-size: 22px;
+    margin: 10px 0;
+}
+
+.left-content p {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+/* RIGHT SIDE */
+.right {
+    width: 50%;
+    padding: 40px;
+    position: relative;
+}
+
+/* TOP RIGHT ICON */
+.top-right-logo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.top-right-logo img {
+    height: 35px;
+}
+
+/* TEXT */
+.right h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: gray;
+    margin-bottom: 25px;
+}
+
+/* FORM */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: none;
+    background: #f0f0f0;
+}
+
+/* PASSWORD ROW */
+.password-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.forgot {
+    font-size: 12px;
+    color: #1c355e;
+    text-decoration: none;
+}
+
+/* LOGIN BUTTON */
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 6px;
+    background: #1c355e;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* DIVIDER */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    font-size: 12px;
+    color: gray;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.divider span {
+    margin: 0 10px;
+}
+
+/* GOOGLE BUTTON */
+.google-btn {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.google-icon {
+    height: 18px;
+}
+
+/* FOOTER */
+.footer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: gray;
+    text-align: center;
+}
+
+.footer a {
+    margin: 0 10px;
+    color: gray;
+    text-decoration: none;
+}
