@@ -150,22 +150,20 @@
 
     </div>
 
-    <!-- Notifications -->
-    <div class="notif-panel" id="notifPanel">
+    <!-- Right-side notification panel (dashboard only) -->
+    <div class="notif-panel-right">
       <div class="panel-header">
         <div class="panel-title">
           <span class="title-bar"></span>
           Notifications
-          <span class="notif-count" id="notifBadge">4</span>
         </div>
-        <button class="clear-btn" id="clearAll">Clear all</button>
+        <button class="clear-btn" id="dashboardClearAll">Clear all</button>
       </div>
-      <div class="notif-list" id="notifList"></div>
+      <div class="notif-list" id="dashboardNotifList"></div>
     </div>
   </div>
 
 </main>
 
-<script src="{{ asset('js/main.js') }}"></script>
 </body>
 </html>

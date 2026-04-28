@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DocumentRequest;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class AssignedRequestController extends Controller
@@ -45,6 +46,14 @@ class AssignedRequestController extends Controller
 
         $documentRequest->update($update);
 
+        // Notify request owner of status change
+        NotificationService::notifyRequestStatusChanged(
+            $documentRequest->user_id,
+            $data['status'],
+            str_pad($documentRequest->id, 3, '0', STR_PAD_LEFT),
+            $documentRequest->title
+        );
+
         return response()->json(['message' => 'Status updated.']);
     }
 
@@ -61,6 +70,13 @@ class AssignedRequestController extends Controller
         abort_if($newAssignee->department !== $documentRequest->department, 422);
 
         $documentRequest->update(['assigned_to' => $data['assigned_to']]);
+
+        // Notify new assignee
+        NotificationService::notifyRequestAssigned(
+            $data['assigned_to'],
+            $documentRequest->title,
+            str_pad($documentRequest->id, 3, '0', STR_PAD_LEFT)
+        );
 
         return response()->json(['message' => 'Request transferred successfully.']);
     }

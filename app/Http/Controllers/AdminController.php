@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -87,6 +88,9 @@ class AdminController extends Controller
         if (!auth()->user()->isAdmin()) abort(403);
 
         $user->update(['status' => 'active']);
+
+        // Notify user of approval
+        NotificationService::notifyUserApproved($user->id, $user->first_name . ' ' . $user->last_name);
 
         return back()->with('success', "Access approved for {$user->first_name} {$user->last_name}.");
     }

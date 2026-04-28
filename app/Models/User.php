@@ -48,6 +48,10 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\DocumentRequest::class, 'assigned_to');
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(\App\Models\Notification::class, 'user_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

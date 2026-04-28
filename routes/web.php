@@ -8,6 +8,7 @@ use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AssignedRequestController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\RoutingController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : view('login');
@@ -52,5 +53,9 @@ Route::get('/routing', [RoutingController::class, 'index'])->name('routing');
     Route::delete('/admin/requests/{user}/reject', [AdminController::class, 'reject'])->name('admin.requests.reject');
     Route::post('/admin/settings/{group}', [AdminController::class, 'settingStore'])->name('admin.settings.store');
     Route::delete('/admin/settings/{setting}', [AdminController::class, 'settingDestroy'])->name('admin.settings.destroy');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::patch('/notifications/{notification}/dismiss', [NotificationController::class, 'dismiss'])->name('notifications.dismiss');
+    Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clear-all');
 });
 
