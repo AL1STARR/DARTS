@@ -114,7 +114,7 @@ class AdminController extends Controller
         User::create(array_merge($data, [
             'name'     => $data['first_name'] . ' ' . $data['last_name'],
             'password' => bcrypt($data['password']),
-            'is_admin' => $data['role'] === 'Admin',
+            'is_admin' => false,
         ]));
 
         if ($request->expectsJson()) {
@@ -138,21 +138,13 @@ class AdminController extends Controller
             'password'   => 'required|string|min:8',
         ]);
 
-        $update = array_merge($data, [
-            'name'     => $data['first_name'] . ' ' . $data['last_name'],
-            'is_admin' => $data['role'] === 'Admin' ? true : ($data['role'] !== $user->role ? false : $user->is_admin),
-        ]);
+        $update = array_merge($data, ['name' => $data['first_name'] . ' ' . $data['last_name']]);
         unset($update['password']);
         if (!empty($data['password'])) {
             $update['password'] = bcrypt($data['password']);
         }
 
         $user->update($update);
-
-        // Re-authenticate session if the updated user is the currently logged-in user
-        if (auth()->id() === $user->id) {
-            auth()->setUser($user->fresh());
-        }
 
         if ($request->expectsJson()) {
             return response()->json(['message' => 'User updated successfully.']);
