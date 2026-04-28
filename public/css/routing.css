@@ -215,6 +215,8 @@
 .status-badge.pending::before   { background: #ca8a04; }
 .status-badge.returned  { background: #f5f3ff; color: #7c3aed; }
 .status-badge.returned::before  { background: #7c3aed; }
+.status-badge.missing   { background: #fff7ed; color: #c2410c; }
+.status-badge.missing::before   { background: #c2410c; }
 
 /* Priority badges */
 .priority-badge {
@@ -509,6 +511,7 @@
 .detail-status.on-time   { color: #1d4ed8; }
 .detail-status.pending   { color: #ca8a04; }
 .detail-status.returned  { color: #7c3aed; }
+.detail-status.missing   { color: #c2410c; }
 .detail-status.completed { color: var(--green); }
 .detail-status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
@@ -625,6 +628,7 @@
 .mgmt-btn.returned  { background: #374151; color: #fff; }
 .mgmt-btn.flag      { background: var(--red); color: #fff; }
 .mgmt-btn.republish { background: #7c3aed; color: #fff; }
+.mgmt-btn.delete    { background: #7f1d1d; color: #fff; }
 
 .mgmt-remarks {
   background: rgba(255,255,255,.07);

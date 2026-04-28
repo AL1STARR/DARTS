@@ -120,7 +120,7 @@ class RoutingController extends Controller
 
         // Auto-mark delayed if past deadline and not yet completed/returned
         if ($documentRoute->deadline && now()->gt($documentRoute->deadline)
-            && !in_array($documentRoute->status, ['completed', 'delayed', 'returned'])) {
+            && !in_array($documentRoute->status, ['completed', 'delayed', 'returned', 'missing'])) {
             $documentRoute->update(['status' => 'delayed']);
         }
 
@@ -169,6 +169,7 @@ class RoutingController extends Controller
             'remarks'                => $fresh->remarks,
             'returnedByDepartment'   => $fresh->returned_by_department,
             'originDept'             => $documentRoute->origin_department,
+            'ownerId'                => $documentRoute->user_id,
         ]);
     }
 
@@ -191,7 +192,7 @@ class RoutingController extends Controller
 
         // Auto-mark delayed if past deadline
         if ($documentRoute->deadline && now()->gt($documentRoute->deadline)
-            && !in_array($documentRoute->status, ['completed', 'delayed', 'returned'])) {
+            && !in_array($documentRoute->status, ['completed', 'delayed', 'returned', 'missing'])) {
             $documentRoute->update(['status' => 'delayed']);
             return response()->json(['message' => 'This route has passed its deadline and has been marked as delayed.'], 422);
         }
@@ -239,7 +240,7 @@ class RoutingController extends Controller
                     'returned_by_department'=> $user->department,
                 ]);
             } elseif ($action === 'flag') {
-                $documentRoute->update(['status' => 'delayed']);
+                $documentRoute->update(['status' => 'missing']);
             }
         });
 
@@ -251,8 +252,8 @@ class RoutingController extends Controller
         $numericId     = (int) str_replace('RT-', '', $routeId);
         $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
 
-        if ($documentRoute->status !== 'returned') {
-            return response()->json(['message' => 'Only returned routes can be republished.'], 422);
+        if (!in_array($documentRoute->status, ['returned', 'missing'])) {
+            return response()->json(['message' => 'Only returned or missing routes can be republished.'], 422);
         }
 
         // Only the origin department (the department that owns the route) can republish
@@ -277,6 +278,25 @@ class RoutingController extends Controller
         });
 
         return response()->json(['message' => 'Route republished successfully.']);
+    }
+
+    public function destroy($routeId)
+    {
+        $numericId     = (int) str_replace('RT-', '', $routeId);
+        $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
+
+        if (auth()->id() !== $documentRoute->user_id) {
+            return response()->json(['message' => 'Only the route owner can delete this route.'], 403);
+        }
+
+        if ($documentRoute->status === 'on-time') {
+            return response()->json(['message' => 'Cannot delete a route that is currently in progress.'], 422);
+        }
+
+        $documentRoute->stages()->delete();
+        $documentRoute->delete();
+
+        return response()->json(['message' => 'Route deleted successfully.']);
     }
 
     private function abbr(string $text): string

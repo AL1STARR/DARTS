@@ -233,7 +233,7 @@
         <div class="mgmt-remarks" id="mgmtRemarks" style="display:none">
           <div class="mgmt-remarks-label">RETURN REMARKS</div>
           <p class="mgmt-remarks-text" id="mgmtRemarksText"></p>
-          <button class="mgmt-btn republish" id="republishBtn" onclick="handleRepublish()">
+          <button class="mgmt-btn republish" id="republishBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
             RE-PUBLISH ROUTE
           </button>
@@ -246,6 +246,11 @@
             <div class="handler-name" id="handlerName"></div>
           </div>
         </div>
+        <div class="mgmt-divider"></div>
+        <button class="mgmt-btn delete" id="deleteRouteBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          DELETE ROUTE
+        </button>
       </div>
     </div>
   </div>

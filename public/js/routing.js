@@ -71,7 +71,7 @@ const dashIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 
 const priorityIcon  = { high: upArrow, medium: dashIcon, low: downArrow };
 const priorityLabel = { high: 'High', medium: 'Medium', low: 'Low' };
-const statusLabel = { 'on-time': 'On-time', delayed: 'Delayed', pending: 'Pending', returned: 'Returned', completed: 'Completed' };
+const statusLabel = { 'on-time': 'On-time', delayed: 'Delayed', pending: 'Pending', returned: 'Returned', missing: 'Missing', completed: 'Completed' };
 
 const docIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
 
@@ -314,6 +314,7 @@ const statusDisplayMap = {
   'delayed':  { label: 'DELAYED',   cls: 'delayed',   dot: '#c62828' },
   'pending':  { label: 'PENDING',   cls: 'pending',   dot: '#ca8a04' },
   'returned': { label: 'RETURNED',  cls: 'returned',  dot: '#7c3aed' },
+  'missing':  { label: 'MISSING',   cls: 'missing',   dot: '#c2410c' },
   'completed':{ label: 'COMPLETED', cls: 'completed', dot: '#15803d' },
 };
 
@@ -360,32 +361,44 @@ async function openDetail(routeId) {
     // Enable management actions based on handler assignment
     const isCompleted = detail.status === 'completed';
     const isReturned  = detail.status === 'returned';
+    const isMissing   = detail.status === 'missing';
+    const isLocked    = isCompleted || isReturned || isMissing;
     const hasHandler  = !!detail.activeHandlerId;
-    const canAct = !isCompleted && !isReturned && detail.activeWaypoint && (
+    const canAct = !isLocked && detail.activeWaypoint && (
       hasHandler
         ? MY_USER_ID === detail.activeHandlerId
         : MY_DEPT === detail.activeWaypoint
     );
-    document.querySelectorAll('.mgmt-btn:not(.republish)').forEach(btn => {
+    document.querySelectorAll('.mgmt-btn:not(.republish):not(.delete)').forEach(btn => {
       btn.disabled      = !canAct;
       btn.style.opacity = canAct ? '1' : '0.35';
       btn.style.cursor  = canAct ? 'pointer' : 'not-allowed';
     });
 
-    // Remarks + republish block
+    // Remarks block (returned) + missing notice + republish
     const remarksBlock = document.getElementById('mgmtRemarks');
     const republishBtn = document.getElementById('republishBtn');
-    if (isReturned && detail.remarks) {
-      document.getElementById('mgmtRemarksText').textContent = detail.remarks;
+    const canRepublish = MY_DEPT === detail.originDept;
+
+    if (isReturned) {
+      document.getElementById('mgmtRemarksText').textContent = detail.remarks || '';
       remarksBlock.style.display = 'block';
-      // Only the origin department (route creator's dept) can republish
-      const canRepublish = MY_DEPT === detail.originDept;
+      republishBtn.style.display = canRepublish ? 'flex' : 'none';
+      republishBtn.disabled      = !canRepublish;
+    } else if (isMissing) {
+      document.getElementById('mgmtRemarksText').textContent = 'This document has been flagged as missing.';
+      remarksBlock.style.display = 'block';
       republishBtn.style.display = canRepublish ? 'flex' : 'none';
       republishBtn.disabled      = !canRepublish;
     } else {
       remarksBlock.style.display = 'none';
       republishBtn.style.display = 'none';
     }
+
+    // Delete button — only the route owner, not while actively circulating
+    const deleteBtn = document.getElementById('deleteRouteBtn');
+    const canDelete = MY_USER_ID === detail.ownerId && detail.status !== 'on-time';
+    deleteBtn.style.display = canDelete ? 'flex' : 'none';
 
     document.getElementById('detailOverlay').classList.add('open');
     document.getElementById('detailPanel').classList.add('open');
@@ -404,6 +417,28 @@ function closeDetail() {
 document.getElementById('backBtn').addEventListener('click', closeDetail);
 document.getElementById('detailOverlay').addEventListener('click', closeDetail);
 document.getElementById('republishBtn').addEventListener('click', handleRepublish);
+document.getElementById('deleteRouteBtn').addEventListener('click', () => {
+  if (!currentDetailRouteId) return;
+  showConfirmToast('Delete this route? This cannot be undone.', async () => {
+    try {
+      const res = await fetch(`/routing/${currentDetailRouteId}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast(err.message || 'Failed to delete route.', 'error');
+        return;
+      }
+      showToast('Route deleted successfully.', 'success');
+      closeDetail();
+      fetchRoutes();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to delete route.', 'error');
+    }
+  });
+});
 
 // ── Remarks prompt ──
 const remarksOverlay = document.getElementById('remarksOverlay');
@@ -491,6 +526,31 @@ async function handleRepublish() {
     console.error(err);
     showToast('Failed to republish.', 'error');
   }
+}
+
+// ── Confirm toast ──
+function showConfirmToast(message, onConfirm) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.className = 'toast warning show';
+  toast.style.cssText = 'max-width:380px;gap:12px;flex-direction:column;align-items:flex-start;pointer-events:all;';
+  toast.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px">
+      <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>${message}</span>
+    </div>
+    <div style="display:flex;gap:8px;align-self:flex-end">
+      <button class="confirm-no"  style="padding:5px 14px;border:1px solid #fed7aa;border-radius:5px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:#c2410c">Cancel</button>
+      <button class="confirm-yes" style="padding:5px 14px;border:none;border-radius:5px;background:#c2410c;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Confirm</button>
+    </div>`;
+  container.appendChild(toast);
+  toast.querySelector('.confirm-yes').addEventListener('click', () => { toast.remove(); onConfirm(); });
+  toast.querySelector('.confirm-no').addEventListener('click',  () => toast.remove());
 }
 
 // ── Wire view buttons ──
