@@ -1,0 +1,131 @@
+/* notifications.css */
+
+.notif-page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.clear-all-btn {
+  padding: 9px 20px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .12s, border-color .12s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.clear-all-btn:hover { background: #fef2f2; border-color: var(--red); }
+
+.notif-page-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.notif-page-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-page-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.notif-page-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #f0f2f5;
+  transition: background .1s;
+}
+.notif-page-item:last-child { border-bottom: none; }
+.notif-page-item:hover { background: #f8f9fb; }
+.notif-page-item.unread { background: #f0f6ff; }
+.notif-page-item.unread:hover { background: #e8f0fe; }
+
+.notif-page-icon {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: #e8edf2;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.notif-page-item.unread .notif-page-icon { background: #dbeafe; }
+.notif-page-icon svg { width: 18px; height: 18px; stroke: var(--muted); }
+.notif-page-item.unread .notif-page-icon svg { stroke: #1d4ed8; }
+
+.notif-page-body { flex: 1; min-width: 0; }
+
+.notif-page-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 3px;
+}
+
+.notif-page-desc {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.notif-page-time {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+.notif-page-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.notif-read-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--blue);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background .12s, border-color .12s;
+}
+.notif-read-btn:hover { background: #eff6ff; border-color: var(--blue); }
+
+.notif-read-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  padding: 4px 12px;
+}
+
+.notif-dismiss-btn {
+  background: none;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 0;
+  transition: color .12s;
+}
+.notif-dismiss-btn:hover { color: var(--red); }

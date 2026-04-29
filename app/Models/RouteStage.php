@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class RouteStage extends Model
 {
     protected $fillable = [
-        'document_route_id', 'stage_order', 'origin_department', 'waypoint_department', 'handler_id', 'status', 'duration', 'received_at',
+        'document_route_id', 'stage_order', 'origin_department', 'waypoint_department', 'handler_id', 'instructions', 'status', 'duration', 'received_at',
     ];
 
     protected $casts = ['received_at' => 'datetime'];

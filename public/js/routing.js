@@ -29,8 +29,34 @@ const ROWS_PER_PAGE = 5;
 const MY_DEPT    = document.body.dataset.userDepartment || '';
 const MY_USER_ID = parseInt(document.body.dataset.userId) || 0;
 
-// ── Fetch departments on page load ──
-fetchDepartments();
+// ── Fetch departments on modal open (lazy) ──
+let deptsLoaded = false;
+async function fetchDepartments() {
+  if (deptsLoaded) return;
+  try {
+    const res  = await fetch('/routing/departments');
+    const data = await res.json();
+    DEPTS = data.departments || [];
+    deptsLoaded = true;
+  } catch (err) {
+    console.error('Failed to fetch departments:', err);
+    showToast('Failed to load departments.', 'error');
+  }
+}
+
+// ── Helpers ──
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function safeRouteId(id) {
+  return /^[A-Z0-9-]+$/.test(String(id)) ? String(id) : '';
+}
 
 // ── CSRF ──
 function csrfToken() {
@@ -84,17 +110,17 @@ function render() {
   } else {
     tbody.innerHTML = routes.map(r => `
       <tr>
-        <td><span class="rt-id" data-id="${r.numeric_id}">${r.id}</span></td>
+        <td><span class="rt-id">${escapeHtml(r.id)}</span></td>
         <td>
           <div class="doc-name-cell">
             <div class="doc-icon">${docIconSvg}</div>
-            <span class="doc-title">${r.doc}</span>
+            <span class="doc-title">${escapeHtml(r.doc)}</span>
           </div>
         </td>
-        <td><span class="dept-origin">${r.origin}</span></td>
-        <td><span class="dept-waypoint">${r.waypoint}</span></td>
-        <td><span class="status-badge ${r.status}">${statusLabel[r.status] || r.status}</span></td>
-        <td><span class="priority-badge ${r.priority}">${priorityIcon[r.priority]} ${priorityLabel[r.priority]}</span></td>
+        <td><span class="dept-origin">${escapeHtml(r.origin)}</span></td>
+        <td><span class="dept-waypoint">${escapeHtml(r.waypoint)}</span></td>
+        <td><span class="status-badge ${escapeHtml(r.status)}">${statusLabel[r.status] || escapeHtml(r.status)}</span></td>
+        <td><span class="priority-badge ${escapeHtml(r.priority)}">${priorityIcon[r.priority]} ${priorityLabel[r.priority] || escapeHtml(r.priority)}</span></td>
         <td><button class="view-btn">View</button></td>
       </tr>`).join('');
   }
@@ -142,7 +168,7 @@ document.getElementById('nextBtn').addEventListener('click', () => { if (current
 
 // ── Create Modal ──
 const overlay    = document.getElementById('modalOverlay');
-const openModal  = () => { resetModal(); overlay.classList.add('open'); };
+const openModal  = () => { fetchDepartments().then(() => { resetModal(); overlay.classList.add('open'); }); };
 const closeModal = () => overlay.classList.remove('open');
 
 document.getElementById('createBtn').addEventListener('click', openModal);
@@ -151,17 +177,6 @@ document.getElementById('modalCancel').addEventListener('click', closeModal);
 overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
 let DEPTS = [];
-
-async function fetchDepartments() {
-  try {
-    const res  = await fetch('/routing/departments');
-    const data = await res.json();
-    DEPTS = data.departments || [];
-  } catch (err) {
-    console.error('Failed to fetch departments:', err);
-    showToast('Failed to load departments.', 'error');
-  }
-}
 
 function deptOptions(selected = '', disabled = false, disableOption = '') {
   if (disabled) return `<div class="origin-display">${selected}</div>`;
@@ -177,7 +192,8 @@ let stages = [];
 function renderStages() {
   const list = document.getElementById('stagesList');
   list.innerHTML = stages.map((s, i) => `
-    <div class="stage-row" data-index="${i}">
+    <div class="stage-card" data-index="${i}">
+    <div class="stage-row">
       <div class="stage-num">${i + 1}</div>
       <div class="stage-field">
         <label>Origin</label>
@@ -200,6 +216,11 @@ function renderStages() {
       <button class="remove-stage-btn" data-index="${i}" ${stages.length === 1 ? 'disabled style="opacity:.3;cursor:not-allowed"' : ''}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
+    </div>
+    <div class="stage-instructions-row">
+      <label>Request Instructions <span style="color:#ef4444">*</span></label>
+      <textarea class="instructions-input" data-index="${i}" rows="2" placeholder="Enter instructions for this stage…">${s.instructions || ''}</textarea>
+    </div>
     </div>`).join('');
 
   // Waypoint change — load users and chain next origin
@@ -218,6 +239,13 @@ function renderStages() {
   list.querySelectorAll('.handler-select').forEach(sel => {
     sel.addEventListener('change', () => {
       stages[parseInt(sel.dataset.index)].handler_id = sel.value;
+    });
+  });
+
+  // Instructions change
+  list.querySelectorAll('.instructions-input').forEach(ta => {
+    ta.addEventListener('input', () => {
+      stages[parseInt(ta.dataset.index)].instructions = ta.value;
     });
   });
 
@@ -244,7 +272,7 @@ function renderStages() {
 async function loadUsersForStage(index, department) {
   stages[index].loadingUsers = true;
   try {
-    const res = await fetch(`/assigned/department-users?department=${encodeURIComponent(department)}`);
+    const res = await fetch(`/assigned/department-users?department=${encodeURIComponent(String(department).slice(0, 255))}`);
     stages[index].users = await res.json();
   } catch {
     stages[index].users = [];
@@ -254,12 +282,12 @@ async function loadUsersForStage(index, department) {
 
 function addStage() {
   const prevWaypoint = stages.length ? stages[stages.length - 1].waypoint : MY_DEPT;
-  stages.push({ origin: prevWaypoint || MY_DEPT, waypoint: '', handler_id: '', users: [] });
+  stages.push({ origin: prevWaypoint || MY_DEPT, waypoint: '', handler_id: '', instructions: '', users: [] });
   renderStages();
 }
 
 function resetModal() {
-  stages = [{ origin: MY_DEPT, waypoint: '', handler_id: '', users: [] }];
+  stages = [{ origin: MY_DEPT, waypoint: '', handler_id: '', instructions: '', users: [] }];
   document.getElementById('newDocName').value  = '';
   document.getElementById('newPriority').value = 'low';
   document.getElementById('newDeadline').value = '';
@@ -275,6 +303,7 @@ document.getElementById('modalSubmit').addEventListener('click', async () => {
 
   if (!doc) { showToast('Please enter a document name.', 'error'); return; }
   if (stages.some(s => !s.waypoint)) { showToast('Please select a waypoint for all stages.', 'error'); return; }
+  if (stages.some(s => !s.instructions || !s.instructions.trim())) { showToast('Please enter instructions for all stages.', 'error'); return; }
 
   try {
     const res = await fetch('/routing/store', {
@@ -288,7 +317,7 @@ document.getElementById('modalSubmit').addEventListener('click', async () => {
         title:    doc,
         priority: priority,
         deadline: deadline,
-        stages:   stages.map(s => ({ origin: s.origin, waypoint: s.waypoint, handler_id: s.handler_id || null })),
+        stages:   stages.map(s => ({ origin: s.origin, waypoint: s.waypoint, handler_id: s.handler_id || null, instructions: s.instructions })),
       }),
     });
 
@@ -321,9 +350,11 @@ const statusDisplayMap = {
 let currentDetailRouteId = null;
 
 async function openDetail(routeId) {
-  currentDetailRouteId = routeId;
+  const safeId = safeRouteId(routeId);
+  if (!safeId) { showToast('Invalid route ID.', 'error'); return; }
+  currentDetailRouteId = safeId;
   try {
-    const res = await fetch(`/routing/${routeId}/detail`);
+    const res = await fetch(`/routing/${safeId}/detail`);
     if (!res.ok) throw new Error('Failed to fetch detail');
     const detail = await res.json();
 
@@ -344,15 +375,15 @@ async function openDetail(routeId) {
 
     document.getElementById('pathBody').innerHTML = detail.paths.map(p => `
       <tr>
-        <td><span class="path-label">${p.from} <span class="path-arrow">→</span> ${p.to}</span></td>
+        <td><span class="path-label">${escapeHtml(p.from)} <span class="path-arrow">→</span> ${escapeHtml(p.to)}</span>${p.instructions ? `<div style="font-size:11px;color:#64748b;margin-top:3px">${escapeHtml(p.instructions)}</div>` : ''}</td>
         <td>
           <div class="handler-cell">
-            <div class="handler-chip">${p.initials}</div>
-            ${p.handler}
+            <div class="handler-chip">${escapeHtml(p.initials)}</div>
+            ${escapeHtml(p.handler)}
           </div>
         </td>
-        <td><span class="path-status ${p.status}">${p.status.toUpperCase()}</span></td>
-        <td><span class="path-duration">${p.duration}</span></td>
+        <td><span class="path-status ${escapeHtml(p.status)}">${escapeHtml(p.status.toUpperCase())}</span></td>
+        <td><span class="path-duration">${escapeHtml(p.duration)}</span></td>
       </tr>`).join('');
 
     document.getElementById('handlerAvatar').textContent = detail.currentInitials;
@@ -428,7 +459,7 @@ document.getElementById('deleteRouteBtn').addEventListener('click', () => {
   if (!currentDetailRouteId) return;
   showConfirmToast('Delete this route? This cannot be undone.', async () => {
     try {
-      const res = await fetch(`/routing/${currentDetailRouteId}`, {
+      const res = await fetch(`/routing/${safeRouteId(currentDetailRouteId)}`, {
         method: 'DELETE',
         headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
       });
@@ -485,7 +516,7 @@ async function handleAction(type) {
 
 async function submitAction(type, routeId, remarks) {
   try {
-    const res = await fetch(`/routing/${routeId}/status`, {
+    const res = await fetch(`/routing/${safeRouteId(currentDetailRouteId)}/status`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -516,7 +547,7 @@ async function submitAction(type, routeId, remarks) {
 async function handleRepublish() {
   if (!currentDetailRouteId) return;
   try {
-    const res = await fetch(`/routing/${currentDetailRouteId}/republish`, {
+    const res = await fetch(`/routing/${safeRouteId(currentDetailRouteId)}/republish`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
       body: JSON.stringify({}),
@@ -546,26 +577,40 @@ function showConfirmToast(message, onConfirm) {
   const toast = document.createElement('div');
   toast.className = 'toast warning show';
   toast.style.cssText = 'max-width:380px;gap:12px;flex-direction:column;align-items:flex-start;pointer-events:all;';
-  toast.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px">
-      <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span>${message}</span>
-    </div>
-    <div style="display:flex;gap:8px;align-self:flex-end">
-      <button class="confirm-no"  style="padding:5px 14px;border:1px solid #fed7aa;border-radius:5px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:#c2410c">Cancel</button>
-      <button class="confirm-yes" style="padding:5px 14px;border:none;border-radius:5px;background:#c2410c;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Confirm</button>
-    </div>`;
+
+  const msgRow = document.createElement('div');
+  msgRow.style.cssText = 'display:flex;align-items:center;gap:8px';
+  msgRow.innerHTML = `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  const msgText = document.createElement('span');
+  msgText.textContent = message;
+  msgRow.appendChild(msgText);
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;align-self:flex-end';
+
+  const noBtn = document.createElement('button');
+  noBtn.textContent = 'Cancel';
+  noBtn.style.cssText = 'padding:5px 14px;border:1px solid #fed7aa;border-radius:5px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:#c2410c';
+
+  const yesBtn = document.createElement('button');
+  yesBtn.textContent = 'Confirm';
+  yesBtn.style.cssText = 'padding:5px 14px;border:none;border-radius:5px;background:#c2410c;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit';
+
+  btnRow.appendChild(noBtn);
+  btnRow.appendChild(yesBtn);
+  toast.appendChild(msgRow);
+  toast.appendChild(btnRow);
   container.appendChild(toast);
-  toast.querySelector('.confirm-yes').addEventListener('click', () => { toast.remove(); onConfirm(); });
-  toast.querySelector('.confirm-no').addEventListener('click',  () => toast.remove());
+
+  yesBtn.addEventListener('click', () => { toast.remove(); onConfirm(); });
+  noBtn.addEventListener('click',  () => toast.remove());
 }
 
 // ── Wire view buttons ──
 document.getElementById('routingBody').addEventListener('click', e => {
   const btn = e.target.closest('.view-btn');
   if (!btn) return;
-  const numericId = btn.closest('tr').querySelector('.rt-id').dataset.id;
-  openDetail(numericId);
+  openDetail(btn.closest('tr').querySelector('.rt-id').textContent);
 });
 
 // ── Initial load ──

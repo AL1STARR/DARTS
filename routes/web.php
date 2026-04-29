@@ -58,6 +58,7 @@ Route::get('/routing', [RoutingController::class, 'index'])->name('routing');
     Route::post('/admin/settings/{group}', [AdminController::class, 'settingStore'])->name('admin.settings.store');
     Route::delete('/admin/settings/{setting}', [AdminController::class, 'settingDestroy'])->name('admin.settings.destroy');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/data', [NotificationController::class, 'data'])->name('notifications.data');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::patch('/notifications/{notification}/dismiss', [NotificationController::class, 'dismiss'])->name('notifications.dismiss');
     Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clear-all');

@@ -6,6 +6,7 @@ use App\Models\DocumentRoute;
 use App\Models\RouteStage;
 use App\Models\User;
 use App\Models\Setting;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -25,9 +26,13 @@ class RoutingController extends Controller
 
     public function list(Request $request)
     {
-        $query = DocumentRoute::select('id', 'user_id', 'title', 'status', 'priority', 'origin_department', 'current_waypoint', 'number')
-            ->with(['stages:document_route_id,waypoint_department,stage_order'])
-            ->latest();
+        $request->validate([
+            'status'   => 'nullable|in:pending,on-time,delayed,returned,missing,completed',
+            'priority' => 'nullable|in:low,medium,high',
+            'search'   => 'nullable|string|max:255',
+        ]);
+
+        $query = DocumentRoute::latest();
 
         if ($request->filled('status'))   $query->where('status',   $request->status);
         if ($request->filled('priority')) $query->where('priority', $request->priority);
@@ -41,15 +46,13 @@ class RoutingController extends Controller
         $routes = $query->paginate(5)->withQueryString();
 
         $data = $routes->map(function ($route) {
-            $lastStage = $route->stages->last();
             return [
-                'numeric_id' => $route->id,  // NEW: Add numeric ID for API calls
-                'id'         => $route->formattedId(),
-                'doc'        => $route->title,
-                'origin'     => $route->origin_department,
-                'waypoint'   => $route->current_waypoint ?? ($lastStage ? $lastStage->waypoint_department : $route->origin_department),
-                'status'     => $route->status,
-                'priority'   => $route->priority,
+                'id'       => $route->formattedId(),
+                'doc'      => $route->title,
+                'origin'   => $route->origin_department,
+                'waypoint' => $route->current_waypoint ?? $route->origin_department,
+                'status'   => $route->status,
+                'priority' => $route->priority,
             ];
         });
 
@@ -72,6 +75,7 @@ class RoutingController extends Controller
             'stages.*.origin'     => 'required|string',
             'stages.*.waypoint'   => 'required|string',
             'stages.*.handler_id' => 'nullable|exists:users,id',
+            'stages.*.instructions' => 'required|string|max:1000',
         ]);
 
         $user = auth()->user();
@@ -97,9 +101,20 @@ class RoutingController extends Controller
                     'origin_department'   => $stage['origin'],
                     'waypoint_department' => $stage['waypoint'],
                     'handler_id'          => $stage['handler_id'] ?? null,
+                    'instructions'        => $stage['instructions'],
                     'status'              => $index === 0 ? 'active' : 'pending',
                     'duration'            => null,
                 ]);
+            }
+
+            // Notify assigned handler of the first active stage
+            $firstStage = $documentRoute->stages()->where('status', 'active')->first();
+            if ($firstStage && $firstStage->handler_id) {
+                NotificationService::create(
+                    $firstStage->handler_id,
+                    'New Route Assigned',
+                    "You have been assigned to handle route {$documentRoute->formattedId()}: {$documentRoute->title}."
+                );
             }
 
             return $documentRoute;
@@ -120,12 +135,8 @@ class RoutingController extends Controller
 
     public function detail($routeId)
     {
-        $numericId     = (int) str_replace('RT-', '', $routeId);
-        $documentRoute = DocumentRoute::with([
-            'user:id,first_name,last_name',
-            'stages:id,document_route_id,stage_order,origin_department,waypoint_department,handler_id,status,duration,received_at',
-            'stages.handler:id,first_name,last_name'
-        ])->findOrFail($numericId);
+        $numericId     = $this->resolveRouteId($routeId);
+        $documentRoute = DocumentRoute::with(['user', 'stages.handler'])->findOrFail($numericId);
 
         // Auto-mark delayed if past deadline and not yet completed/returned
         if ($documentRoute->deadline && now()->gt($documentRoute->deadline)
@@ -142,13 +153,14 @@ class RoutingController extends Controller
             $handler     = $stage->handler;
             $handlerName = $handler ? ($handler->first_name . ' ' . $handler->last_name) : 'Unassigned';
             return [
-                'from'        => $stage->origin_department,
-                'to'          => $stage->waypoint_department,
-                'handler'     => $handlerName,
-                'initials'    => $this->initials($handlerName),
-                'status'      => $stage->status,
-                'duration'    => $stage->duration ?? '-',
-                'received_at' => $stage->received_at ? $stage->received_at->format('M j, Y g:i A') : null,
+                'from'         => $stage->origin_department,
+                'to'           => $stage->waypoint_department,
+                'handler'      => $handlerName,
+                'initials'     => $this->initials($handlerName),
+                'status'       => $stage->status,
+                'duration'     => $stage->duration ?? '-',
+                'instructions' => $stage->instructions ?? '',
+                'received_at'  => $stage->received_at ? $stage->received_at->format('M j, Y g:i A') : null,
             ];
         });
 
@@ -160,7 +172,7 @@ class RoutingController extends Controller
             ? ($activeStage->handler->first_name . ' ' . $activeStage->handler->last_name)
             : 'Unassigned';
 
-        $fresh = $documentRoute->fresh();
+        $fresh = $documentRoute;
 
         return response()->json([
             'owner'                  => $ownerName,
@@ -187,10 +199,8 @@ class RoutingController extends Controller
 
     public function updateStatus(Request $request, $routeId)
     {
-        $numericId     = (int) str_replace('RT-', '', $routeId);
-        $documentRoute = DocumentRoute::select('id', 'user_id', 'status', 'priority', 'deadline', 'origin_department', 'current_waypoint', 'remarks', 'returned_by_department')
-            ->with('stages:id,document_route_id,stage_order,origin_department,waypoint_department,handler_id,status,received_at')
-            ->findOrFail($numericId);
+        $numericId     = $this->resolveRouteId($routeId);
+        $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
 
         $data = $request->validate([
             'action'  => 'required|in:received,accomplished,returned,flag',
@@ -231,9 +241,19 @@ class RoutingController extends Controller
                 if ($documentRoute->status === 'pending') {
                     $documentRoute->update(['status' => 'on-time']);
                 }
+                NotificationService::create(
+                    $documentRoute->user_id,
+                    'Document Received',
+                    "Route {$documentRoute->formattedId()} has been received at {$activeStage->waypoint_department}."
+                );
             } elseif ($action === 'accomplished') {
                 // Complete the stage and advance to the next
-                $activeStage->update(['status' => 'completed', 'received_at' => $activeStage->received_at ?? now()]);
+                $receivedAt = $activeStage->received_at ?? now();
+                $diff       = $receivedAt->diff(now());
+                $duration   = $diff->days > 0
+                    ? $diff->days . 'd ' . $diff->h . 'h ' . $diff->i . 'm'
+                    : ($diff->h > 0 ? $diff->h . 'h ' . $diff->i . 'm' : $diff->i . 'm');
+                $activeStage->update(['status' => 'completed', 'received_at' => $receivedAt, 'duration' => $duration]);
                 $nextStage = $documentRoute->stages()
                     ->where('stage_order', '>', $activeStage->stage_order)
                     ->where('status', 'pending')
@@ -246,6 +266,13 @@ class RoutingController extends Controller
                         'remarks'                => null,
                         'returned_by_department' => null,
                     ]);
+                    if ($nextStage->handler_id) {
+                        NotificationService::create(
+                            $nextStage->handler_id,
+                            'New Route Assigned',
+                            "Route {$documentRoute->formattedId()} has advanced to your stage: {$nextStage->waypoint_department}."
+                        );
+                    }
                 } else {
                     $documentRoute->update([
                         'status'                 => 'completed',
@@ -253,6 +280,11 @@ class RoutingController extends Controller
                         'remarks'                => null,
                         'returned_by_department' => null,
                     ]);
+                    NotificationService::create(
+                        $documentRoute->user_id,
+                        'Route Completed',
+                        "Route {$documentRoute->formattedId()}: {$documentRoute->title} has been completed."
+                    );
                 }
             } elseif ($action === 'returned') {
                 $documentRoute->update([
@@ -260,8 +292,18 @@ class RoutingController extends Controller
                     'remarks'               => $data['remarks'] ?? null,
                     'returned_by_department'=> $user->department,
                 ]);
+                NotificationService::create(
+                    $documentRoute->user_id,
+                    'Route Returned',
+                    "Route {$documentRoute->formattedId()} was returned by {$user->department}" . ($data['remarks'] ? ": {$data['remarks']}" : '.')
+                );
             } elseif ($action === 'flag') {
                 $documentRoute->update(['status' => 'missing']);
+                NotificationService::create(
+                    $documentRoute->user_id,
+                    'Route Flagged as Missing',
+                    "Route {$documentRoute->formattedId()}: {$documentRoute->title} has been flagged as missing."
+                );
             }
         });
 
@@ -270,10 +312,8 @@ class RoutingController extends Controller
 
     public function republish(Request $request, $routeId)
     {
-        $numericId     = (int) str_replace('RT-', '', $routeId);
-        $documentRoute = DocumentRoute::select('id', 'status', 'current_waypoint', 'remarks', 'returned_by_department')
-            ->with('stages:id,document_route_id,stage_order,origin_department,waypoint_department,status')
-            ->findOrFail($numericId);
+        $numericId     = $this->resolveRouteId($routeId);
+        $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
 
         if (!in_array($documentRoute->status, ['returned', 'missing'])) {
             return response()->json(['message' => 'Only returned or missing routes can be republished.'], 422);
@@ -288,12 +328,12 @@ class RoutingController extends Controller
         }
 
         DB::transaction(function () use ($documentRoute) {
-            // Reset all stages: first becomes active, rest become pending
-            $documentRoute->stages()->orderBy('stage_order')->each(function ($stage, $index) {
+            $stages     = $documentRoute->stages()->orderBy('stage_order')->get();
+            $firstStage = $stages->first();
+
+            $stages->each(function ($stage, $index) {
                 $stage->update(['status' => $index === 0 ? 'active' : 'pending']);
             });
-
-            $firstStage = $documentRoute->stages()->orderBy('stage_order')->first();
 
             $documentRoute->update([
                 'status'                => 'on-time',
@@ -301,6 +341,14 @@ class RoutingController extends Controller
                 'returned_by_department'=> null,
                 'current_waypoint'      => $firstStage ? $firstStage->waypoint_department : $documentRoute->current_waypoint,
             ]);
+
+            if ($firstStage && $firstStage->handler_id) {
+                NotificationService::create(
+                    $firstStage->handler_id,
+                    'Route Republished',
+                    "Route {$documentRoute->formattedId()} has been republished and is back at your stage."
+                );
+            }
         });
 
         return response()->json(['message' => 'Route republished successfully.']);
@@ -308,8 +356,8 @@ class RoutingController extends Controller
 
     public function destroy($routeId)
     {
-        $numericId     = (int) str_replace('RT-', '', $routeId);
-        $documentRoute = DocumentRoute::select('id', 'user_id', 'status')->findOrFail($numericId);
+        $numericId     = $this->resolveRouteId($routeId);
+        $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
 
         if (auth()->id() !== $documentRoute->user_id) {
             return response()->json(['message' => 'Only the route owner can delete this route.'], 403);
@@ -324,6 +372,13 @@ class RoutingController extends Controller
         DocumentRoute::renumber();
 
         return response()->json(['message' => 'Route deleted successfully.']);
+    }
+
+    private function resolveRouteId(string $routeId): int
+    {
+        // Handles formats like RT-IT-001 or RT-001
+        preg_match('/-(\d+)$/', $routeId, $matches);
+        return isset($matches[1]) ? (int) $matches[1] : 0;
     }
 
     private function abbr(string $text): string
