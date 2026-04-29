@@ -24,7 +24,7 @@ class NotificationController extends Controller
                     'title'       => $notif->title,
                     'description' => $notif->description,
                     'read'        => $notif->read,
-                    'created_at'  => $notif->created_at->format('Y-m-d H:i:s'),
+                    'created_at'  => $notif->created_at->toIso8601String(),
                 ];
             });
 

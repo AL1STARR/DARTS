@@ -26,7 +26,7 @@ class RoutingController extends Controller
 
     public function list(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'status'   => 'nullable|in:pending,on-time,delayed,returned,missing,completed',
             'priority' => 'nullable|in:low,medium,high',
             'search'   => 'nullable|string|max:255',
@@ -34,13 +34,11 @@ class RoutingController extends Controller
 
         $query = DocumentRoute::latest();
 
-        if ($request->filled('status'))   $query->where('status',   $request->status);
-        if ($request->filled('priority')) $query->where('priority', $request->priority);
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%');
-            });
+        if (!empty($validated['status']))   $query->where('status',   $validated['status']);
+        if (!empty($validated['priority'])) $query->where('priority', $validated['priority']);
+        if (!empty($validated['search'])) {
+            $search = '%' . addcslashes($validated['search'], '%_\\') . '%';
+            $query->where('title', 'like', $search);
         }
 
         $routes = $query->paginate(5)->withQueryString();
@@ -67,13 +65,15 @@ class RoutingController extends Controller
 
     public function store(Request $request)
     {
+        $allowedDepts = Setting::getGroup('departments');
+
         $data = $request->validate([
             'title'               => 'required|string|max:255',
             'priority'            => 'required|in:low,medium,high',
             'deadline'            => 'nullable|date|after:now',
             'stages'              => 'required|array|min:1',
-            'stages.*.origin'     => 'required|string',
-            'stages.*.waypoint'   => 'required|string',
+            'stages.*.origin'     => ['required', 'string', 'in:' . implode(',', $allowedDepts)],
+            'stages.*.waypoint'   => ['required', 'string', 'in:' . implode(',', $allowedDepts)],
             'stages.*.handler_id' => 'nullable|exists:users,id',
             'stages.*.instructions' => 'required|string|max:1000',
         ]);
@@ -81,8 +81,8 @@ class RoutingController extends Controller
         $user = auth()->user();
 
         $route = DB::transaction(function () use ($data, $user) {
-            $originDept = $data['stages'][0]['origin'];
-            $nextNumber = (DocumentRoute::where('origin_department', $originDept)->max('number') ?? 0) + 1;
+            $originDept = (string) $data['stages'][0]['origin'];
+            $nextNumber = (DocumentRoute::where('origin_department', '=', $originDept)->max('number') ?? 0) + 1;
             $documentRoute = DocumentRoute::create([
                 'user_id'           => $user->id,
                 'title'             => $data['title'],
