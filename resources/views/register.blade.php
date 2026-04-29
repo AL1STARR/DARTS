@@ -128,7 +128,7 @@
 
           <div class="reg-terms">
             <input type="checkbox" id="terms" name="terms">
-            <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+            <label for="terms">I agree to the <a href="{{ route('terms') }}" target="_blank">Terms of Service</a> and <a href="{{ route('privacy') }}" target="_blank">Privacy Policy</a></label>
           </div>
           <span class="field-error" id="termsError"></span>
 
@@ -143,9 +143,9 @@
   <footer class="reg-page-footer">
     <span>© 2026 DARTS Intelligence. All rights reserved.</span>
     <div class="footer-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-      <a href="#">Documentation</a>
+      <a href="{{ route('privacy') }}">Privacy Policy</a>
+      <a href="{{ route('terms') }}">Terms of Service</a>
+      <a href="{{ route('documentation') }}">Documentation</a>
     </div>
   </footer>
 

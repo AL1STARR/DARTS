@@ -14,6 +14,10 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : view('login');
 });
 
+Route::get('/privacy-policy', fn() => view('policies', ['page' => 'privacy', 'title' => 'Privacy Policy']))->name('privacy');
+Route::get('/terms-of-service', fn() => view('policies', ['page' => 'terms', 'title' => 'Terms of Service']))->name('terms');
+Route::get('/documentation', fn() => view('policies', ['page' => 'documentation', 'title' => 'Documentation']))->name('documentation');
+
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 

@@ -20,6 +20,9 @@ let notifications = [];
 async function fetchNotifications() {
   try {
     const response = await fetch('/notifications');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const data = await response.json();
     notifications = data.notifications.map(n => ({
       id: n.id,
@@ -30,6 +33,9 @@ async function fetchNotifications() {
     renderNotifs();
   } catch (error) {
     console.error('Failed to fetch notifications:', error);
+    // Display fallback notification state
+    notifications = [];
+    renderNotifs();
   }
 }
 

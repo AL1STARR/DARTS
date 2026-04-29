@@ -25,7 +25,9 @@ class RoutingController extends Controller
 
     public function list(Request $request)
     {
-        $query = DocumentRoute::with(['user', 'stages'])->latest();
+        $query = DocumentRoute::select('id', 'user_id', 'title', 'status', 'priority', 'origin_department', 'current_waypoint', 'number')
+            ->with(['stages:document_route_id,waypoint_department,stage_order'])
+            ->latest();
 
         if ($request->filled('status'))   $query->where('status',   $request->status);
         if ($request->filled('priority')) $query->where('priority', $request->priority);
@@ -41,12 +43,13 @@ class RoutingController extends Controller
         $data = $routes->map(function ($route) {
             $lastStage = $route->stages->last();
             return [
-                'id'       => $route->formattedId(),
-                'doc'      => $route->title,
-                'origin'   => $route->origin_department,
-                'waypoint' => $route->current_waypoint ?? ($lastStage ? $lastStage->waypoint_department : $route->origin_department),
-                'status'   => $route->status,
-                'priority' => $route->priority,
+                'numeric_id' => $route->id,  // NEW: Add numeric ID for API calls
+                'id'         => $route->formattedId(),
+                'doc'        => $route->title,
+                'origin'     => $route->origin_department,
+                'waypoint'   => $route->current_waypoint ?? ($lastStage ? $lastStage->waypoint_department : $route->origin_department),
+                'status'     => $route->status,
+                'priority'   => $route->priority,
             ];
         });
 
@@ -118,7 +121,11 @@ class RoutingController extends Controller
     public function detail($routeId)
     {
         $numericId     = (int) str_replace('RT-', '', $routeId);
-        $documentRoute = DocumentRoute::with(['user', 'stages.handler'])->findOrFail($numericId);
+        $documentRoute = DocumentRoute::with([
+            'user:id,first_name,last_name',
+            'stages:id,document_route_id,stage_order,origin_department,waypoint_department,handler_id,status,duration,received_at',
+            'stages.handler:id,first_name,last_name'
+        ])->findOrFail($numericId);
 
         // Auto-mark delayed if past deadline and not yet completed/returned
         if ($documentRoute->deadline && now()->gt($documentRoute->deadline)
@@ -181,7 +188,9 @@ class RoutingController extends Controller
     public function updateStatus(Request $request, $routeId)
     {
         $numericId     = (int) str_replace('RT-', '', $routeId);
-        $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
+        $documentRoute = DocumentRoute::select('id', 'user_id', 'status', 'priority', 'deadline', 'origin_department', 'current_waypoint', 'remarks', 'returned_by_department')
+            ->with('stages:id,document_route_id,stage_order,origin_department,waypoint_department,handler_id,status,received_at')
+            ->findOrFail($numericId);
 
         $data = $request->validate([
             'action'  => 'required|in:received,accomplished,returned,flag',
@@ -262,7 +271,9 @@ class RoutingController extends Controller
     public function republish(Request $request, $routeId)
     {
         $numericId     = (int) str_replace('RT-', '', $routeId);
-        $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
+        $documentRoute = DocumentRoute::select('id', 'status', 'current_waypoint', 'remarks', 'returned_by_department')
+            ->with('stages:id,document_route_id,stage_order,origin_department,waypoint_department,status')
+            ->findOrFail($numericId);
 
         if (!in_array($documentRoute->status, ['returned', 'missing'])) {
             return response()->json(['message' => 'Only returned or missing routes can be republished.'], 422);
@@ -298,7 +309,7 @@ class RoutingController extends Controller
     public function destroy($routeId)
     {
         $numericId     = (int) str_replace('RT-', '', $routeId);
-        $documentRoute = DocumentRoute::with('stages')->findOrFail($numericId);
+        $documentRoute = DocumentRoute::select('id', 'user_id', 'status')->findOrFail($numericId);
 
         if (auth()->id() !== $documentRoute->user_id) {
             return response()->json(['message' => 'Only the route owner can delete this route.'], 403);

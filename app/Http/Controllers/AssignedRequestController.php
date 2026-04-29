@@ -12,6 +12,7 @@ class AssignedRequestController extends Controller
     public function index(Request $request)
     {
         $query = DocumentRequest::with(['user', 'assignedTo', 'attachments'])
+            ->select('id', 'user_id', 'assigned_to', 'title', 'category', 'priority', 'department', 'description', 'status', 'deadline', 'created_at', 'number')
             ->where('assigned_to', auth()->id())
             ->latest();
 

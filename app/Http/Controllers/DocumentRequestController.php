@@ -14,6 +14,7 @@ class DocumentRequestController extends Controller
     public function index(Request $request)
     {
         $query = DocumentRequest::with('attachments', 'assignedTo', 'fulfilledBy')
+            ->select('id', 'user_id', 'assigned_to', 'title', 'category', 'priority', 'department', 'description', 'status', 'deadline', 'created_at', 'number')
             ->where('user_id', auth()->id())
             ->latest();
 
@@ -36,17 +37,24 @@ class DocumentRequestController extends Controller
     {
         $data = $request->validate([
             'title'       => 'required|string|max:255',
-            'category'    => 'required|string',
-            'priority'    => 'required|string',
+            'category'    => 'required|string|in:letters,memorandum,nom,mom',
+            'priority'    => 'required|string|in:high,medium,low',
             'department'  => ['required', 'string', function ($attr, $value, $fail) {
                 if ($value === auth()->user()->department) {
                     $fail('You cannot submit a request to your own department.');
                 }
             }],
-            'assigned_to' => 'required|exists:users,id',
-            'description' => 'nullable|string',
-            'deadline'    => 'required|date|after:now',
+            'assigned_to' => 'required|integer|exists:users,id',
+            'description' => 'nullable|string|max:2000',
+            'deadline'    => 'required|date_format:Y-m-d\TH:i|after:now',
             'attachments.*' => 'nullable|file|max:10240|mimes:pdf',
+        ], [
+            'title.required' => 'Document title is required.',
+            'assigned_to.required' => 'Please select a person to assign this request to.',
+            'assigned_to.exists' => 'The selected assignee is invalid.',
+            'deadline.after' => 'Deadline must be a future date.',
+            'category.in' => 'Please select a valid category.',
+            'priority.in' => 'Please select a valid priority.',
         ]);
 
         $docRequest = DocumentRequest::create([

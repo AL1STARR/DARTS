@@ -84,7 +84,7 @@ function render() {
   } else {
     tbody.innerHTML = routes.map(r => `
       <tr>
-        <td><span class="rt-id">${r.id}</span></td>
+        <td><span class="rt-id" data-id="${r.numeric_id}">${r.id}</span></td>
         <td>
           <div class="doc-name-cell">
             <div class="doc-icon">${docIconSvg}</div>
@@ -564,7 +564,8 @@ function showConfirmToast(message, onConfirm) {
 document.getElementById('routingBody').addEventListener('click', e => {
   const btn = e.target.closest('.view-btn');
   if (!btn) return;
-  openDetail(btn.closest('tr').querySelector('.rt-id').textContent);
+  const numericId = btn.closest('tr').querySelector('.rt-id').dataset.id;
+  openDetail(numericId);
 });
 
 // ── Initial load ──

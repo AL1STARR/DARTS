@@ -34,17 +34,34 @@ class ArchiveController extends Controller
 
         $documents = $query->paginate(5)->withQueryString();
 
-        // Sidebar stats — always scoped to current tab
+        // Sidebar stats — calculate using database queries instead of fetching all records
         $statsQuery = ArchiveDocument::where('archive_type', $tab);
         if ($tab === 'department') {
             $statsQuery->where('department', auth()->user()->department);
         }
-        $allDocs = $statsQuery->with('uploader')->get();
 
-        $fileTypeStats = $allDocs->groupBy('file_type')->map(fn($g) => $g->count());
-        $distStats     = $tab === 'general'
-            ? $allDocs->groupBy('department')->map(fn($g) => $g->count())
-            : $allDocs->groupBy(fn($d) => $d->uploader->first_name . ' ' . $d->uploader->last_name)->map(fn($g) => $g->count());
+        // Use database aggregation for file type stats
+        $fileTypeStats = $statsQuery->select('file_type')->selectRaw('count(*) as count')
+            ->groupBy('file_type')
+            ->get()
+            ->pluck('count', 'file_type');
+
+        // Use database aggregation for distribution stats
+        if ($tab === 'general') {
+            $distStats = $statsQuery->select('department')->selectRaw('count(*) as count')
+                ->groupBy('department')
+                ->get()
+                ->pluck('count', 'department');
+        } else {
+            $distStats = ArchiveDocument::where('archive_type', $tab)
+                ->where('department', auth()->user()->department)
+                ->with('uploader:id,first_name,last_name')
+                ->selectRaw('uploaded_by, count(*) as count')
+                ->groupBy('uploaded_by')
+                ->get()
+                ->map(fn($d) => "{$d->uploader->first_name} {$d->uploader->last_name}")
+                ->countBy();
+        }
 
         $categories  = Setting::getGroup('categories');
         $departments = Setting::getGroup('departments');

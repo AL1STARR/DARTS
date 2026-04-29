@@ -85,9 +85,9 @@
   <footer class="login-page-footer">
     <span>© 2026 DARTS Intelligence. All rights reserved.</span>
     <div class="footer-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-      <a href="#">Documentation</a>
+      <a href="{{ route('privacy') }}">Privacy Policy</a>
+      <a href="{{ route('terms') }}">Terms of Service</a>
+      <a href="{{ route('documentation') }}">Documentation</a>
     </div>
   </footer>
 
