@@ -105,7 +105,7 @@
               <div class="dl-desc">{{ $dl->title }}</div>
               <div class="dl-meta">{{ $dl->department }}</div>
             </div>
-            <a href="{{ route('assigned') }}" class="dl-action">Open Task</a>
+            <a href="{{ route('assigned', ['open' => $dl->id]) }}" class="dl-action">Open Task</a>
           </div>
           @empty
           <div style="padding:20px 18px;font-size:13px;color:var(--muted);">No upcoming deadlines.</div>
@@ -139,7 +139,7 @@
               <td>{{ $req->title }}</td>
               <td><span class="badge-status {{ $req->status }}">{{ ucfirst(str_replace('-', ' ', $req->status)) }}</span></td>
               <td><span class="badge-priority {{ $req->priority }}">{{ ucfirst($req->priority) }}</span></td>
-              <td><a href="{{ route('assigned') }}" class="row-action">View</a></td>
+              <td><a href="{{ route('assigned', ['open' => $req->id]) }}" class="row-action">View</a></td>
             </tr>
             @empty
             <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">No assigned requests yet.</td></tr>

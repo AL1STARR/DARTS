@@ -24,6 +24,17 @@ class AssignedRequestController extends Controller
               ->orWhereRaw('CONCAT("REQ-", LPAD(id, 3, "0")) LIKE ?', ['%' . $request->search . '%']);
         });
 
+        // If ?open= is set, find which page that request is on and force that page
+        if ($request->filled('open')) {
+            $openId  = (int) $request->open;
+            $ids     = (clone $query)->pluck('id')->values();
+            $pos     = $ids->search($openId);
+            if ($pos !== false) {
+                $page = (int) floor($pos / 5) + 1;
+                $request->merge(['page' => $page]);
+            }
+        }
+
         $requests   = $query->paginate(5)->withQueryString();
         $categories = \App\Models\Setting::getGroup('categories');
         $priorities = \App\Models\Setting::getGroup('priorities');

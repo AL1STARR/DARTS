@@ -1,4 +1,12 @@
-// ── Live clock ──
+// ── Auto-open drawer from ?open= param ──
+document.addEventListener('DOMContentLoaded', () => {
+  const openId = new URLSearchParams(window.location.search).get('open');
+  if (openId) {
+    const btn = document.querySelector(`#assignedBody .view-btn[data-id="${openId}"]`);
+    if (btn) btn.click();
+  }
+});
+
 function updateTime() {
   const now = new Date();
   const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -209,6 +217,17 @@ document.getElementById('assignedBody').addEventListener('click', e => {
   renderPrimaryBtn(status);
   loadDepartmentUsers(currentDeptUsersUrl, dept);
   if (status === 'in-review') initDocumentSearch(currentDeptDocsUrl, dept);
+
+  // Transfer section: disabled when approved or rejected
+  const canTransfer = status !== 'approved' && status !== 'rejected';
+  const transferSelect = document.getElementById('transferSelect');
+  const transferBtn    = document.getElementById('mgmtTransfer');
+  transferSelect.disabled      = !canTransfer;
+  transferBtn.disabled         = !canTransfer;
+  transferBtn.style.opacity    = canTransfer ? '1' : '.4';
+  transferBtn.style.cursor     = canTransfer ? 'pointer' : 'not-allowed';
+  transferSelect.style.opacity = canTransfer ? '1' : '.4';
+  transferBtn.title            = canTransfer ? '' : 'Cannot transfer — request is already ' + statusLabels[status].toLowerCase();
 
   detailOverlay.classList.add('open');
   detailDrawer.classList.add('open');
