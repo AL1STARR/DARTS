@@ -23,6 +23,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/search', [DashboardController::class, 'search'])->name('dashboard.search');
     Route::get('/profile', fn() => view('profile'))->name('profile');
     Route::get('/myrequests', [DocumentRequestController::class, 'index'])->name('myrequests');
     Route::post('/myrequests', [DocumentRequestController::class, 'store'])->name('myrequests.store');
