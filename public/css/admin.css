@@ -60,6 +60,25 @@
   color: var(--navy);
 }
 
+.priority-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priority-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.priority-dot.high   { background: #dc2626; }
+.priority-dot.medium { background: #ea580c; }
+.priority-dot.low    { background: #ca8a04; }
+.priority-dot.other  { background: #94a3b8; }
+.priority-dot.admin  { background: #5b21b6; }
+
 .settings-remove-btn {
   background: none;
   border: none;

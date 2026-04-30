@@ -323,7 +323,26 @@
             @if(isset($settings[$groupKey]) && $settings[$groupKey]->count())
               @foreach($settings[$groupKey] as $item)
               <div class="settings-item">
-                <span class="settings-item-value">{{ $item->value }}</span>
+                @if($groupKey === 'priorities')
+                  @php
+                    $p = strtolower($item->value);
+                    $priorityCls = match($p) { 'high' => 'priority-dot high', 'medium' => 'priority-dot medium', 'low' => 'priority-dot low', default => 'priority-dot other' };
+                  @endphp
+                  <span class="settings-item-value priority-item">
+                    <span class="{{ $priorityCls }}"></span>
+                    {{ $item->value }}
+                  </span>
+                @elseif(in_array($groupKey, ['categories', 'departments', 'roles']))
+                  @php
+                    $dotCls = (strtolower($item->value) === 'admin') ? 'priority-dot admin' : 'priority-dot other';
+                  @endphp
+                  <span class="settings-item-value priority-item">
+                    <span class="{{ $dotCls }}"></span>
+                    {{ $item->value }}
+                  </span>
+                @else
+                  <span class="settings-item-value">{{ $item->value }}</span>
+                @endif
                 <form method="POST" action="{{ route('admin.settings.destroy', $item) }}" class="inline-form confirm-form">
                   @csrf @method('DELETE')
                   <button type="submit" class="settings-remove-btn" title="Remove">
