@@ -41,7 +41,7 @@ class DocumentRequest extends Model
     public function formattedId(): string
     {
         $initials = self::deptInitials($this->department ?? '');
-        $num      = str_pad((string) ($this->number ?? $this->id), 3, '0', STR_PAD_LEFT);
+        $num      = str_pad((string) ($this->number ?? $this->id), 4, '0', STR_PAD_LEFT);
         return "REQ-{$initials}-{$num}";
     }
 

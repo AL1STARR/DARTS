@@ -26,6 +26,8 @@ const csrfToken = () =>
   document.querySelector('meta[name="csrf-token"]')?.content ||
   document.querySelector('input[name="_token"]')?.value;
 
+const CURRENT_USER_ID = parseInt(document.body.dataset.userId) || 0;
+
 // ── Upload modal ──
 const overlay    = document.getElementById('modalOverlay');
 const uploadForm = document.getElementById('uploadForm');
@@ -111,9 +113,16 @@ document.getElementById('editModalCancel').addEventListener('click', closeEditMo
 editOverlay.addEventListener('click', e => { if (e.target === editOverlay) closeEditModal(); });
 
 document.querySelectorAll('.edit-doc-btn').forEach(btn => {
+  const isOwner = parseInt(btn.dataset.owner) === CURRENT_USER_ID;
+  if (!isOwner) {
+    btn.disabled = true;
+    btn.style.opacity = '0.35';
+    btn.style.cursor  = 'not-allowed';
+    btn.title = 'Only the uploader can edit this document';
+    return;
+  }
   btn.addEventListener('click', () => {
     document.getElementById('eFTitle').value       = btn.dataset.title;
-    document.getElementById('eFDesc').value        = btn.dataset.description;
     document.getElementById('eFCategory').value    = btn.dataset.category;
     document.getElementById('eFArchiveType').value = btn.dataset.archiveType;
     editForm.dataset.url = btn.dataset.url;
@@ -173,13 +182,10 @@ document.querySelectorAll('.print-btn').forEach(btn => {
 });
 
 // ── Delete ──
-const CURRENT_USER_ID = parseInt(document.body.dataset.userId) || 0;
-
 document.querySelectorAll('.delete-doc-btn').forEach(btn => {
-  const isOwner      = parseInt(btn.dataset.owner) === CURRENT_USER_ID;
-  const isGeneral    = btn.dataset.archiveType === 'general';
+  const isOwner = parseInt(btn.dataset.owner) === CURRENT_USER_ID;
 
-  if (isGeneral && !isOwner) {
+  if (!isOwner) {
     btn.disabled = true;
     btn.style.opacity = '0.35';
     btn.style.cursor  = 'not-allowed';

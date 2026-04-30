@@ -73,7 +73,6 @@ class ArchiveController extends Controller
     {
         $data = $request->validate([
             'title'        => 'required|string|max:255',
-            'description'  => 'nullable|string',
             'category'     => 'required|string',
             'archive_type' => 'required|in:general,department',
             'file'         => 'required|file|max:20480|mimes:pdf,doc,docx,xlsx,pptx',
@@ -88,7 +87,6 @@ class ArchiveController extends Controller
         ArchiveDocument::create([
             'uploaded_by'  => auth()->id(),
             'title'        => $data['title'],
-            'description'  => $data['description'] ?? null,
             'category'     => $data['category'],
             'department'   => $dept,
             'archive_type' => $data['archive_type'],
@@ -108,7 +106,6 @@ class ArchiveController extends Controller
 
         $data = $request->validate([
             'title'        => 'required|string|max:255',
-            'description'  => 'nullable|string',
             'category'     => 'required|string',
             'archive_type' => 'required|in:general,department',
         ]);

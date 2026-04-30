@@ -170,7 +170,7 @@ document.getElementById('assignedBody').addEventListener('click', e => {
   if (!btn) return;
 
   const id          = btn.dataset.id;
-  const formattedId = btn.dataset.formattedId || `REQ-${String(id).padStart(3,'0')}`;
+  const formattedId = btn.dataset.formattedId || `REQ-${String(id).padStart(4,'0')}`;
   const title       = btn.dataset.title;
   const category    = btn.dataset.category;
   const priority    = btn.dataset.priority;

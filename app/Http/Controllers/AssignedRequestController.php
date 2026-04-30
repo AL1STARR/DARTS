@@ -21,7 +21,7 @@ class AssignedRequestController extends Controller
         if ($request->filled('category')) $query->where('category', $request->category);
         if ($request->filled('search'))   $query->where(function ($q) use ($request) {
             $q->where('title', 'like', '%' . $request->search . '%')
-              ->orWhereRaw('CONCAT("REQ-", LPAD(id, 3, "0")) LIKE ?', ['%' . $request->search . '%']);
+              ->orWhereRaw('CONCAT("REQ-", LPAD(id, 4, "0")) LIKE ?', ['%' . $request->search . '%']);
         });
 
         // If ?open= is set, find which page that request is on and force that page
@@ -62,7 +62,7 @@ class AssignedRequestController extends Controller
         NotificationService::notifyRequestStatusChanged(
             $documentRequest->user_id,
             $data['status'],
-            str_pad($documentRequest->id, 3, '0', STR_PAD_LEFT),
+            str_pad($documentRequest->id, 4, '0', STR_PAD_LEFT),
             $documentRequest->title
         );
 
@@ -87,7 +87,7 @@ class AssignedRequestController extends Controller
         NotificationService::notifyRequestAssigned(
             $data['assigned_to'],
             $documentRequest->title,
-            str_pad($documentRequest->id, 3, '0', STR_PAD_LEFT)
+            str_pad($documentRequest->id, 4, '0', STR_PAD_LEFT)
         );
 
         return response()->json(['message' => 'Request transferred successfully.']);

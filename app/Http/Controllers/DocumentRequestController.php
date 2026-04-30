@@ -78,7 +78,7 @@ class DocumentRequestController extends Controller
             NotificationService::notifyRequestAssigned(
                 $data['assigned_to'],
                 $data['title'],
-                str_pad($docRequest->id, 3, '0', STR_PAD_LEFT)
+                str_pad($docRequest->id, 4, '0', STR_PAD_LEFT)
             );
         }
 
@@ -117,7 +117,7 @@ class DocumentRequestController extends Controller
             NotificationService::notifyRequestAssigned(
                 $data['assigned_to'],
                 $data['title'],
-                str_pad($documentRequest->id, 3, '0', STR_PAD_LEFT)
+                str_pad($documentRequest->id, 4, '0', STR_PAD_LEFT)
             );
         }
 

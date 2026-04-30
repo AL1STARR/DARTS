@@ -150,17 +150,15 @@
                 <button class="action-btn print-btn" title="Print" data-url="{{ route('archive.view', $doc) }}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                 </button>
-                @if($doc->uploaded_by === auth()->id())
                 <button class="action-btn edit-doc-btn" title="Edit"
                   data-id="{{ $doc->id }}"
                   data-title="{{ $doc->title }}"
-                  data-description="{{ $doc->description ?? '' }}"
                   data-category="{{ $doc->category }}"
                   data-archive-type="{{ $doc->archive_type }}"
-                  data-url="{{ route('archive.update', $doc) }}">
+                  data-url="{{ route('archive.update', $doc) }}"
+                  data-owner="{{ $doc->uploaded_by }}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                @endif
                 <button class="action-btn delete-doc-btn" title="Delete"
                   data-url="{{ route('archive.destroy', $doc) }}"
                   data-owner="{{ $doc->uploaded_by }}"
@@ -288,10 +286,6 @@
             <input type="text" name="title" id="fTitle" placeholder="Enter document title">
             <span class="field-error" id="errTitle"></span>
           </div>
-          <div class="field-group">
-            <label>Description <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-            <textarea name="description" id="fDesc" placeholder="Briefly describe the document…" rows="2" style="border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13px;font-family:inherit;color:var(--navy);outline:none;resize:vertical;"></textarea>
-          </div>
           <div class="field-row">
             <div class="field-group">
               <label>Category</label>
@@ -342,10 +336,6 @@
             <label>Document Title</label>
             <input type="text" name="title" id="eFTitle" placeholder="Enter document title">
             <span class="field-error" id="eErrTitle"></span>
-          </div>
-          <div class="field-group">
-            <label>Description <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-            <textarea name="description" id="eFDesc" placeholder="Briefly describe the document…" rows="2" style="border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13px;font-family:inherit;color:var(--navy);outline:none;resize:vertical;"></textarea>
           </div>
           <div class="field-row">
             <div class="field-group">
