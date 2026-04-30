@@ -207,6 +207,7 @@
               <th>Path</th>
               <th>Handler</th>
               <th>Status</th>
+              <th>Date & Time Received</th>
               <th>Duration</th>
             </tr>
           </thead>

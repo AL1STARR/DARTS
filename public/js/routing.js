@@ -383,6 +383,7 @@ async function openDetail(routeId) {
           </div>
         </td>
         <td><span class="path-status ${escapeHtml(p.status)}">${escapeHtml(p.status.toUpperCase())}</span></td>
+        <td><span class="path-duration">${p.received_at ? escapeHtml(p.received_at) : '<span style="color:#94a3b8">—</span>'}</span></td>
         <td><span class="path-duration">${escapeHtml(p.duration)}</span></td>
       </tr>`).join('');
 
