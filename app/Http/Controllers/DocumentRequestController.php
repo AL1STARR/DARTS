@@ -35,10 +35,13 @@ class DocumentRequestController extends Controller
 
     public function store(Request $request)
     {
+        $validCategories = array_map('strtolower', Setting::getGroup('categories'));
+        $validPriorities = array_map('strtolower', Setting::getGroup('priorities'));
+
         $data = $request->validate([
             'title'       => 'required|string|max:255',
-            'category'    => 'required|string|in:letters,memorandum,nom,mom',
-            'priority'    => 'required|string|in:high,medium,low',
+            'category'    => ['required', 'string', 'in:' . implode(',', $validCategories)],
+            'priority'    => ['required', 'string', 'in:' . implode(',', $validPriorities)],
             'department'  => ['required', 'string', function ($attr, $value, $fail) {
                 if ($value === auth()->user()->department) {
                     $fail('You cannot submit a request to your own department.');

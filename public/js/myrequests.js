@@ -217,6 +217,14 @@ document.getElementById('mrBody').addEventListener('click', e => {
   editBtn.style.cursor  = isPending ? 'pointer' : 'not-allowed';
   editBtn.title = isPending ? '' : 'Cannot edit — request is no longer pending';
 
+  // Delete button: disabled when in-review
+  const deleteBtn = document.getElementById('deleteRequestBtn');
+  const canDelete = status !== 'in-review';
+  deleteBtn.disabled = !canDelete;
+  deleteBtn.style.opacity = canDelete ? '1' : '.4';
+  deleteBtn.style.cursor  = canDelete ? 'pointer' : 'not-allowed';
+  deleteBtn.title = canDelete ? '' : 'Cannot delete — request is currently in review';
+
   document.getElementById('drawerReqId').textContent  = formattedId;
   document.getElementById('drawerTitle').textContent  = title;
   document.getElementById('drawerSub').textContent    = `Submitted on ${date} · ${dept}`;
