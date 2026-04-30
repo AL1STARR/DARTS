@@ -14,7 +14,7 @@ class DocumentRequestController extends Controller
     public function index(Request $request)
     {
         $query = DocumentRequest::with('attachments', 'assignedTo', 'fulfilledBy')
-            ->select('id', 'user_id', 'assigned_to', 'title', 'category', 'priority', 'department', 'description', 'status', 'deadline', 'created_at', 'number')
+            ->select('id', 'user_id', 'assigned_to', 'fulfilled_by_document_id', 'title', 'category', 'priority', 'department', 'description', 'status', 'deadline', 'created_at', 'number')
             ->where('user_id', auth()->id())
             ->latest();
 
