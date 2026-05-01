@@ -44,9 +44,14 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::registerView(function () {
+            $roles = array_filter(
+                Setting::getGroup('roles'),
+                fn($role) => $role !== 'Admin'
+            );
+            
             return view('register', [
                 'departments' => Setting::getGroup('departments'),
-                'roles'       => Setting::getGroup('roles'),
+                'roles'       => $roles,
             ]);
         });
 

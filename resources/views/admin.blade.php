@@ -343,12 +343,14 @@
                 @else
                   <span class="settings-item-value">{{ $item->value }}</span>
                 @endif
+                @if(!$item->is_protected)
                 <form method="POST" action="{{ route('admin.settings.destroy', $item) }}" class="inline-form confirm-form">
                   @csrf @method('DELETE')
                   <button type="submit" class="settings-remove-btn" title="Remove">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </form>
+                @endif
               </div>
               @endforeach
             @else
