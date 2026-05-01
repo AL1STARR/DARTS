@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\DocumentRequest;
 use App\Models\RequestAttachment;
 use App\Models\Setting;
@@ -94,6 +95,11 @@ class DocumentRequestController extends Controller
             }
         }
 
+        AuditLog::record('request_created', $docRequest,
+            "Request {$docRequest->formattedId()} '{$docRequest->title}' created by " . auth()->user()->first_name . ' ' . auth()->user()->last_name,
+            ['priority' => $docRequest->priority, 'department' => $docRequest->department]
+        );
+
         if ($request->expectsJson()) {
             return response()->json(['message' => 'Request submitted successfully.']);
         }
@@ -155,6 +161,12 @@ class DocumentRequestController extends Controller
         foreach ($documentRequest->attachments as $attachment) {
             \Storage::disk('public')->delete($attachment->path);
         }
+
+        $label = $documentRequest->formattedId();
+        $title = $documentRequest->title;
+        AuditLog::record('request_deleted', $documentRequest,
+            "Request {$label} '{$title}' deleted by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+        );
 
         $documentRequest->delete();
         DocumentRequest::renumber();

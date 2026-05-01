@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\NotificationService;
@@ -44,6 +45,36 @@ class AdminController extends Controller
         $deptCounts = $allFilteredUsers->groupBy('department')->map->count();
 
         return view('admin', compact('users', 'requests', 'settings', 'allFilteredUsers', 'roleCounts', 'deptCounts', 'departments', 'roles'));
+    }
+
+    public function auditLogs(Request $request)
+    {
+        if (!auth()->user()->isAdmin()) abort(403);
+
+        $query = AuditLog::with('user')->latest();
+
+        if ($request->filled('event'))  $query->where('event', $request->event);
+        if ($request->filled('type'))   $query->where('auditable_type', $request->type);
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where('description', 'like', "%{$s}%");
+        }
+
+        $logs = $query->paginate(20);
+
+        return response()->json([
+            'data' => $logs->map(fn($l) => [
+                'id'          => $l->id,
+                'event'       => $l->event,
+                'type'        => $l->auditable_type,
+                'description' => $l->description,
+                'user'        => $l->user ? $l->user->first_name . ' ' . $l->user->last_name : 'System',
+                'timestamp'   => $l->created_at->format('M d, Y g:i A'),
+            ]),
+            'current_page' => $logs->currentPage(),
+            'last_page'    => $logs->lastPage(),
+            'total'        => $logs->total(),
+        ]);
     }
 
     public function settingStore(Request $request, string $group)
@@ -96,6 +127,10 @@ class AdminController extends Controller
         // Notify user of approval
         NotificationService::notifyUserApproved($user->id, $user->first_name . ' ' . $user->last_name);
 
+        AuditLog::record('user_request_approved', $user,
+            "Access request approved for {$user->first_name} {$user->last_name} ({$user->role}, {$user->department}) by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+        );
+
         return back()->with('success', "Access approved for {$user->first_name} {$user->last_name}.");
     }
 
@@ -122,11 +157,15 @@ class AdminController extends Controller
             'password'   => 'required|string|min:8',
         ]);
 
-        User::create(array_merge($data, [
+        $newUser = User::create(array_merge($data, [
             'name'     => $data['first_name'] . ' ' . $data['last_name'],
             'password' => bcrypt($data['password']),
             'is_admin' => false,
         ]));
+
+        AuditLog::record('user_created', $newUser,
+            "User {$newUser->first_name} {$newUser->last_name} ({$newUser->role}, {$newUser->department}) created by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+        );
 
         if ($request->expectsJson()) {
             return response()->json(['message' => 'User added successfully.']);

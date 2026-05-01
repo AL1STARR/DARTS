@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\DocumentRoute;
 use App\Models\RouteStage;
 use App\Models\User;
@@ -26,9 +27,10 @@ class RoutingController extends Controller
 
     public function list(Request $request)
     {
+        $validPriorities = array_map('strtolower', Setting::getGroup('priorities'));
         $validated = $request->validate([
             'status'   => 'nullable|in:pending,on-time,delayed,returned,missing,completed',
-            'priority' => 'nullable|in:low,medium,high',
+            'priority' => ['nullable', 'in:' . implode(',', $validPriorities)],
             'search'   => 'nullable|string|max:255',
         ]);
 
@@ -66,10 +68,11 @@ class RoutingController extends Controller
     public function store(Request $request)
     {
         $allowedDepts = Setting::getGroup('departments');
+        $validPriorities = array_map('strtolower', Setting::getGroup('priorities'));
 
         $data = $request->validate([
             'title'               => 'required|string|max:255',
-            'priority'            => 'required|in:low,medium,high',
+            'priority'            => ['required', 'in:' . implode(',', $validPriorities)],
             'deadline'            => 'nullable|date|after:now',
             'stages'              => 'required|array|min:1',
             'stages.*.origin'     => ['required', 'string', 'in:' . implode(',', $allowedDepts)],
@@ -116,6 +119,11 @@ class RoutingController extends Controller
                     "You have been assigned to handle route {$documentRoute->formattedId()}: {$documentRoute->title}."
                 );
             }
+
+            AuditLog::record('created', $documentRoute,
+                "Route {$documentRoute->formattedId()} '{$documentRoute->title}' created by " . auth()->user()->first_name . ' ' . auth()->user()->last_name,
+                ['priority' => $documentRoute->priority, 'origin' => $documentRoute->origin_department]
+            );
 
             return $documentRoute;
         });
@@ -241,6 +249,9 @@ class RoutingController extends Controller
                 if ($documentRoute->status === 'pending') {
                     $documentRoute->update(['status' => 'on-time']);
                 }
+                AuditLog::record('received', $documentRoute,
+                    "Route {$documentRoute->formattedId()} received at {$activeStage->waypoint_department} by " . $user->first_name . ' ' . $user->last_name
+                );
                 NotificationService::create(
                     $documentRoute->user_id,
                     'Document Received',
@@ -254,6 +265,10 @@ class RoutingController extends Controller
                     ? $diff->days . 'd ' . $diff->h . 'h ' . $diff->i . 'm'
                     : ($diff->h > 0 ? $diff->h . 'h ' . $diff->i . 'm' : $diff->i . 'm');
                 $activeStage->update(['status' => 'completed', 'received_at' => $receivedAt, 'duration' => $duration]);
+                AuditLog::record('accomplished', $documentRoute,
+                    "Stage {$activeStage->stage_order} of route {$documentRoute->formattedId()} accomplished at {$activeStage->waypoint_department} by " . $user->first_name . ' ' . $user->last_name,
+                    ['duration' => $duration]
+                );
                 $nextStage = $documentRoute->stages()
                     ->where('stage_order', '>', $activeStage->stage_order)
                     ->where('status', 'pending')
@@ -292,6 +307,10 @@ class RoutingController extends Controller
                     'remarks'               => $data['remarks'] ?? null,
                     'returned_by_department'=> $user->department,
                 ]);
+                AuditLog::record('returned', $documentRoute,
+                    "Route {$documentRoute->formattedId()} returned by {$user->department}" . ($data['remarks'] ? ": {$data['remarks']}" : ''),
+                    ['returned_by' => $user->department]
+                );
                 NotificationService::create(
                     $documentRoute->user_id,
                     'Route Returned',
@@ -299,6 +318,9 @@ class RoutingController extends Controller
                 );
             } elseif ($action === 'flag') {
                 $documentRoute->update(['status' => 'missing']);
+                AuditLog::record('flagged', $documentRoute,
+                    "Route {$documentRoute->formattedId()} flagged as missing by " . $user->first_name . ' ' . $user->last_name
+                );
                 NotificationService::create(
                     $documentRoute->user_id,
                     'Route Flagged as Missing',
@@ -342,6 +364,10 @@ class RoutingController extends Controller
                 'current_waypoint'      => $firstStage ? $firstStage->waypoint_department : $documentRoute->current_waypoint,
             ]);
 
+            AuditLog::record('republished', $documentRoute,
+                "Route {$documentRoute->formattedId()} republished by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+            );
+
             if ($firstStage && $firstStage->handler_id) {
                 NotificationService::create(
                     $firstStage->handler_id,
@@ -367,6 +393,11 @@ class RoutingController extends Controller
             return response()->json(['message' => 'Cannot delete a route that is currently in progress.'], 422);
         }
 
+        $label = $documentRoute->formattedId();
+        $title = $documentRoute->title;
+        AuditLog::record('deleted', $documentRoute,
+            "Route {$label} '{$title}' deleted by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+        );
         $documentRoute->stages()->delete();
         $documentRoute->delete();
         DocumentRoute::renumber();

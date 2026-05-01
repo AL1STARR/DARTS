@@ -50,6 +50,7 @@ Route::get('/routing', [RoutingController::class, 'index'])->name('routing');
     Route::patch('/routing/{routeId}/republish', [RoutingController::class, 'republish'])->name('routing.republish');
     Route::delete('/routing/{routeId}', [RoutingController::class, 'destroy'])->name('routing.destroy');
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');
+    Route::get('/admin/audit-logs', [AdminController::class, 'auditLogs'])->name('admin.audit-logs');
     Route::post('/admin/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('admin.users.toggle-admin');
     Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
     Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\ArchiveDocument;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -84,7 +85,7 @@ class ArchiveController extends Controller
 
         $dept = auth()->user()->department;
 
-        ArchiveDocument::create([
+        $doc = ArchiveDocument::create([
             'uploaded_by'  => auth()->id(),
             'title'        => $data['title'],
             'category'     => $data['category'],
@@ -96,6 +97,11 @@ class ArchiveController extends Controller
             'size'         => $file->getSize(),
             'number'       => (ArchiveDocument::where('department', $dept)->max('number') ?? 0) + 1,
         ]);
+
+        AuditLog::record('document_uploaded', $doc,
+            "Document {$doc->formattedId()} '{$doc->title}' uploaded by " . auth()->user()->first_name . ' ' . auth()->user()->last_name,
+            ['file_type' => $fileType, 'archive_type' => $data['archive_type']]
+        );
 
         return response()->json(['message' => 'Document uploaded successfully.']);
     }
@@ -133,6 +139,11 @@ class ArchiveController extends Controller
 
     public function destroy(ArchiveDocument $archiveDocument)
     {
+        $label = $archiveDocument->formattedId();
+        $title = $archiveDocument->title;
+        AuditLog::record('document_deleted', $archiveDocument,
+            "Document {$label} '{$title}' deleted by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+        );
         Storage::disk('public')->delete($archiveDocument->path);
         $archiveDocument->delete();
         ArchiveDocument::renumber();

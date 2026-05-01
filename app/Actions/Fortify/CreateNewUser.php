@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -38,7 +39,7 @@ class CreateNewUser implements CreatesNewUsers
             'terms'      => ['accepted'],
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name'       => $input['first_name'] . ' ' . $input['last_name'],
             'first_name' => $input['first_name'],
             'last_name'  => $input['last_name'],
@@ -49,5 +50,11 @@ class CreateNewUser implements CreatesNewUsers
             'is_admin'   => false,
             'status'     => 'pending',
         ]);
+
+        AuditLog::record('user_requested', $user,
+            "New access request submitted by {$user->first_name} {$user->last_name} ({$user->role}, {$user->department})"
+        );
+
+        return $user;
     }
 }

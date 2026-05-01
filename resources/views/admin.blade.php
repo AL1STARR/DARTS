@@ -88,6 +88,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       System Settings
     </button>
+    <button class="admin-tab" data-tab="audit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Audit Log
+    </button>
   </div>
 
   <!-- Content layout -->
@@ -367,6 +371,66 @@
         </div>
         @endforeach
 
+      </div>
+    </div>
+
+    <!-- ── AUDIT LOG TAB ── -->
+    <div id="tab-audit" class="admin-tab-panel hidden">
+      <div class="admin-panel">
+        <div class="audit-filters">
+          <div class="select-wrap">
+            <select id="auditEventFilter">
+              <option value="">All Events</option>
+              <option value="request_created">Request Created</option>
+              <option value="request_deleted">Request Deleted</option>
+              <option value="created">Route Created</option>
+              <option value="deleted">Route Deleted</option>
+              <option value="document_uploaded">Document Uploaded</option>
+              <option value="document_deleted">Document Deleted</option>
+              <option value="user_requested">User Request</option>
+              <option value="user_created">User Created</option>
+              <option value="user_request_approved">User Request Approved</option>
+              <option value="received">Route Received</option>
+              <option value="accomplished">Route Accomplished</option>
+              <option value="returned">Route Returned</option>
+              <option value="republished">Route Republished</option>
+              <option value="flagged">Route Flagged</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="select-wrap">
+            <select id="auditTypeFilter">
+              <option value="">All Types</option>
+              <option value="DocumentRoute">Document Route</option>
+              <option value="RouteStage">Route Stage</option>
+              <option value="DocumentRequest">Document Request</option>
+              <option value="ArchiveDocument">Archive Document</option>
+              <option value="User">User</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <input type="text" id="auditSearch" placeholder="Search description…" class="settings-add-input" style="max-width:240px">
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="text-align:left">Timestamp</th>
+                <th style="text-align:left">Event</th>
+                <th style="text-align:left">Type</th>
+                <th style="text-align:left">Description</th>
+                <th style="text-align:left">Actor</th>
+              </tr>
+            </thead>
+            <tbody id="auditBody">
+              <tr><td colspan="5" class="empty-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar">
+          <span class="pagination-info" id="auditInfo"></span>
+          <div class="pagination-controls" id="auditPagination"></div>
+        </div>
       </div>
     </div>
 

@@ -175,3 +175,74 @@ function showConfirmToast(message, onConfirm) {
   toast.querySelector('.confirm-yes').addEventListener('click', () => { toast.remove(); onConfirm(); });
   toast.querySelector('.confirm-no').addEventListener('click',  () => { toast.remove(); });
 }
+
+// ── Audit Log ──
+let auditPage = 1;
+
+async function loadAuditLogs(page = 1) {
+  auditPage = page;
+  const event  = document.getElementById('auditEventFilter').value;
+  const type   = document.getElementById('auditTypeFilter').value;
+  const search = document.getElementById('auditSearch').value;
+
+  const params = new URLSearchParams({ page });
+  if (event)  params.set('event',  event);
+  if (type)   params.set('type',   type);
+  if (search) params.set('search', search);
+
+  const res  = await fetch(`/admin/audit-logs?${params}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+  const json = await res.json();
+
+  const tbody = document.getElementById('auditBody');
+  if (!json.data.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No audit log entries found.</td></tr>';
+  } else {
+    tbody.innerHTML = json.data.map(l => `
+      <tr>
+        <td style="white-space:nowrap;font-size:12px;color:var(--muted)">${l.timestamp}</td>
+        <td><span class="audit-event-badge ${l.event}">${l.event.replace(/_/g, ' ')}</span></td>
+        <td><span class="audit-type-badge">${l.type}</span></td>
+        <td style="font-size:12.5px">${l.description}</td>
+        <td style="font-size:12.5px;white-space:nowrap">${l.user}</td>
+      </tr>`).join('');
+  }
+
+  document.getElementById('auditInfo').textContent =
+    json.total ? `Showing page ${json.current_page} of ${json.last_page} (${json.total} entries)` : '';
+
+  const pag = document.getElementById('auditPagination');
+  pag.innerHTML = '';
+  if (json.last_page > 1) {
+    const prev = document.createElement('button');
+    prev.className = 'page-btn';
+    prev.disabled  = json.current_page === 1;
+    prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>';
+    prev.addEventListener('click', () => loadAuditLogs(auditPage - 1));
+    pag.appendChild(prev);
+
+    for (let p = 1; p <= json.last_page; p++) {
+      const a = document.createElement('button');
+      a.className = 'page-num' + (p === json.current_page ? ' active' : '');
+      a.textContent = p;
+      a.addEventListener('click', () => loadAuditLogs(p));
+      pag.appendChild(a);
+    }
+
+    const next = document.createElement('button');
+    next.className = 'page-btn';
+    next.disabled  = json.current_page === json.last_page;
+    next.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+    next.addEventListener('click', () => loadAuditLogs(auditPage + 1));
+    pag.appendChild(next);
+  }
+}
+
+document.querySelector('[data-tab="audit"]').addEventListener('click', () => loadAuditLogs(1));
+
+let auditSearchTimer;
+document.getElementById('auditSearch').addEventListener('input', () => {
+  clearTimeout(auditSearchTimer);
+  auditSearchTimer = setTimeout(() => loadAuditLogs(1), 350);
+});
+document.getElementById('auditEventFilter').addEventListener('change', () => loadAuditLogs(1));
+document.getElementById('auditTypeFilter').addEventListener('change',  () => loadAuditLogs(1));
