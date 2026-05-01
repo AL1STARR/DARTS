@@ -60,6 +60,7 @@ Route::get('/routing', [RoutingController::class, 'index'])->name('routing');
     Route::delete('/admin/settings/{setting}', [AdminController::class, 'settingDestroy'])->name('admin.settings.destroy');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/data', [NotificationController::class, 'data'])->name('notifications.data');
+    Route::get('/notifications/archive', [NotificationController::class, 'archive'])->name('notifications.archive');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::patch('/notifications/{notification}/dismiss', [NotificationController::class, 'dismiss'])->name('notifications.dismiss');
     Route::post('/notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clear-all');

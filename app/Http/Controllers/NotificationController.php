@@ -65,4 +65,30 @@ class NotificationController extends Controller
 
         return response()->json(['message' => 'All notifications cleared.']);
     }
+
+    public function archive(Request $request)
+    {
+        $notifications = Notification::where('user_id', auth()->id())
+            ->latest()
+            ->get()
+            ->map(function ($notif) {
+                return [
+                    'id'          => $notif->id,
+                    'title'       => $notif->title,
+                    'description' => $notif->description,
+                    'read'        => $notif->read,
+                    'created_at'  => $notif->created_at->toIso8601String(),
+                ];
+            });
+
+        $unreadCount = Notification::where('user_id', auth()->id())
+            ->where('dismissed', false)
+            ->where('read', false)
+            ->count();
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unreadCount'   => $unreadCount,
+        ]);
+    }
 }

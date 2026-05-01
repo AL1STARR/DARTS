@@ -38,7 +38,7 @@
 <script>
 async function loadNotifications() {
   try {
-    const res  = await fetch('/notifications/data');
+    const res  = await fetch('/notifications/archive');
     const data = await res.json();
     renderNotifications(data.notifications);
   } catch (e) {
