@@ -87,7 +87,14 @@ This procedure creates a new admin user in the database using Laravel Tinker (an
 2. **Create Admin User**
    - Once in the Tinker shell (you'll see the `>` prompt), run:
    ```bash
-   $user = App\Models\User::create(['name' => 'Admin', 'email' => 'admin@darts.com', 'password' => bcrypt('admin123'), 'is_admin' => true])
+   $user = App\Models\User::create([
+    'name' => 'Admin',
+    'email' => 'admin@darts.com',
+    'password' => bcrypt('admin123'),
+    'is_admin' => true,
+    'role' => 'Admin',
+    'department' => 'Information Technology'
+]);
    ```
 
 3. **Verify Creation**
