@@ -120,7 +120,7 @@ function render() {
         <td><span class="dept-origin">${escapeHtml(r.origin)}</span></td>
         <td><span class="dept-waypoint">${escapeHtml(r.waypoint)}</span></td>
         <td><span class="status-badge ${escapeHtml(r.status)}">${statusLabel[r.status] || escapeHtml(r.status)}</span></td>
-        <td><span class="priority-badge ${escapeHtml(r.priority)}">${priorityIcon[r.priority]} ${priorityLabel[r.priority] || escapeHtml(r.priority)}</span></td>
+        <td>${r.priority ? `<span class="priority-badge ${escapeHtml(r.priority.toLowerCase())}">${priorityIcon[r.priority.toLowerCase()] ?? ''} ${priorityLabel[r.priority.toLowerCase()] || escapeHtml(r.priority)}</span>` : ''}</td>
         <td><button class="view-btn">View</button></td>
       </tr>`).join('');
   }
