@@ -199,11 +199,11 @@ async function loadAuditLogs(page = 1) {
   } else {
     tbody.innerHTML = json.data.map(l => `
       <tr>
-        <td style="white-space:nowrap;font-size:12px;color:var(--muted)">${l.timestamp}</td>
-        <td><span class="audit-event-badge ${l.event}">${l.event.replace(/_/g, ' ')}</span></td>
-        <td><span class="audit-type-badge">${l.type}</span></td>
-        <td style="font-size:12.5px">${l.description}</td>
-        <td style="font-size:12.5px;white-space:nowrap">${l.user}</td>
+        <td style="white-space:nowrap;font-size:12px;color:var(--muted);text-align:center">${l.timestamp}</td>
+        <td style="text-align:center"><span class="audit-event-badge ${l.event}">${l.event.replace(/_/g, ' ')}</span></td>
+        <td style="text-align:center"><span class="audit-type-badge">${l.type}</span></td>
+        <td style="font-size:12.5px; text-align: left;">${l.description}</td>
+        <td style="font-size:12.5px;white-space:nowrap;text-align:center">${l.user}</td>
       </tr>`).join('');
   }
 

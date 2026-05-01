@@ -415,11 +415,11 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="text-align:left">Timestamp</th>
-                <th style="text-align:left">Event</th>
-                <th style="text-align:left">Type</th>
-                <th style="text-align:left">Description</th>
-                <th style="text-align:left">Actor</th>
+                <th>Timestamp</th>
+                <th>Event</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Actor</th>
               </tr>
             </thead>
             <tbody id="auditBody">
