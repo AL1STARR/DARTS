@@ -154,7 +154,7 @@ class RoutingController extends Controller
 
         $owner     = $documentRoute->user;
         $ownerName = $owner ? ($owner->first_name . ' ' . $owner->last_name) : 'Unknown';
-        $submitted  = $documentRoute->created_at->format('F j, Y');
+        $submitted  = $documentRoute->created_at->format('M d, Y');
         $originAbbr = $this->abbr($documentRoute->origin_department);
 
         $paths = $documentRoute->stages->map(function ($stage) {
@@ -168,7 +168,7 @@ class RoutingController extends Controller
                 'status'       => $stage->status,
                 'duration'     => $stage->duration ?? '-',
                 'instructions' => $stage->instructions ?? '',
-                'received_at'  => $stage->received_at ? $stage->received_at->format('M j, Y g:i A') : null,
+                'received_at'  => $stage->received_at ? $stage->received_at->format('M d, Y g:i A') : null,
             ];
         });
 
@@ -197,7 +197,7 @@ class RoutingController extends Controller
             'activeHandlerId'        => $activeStage ? $activeStage->handler_id : null,
             'activeStageReceived'    => $activeStage ? !is_null($activeStage->received_at) : false,
             'activeStageOrigin'      => $activeStage ? $activeStage->origin_department : null,
-            'deadline'               => $documentRoute->deadline?->format('F j, Y g:i A'),
+            'deadline'               => $documentRoute->deadline?->format('M d, Y g:i A'),
             'remarks'                => $fresh->remarks,
             'returnedByDepartment'   => $fresh->returned_by_department,
             'originDept'             => $documentRoute->origin_department,
