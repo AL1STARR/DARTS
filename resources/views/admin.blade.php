@@ -410,6 +410,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
           <input type="text" id="auditSearch" placeholder="Search description…" class="settings-add-input" style="max-width:240px">
+          <button id="downloadAuditBtn" class="audit-download-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Log
+          </button>
         </div>
         <div class="admin-table-wrap">
           <table class="admin-table">
@@ -565,6 +569,43 @@
         <button type="submit" class="btn-upload" id="modalSubmit">Add User</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Download Audit Log Modal -->
+<div class="modal-overlay" id="auditDownloadOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Download Audit Log</h3>
+      <button class="modal-close" id="auditDownloadClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Select the year and month for the audit log report.</p>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Year</label>
+          <div class="select-wrap">
+            <select id="reportYear">
+              <option value="">Select year</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Month</label>
+          <div class="select-wrap">
+            <select id="reportMonth">
+              <option value="">Select month</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" id="auditDownloadCancel">Cancel</button>
+      <button type="button" class="btn-upload" id="auditDownloadSubmit">Download</button>
+    </div>
   </div>
 </div>
 

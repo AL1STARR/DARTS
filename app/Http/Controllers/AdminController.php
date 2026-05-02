@@ -77,6 +77,47 @@ class AdminController extends Controller
         ]);
     }
 
+    public function downloadAuditLogs(Request $request)
+    {
+        if (!auth()->user()->isAdmin()) abort(403);
+
+        $year = $request->query('year');
+        $month = $request->query('month');
+
+        if (!$year || !$month) {
+            return response()->json(['error' => 'Invalid year or month'], 400);
+        }
+
+        $startDate = "{$year}-{$month}-01";
+        $endDate = date('Y-m-t', strtotime($startDate));
+
+        // Get logs for the selected month
+        $logs = AuditLog::with('user')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Format the date range for display
+        $startDateFormatted = \Carbon\Carbon::parse($startDate)->format('F d, Y');
+        $endDateFormatted = \Carbon\Carbon::parse($endDate)->format('F d, Y');
+        $monthYearFormatted = \Carbon\Carbon::parse($startDate)->format('F Y');
+
+        // Generate PDF
+        $pdf = \PDF::loadView('audit-log-report', [
+            'logs' => $logs,
+            'startDate' => $startDateFormatted,
+            'endDate' => $endDateFormatted,
+            'monthYear' => $monthYearFormatted,
+            'generatedDate' => now()->format('F d, Y'),
+            'generatedTime' => now()->format('g:i A'),
+            'adminName' => auth()->user()->first_name . ' ' . auth()->user()->last_name,
+        ]);
+
+        // Return PDF as download
+        return $pdf->download('audit-log-' . $year . '-' . $month . '.pdf');
+    }
+
+
     public function settingStore(Request $request, string $group)
     {
         if (!auth()->user()->isAdmin()) abort(403);

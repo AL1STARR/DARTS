@@ -791,3 +791,42 @@
   color: var(--navy);
   white-space: nowrap;
 }
+
+.audit-download-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #0369a1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.audit-download-btn:hover {
+  background: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(3, 105, 161, 0.3);
+}
+
+.audit-download-btn:active {
+  transform: translateY(0);
+}
+
+.audit-download-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.audit-download-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
