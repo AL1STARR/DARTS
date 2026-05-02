@@ -249,3 +249,135 @@ document.getElementById('auditSearch').addEventListener('input', () => {
 document.getElementById('auditEventFilter').addEventListener('change', () => loadAuditLogs(1));
 document.getElementById('auditTypeFilter').addEventListener('change',  () => loadAuditLogs(1));
 
+
+// ── All Requests (Admin role only) ──
+if (document.getElementById('allReqBody')) {
+  let allReqPage = 1;
+
+  function buildPagination(containerId, currentPage, lastPage, loadFn) {
+    const pag = document.getElementById(containerId);
+    pag.innerHTML = '';
+    if (lastPage <= 1) return;
+    const prev = document.createElement('button');
+    prev.className = 'page-btn';
+    prev.disabled  = currentPage === 1;
+    prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>';
+    prev.addEventListener('click', () => loadFn(currentPage - 1));
+    pag.appendChild(prev);
+    for (let p = 1; p <= lastPage; p++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-num' + (p === currentPage ? ' active' : '');
+      btn.textContent = p;
+      btn.addEventListener('click', () => loadFn(p));
+      pag.appendChild(btn);
+    }
+    const next = document.createElement('button');
+    next.className = 'page-btn';
+    next.disabled  = currentPage === lastPage;
+    next.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+    next.addEventListener('click', () => loadFn(currentPage + 1));
+    pag.appendChild(next);
+  }
+
+  const priorityBadge = p => {
+    const cls = { high: 'background:#fee2e2;color:#b91c1c', medium: 'background:#fef9c3;color:#854d0e', low: 'background:#f0fdf4;color:#15803d' };
+    return `<span style="display:inline-block;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700;${cls[p] ?? 'background:#eef1f5;color:#475569'}">${p}</span>`;
+  };
+
+  const statusBadge = s => {
+    const cls = {
+      pending: 'background:#fef9c3;color:#854d0e', 'in-progress': 'background:#e0f2fe;color:#0369a1',
+      fulfilled: 'background:#dcfce7;color:#15803d', cancelled: 'background:#fee2e2;color:#b91c1c',
+      'on-time': 'background:#dcfce7;color:#15803d', delayed: 'background:#fee2e2;color:#b91c1c',
+      returned: 'background:#fef9c3;color:#854d0e', missing: 'background:#fce7f3;color:#9d174d',
+      completed: 'background:#ede9fe;color:#5b21b6',
+    };
+    return `<span style="display:inline-block;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700;${cls[s] ?? 'background:#eef1f5;color:#475569'}">${s}</span>`;
+  };
+
+  async function loadAllRequests(page = 1) {
+    allReqPage = page;
+    const status   = document.getElementById('allReqStatusFilter').value;
+    const priority = document.getElementById('allReqPriorityFilter').value;
+    const search   = document.getElementById('allReqSearch').value;
+    const params   = new URLSearchParams({ page });
+    if (status)   params.set('status',   status);
+    if (priority) params.set('priority', priority);
+    if (search)   params.set('search',   search);
+
+    const res  = await fetch(`/admin/all-requests?${params}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const json = await res.json();
+    const tbody = document.getElementById('allReqBody');
+
+    tbody.innerHTML = json.data.length
+      ? json.data.map(r => `<tr>
+          <td style="font-size:12px;white-space:nowrap">${r.id}</td>
+          <td style="font-size:13px;text-align:left">${r.title}</td>
+          <td><span class="dept-badge">${r.department}</span></td>
+          <td style="font-size:12.5px">${r.user}</td>
+          <td>${priorityBadge(r.priority)}</td>
+          <td>${statusBadge(r.status)}</td>
+          <td style="font-size:12px;white-space:nowrap;color:var(--muted)">${r.created_at}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="7" class="empty-row">No requests found.</td></tr>';
+
+    document.getElementById('allReqInfo').textContent =
+      json.total ? `Showing page ${json.current_page} of ${json.last_page} (${json.total} entries)` : '';
+    buildPagination('allReqPagination', json.current_page, json.last_page, loadAllRequests);
+  }
+
+  document.querySelector('[data-tab="all-requests"]').addEventListener('click', () => loadAllRequests(1));
+  document.getElementById('allReqStatusFilter').addEventListener('change', () => loadAllRequests(1));
+  document.getElementById('allReqPriorityFilter').addEventListener('change', () => loadAllRequests(1));
+  let allReqTimer;
+  document.getElementById('allReqSearch').addEventListener('input', () => {
+    clearTimeout(allReqTimer);
+    allReqTimer = setTimeout(() => loadAllRequests(1), 350);
+  });
+}
+
+// ── All Routes (Admin role only) ──
+if (document.getElementById('allRouteBody')) {
+  let allRoutePage = 1;
+
+  async function loadAllRoutes(page = 1) {
+    allRoutePage = page;
+    const status   = document.getElementById('allRouteStatusFilter').value;
+    const priority = document.getElementById('allRoutePriorityFilter').value;
+    const search   = document.getElementById('allRouteSearch').value;
+    const params   = new URLSearchParams({ page });
+    if (status)   params.set('status',   status);
+    if (priority) params.set('priority', priority);
+    if (search)   params.set('search',   search);
+
+    const res  = await fetch(`/admin/all-routes?${params}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const json = await res.json();
+    const tbody = document.getElementById('allRouteBody');
+
+    tbody.innerHTML = json.data.length
+      ? json.data.map(r => `<tr>
+          <td style="font-size:12px;white-space:nowrap">${r.id}</td>
+          <td style="font-size:13px;text-align:left">${r.title}</td>
+          <td><span class="dept-badge">${r.origin}</span></td>
+          <td><span class="dept-badge">${r.waypoint}</span></td>
+          <td style="font-size:12.5px">${r.user}</td>
+          <td>${priorityBadge(r.priority)}</td>
+          <td>${statusBadge(r.status)}</td>
+          <td style="font-size:12px;white-space:nowrap;color:var(--muted)">${r.created_at}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="8" class="empty-row">No routes found.</td></tr>';
+
+    document.getElementById('allRouteInfo').textContent =
+      json.total ? `Showing page ${json.current_page} of ${json.last_page} (${json.total} entries)` : '';
+    buildPagination('allRoutePagination', json.current_page, json.last_page, loadAllRoutes);
+  }
+
+  document.querySelector('[data-tab="all-routes"]').addEventListener('click', () => loadAllRoutes(1));
+  document.getElementById('allRouteStatusFilter').addEventListener('change', () => loadAllRoutes(1));
+  document.getElementById('allRoutePriorityFilter').addEventListener('change', () => loadAllRoutes(1));
+  let allRouteTimer;
+  document.getElementById('allRouteSearch').addEventListener('input', () => {
+    clearTimeout(allRouteTimer);
+    allRouteTimer = setTimeout(() => loadAllRoutes(1), 350);
+  });
+}

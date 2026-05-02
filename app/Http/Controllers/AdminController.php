@@ -77,6 +77,69 @@ class AdminController extends Controller
         ]);
     }
 
+    public function allRequests(Request $request)
+    {
+        if (!auth()->user()->isAdmin() || auth()->user()->role !== 'Admin') abort(403);
+
+        $query = \App\Models\DocumentRequest::with('user')->latest();
+
+        if ($request->filled('status'))   $query->where('status',     $request->status);
+        if ($request->filled('priority')) $query->where('priority',   $request->priority);
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where('title', 'like', "%{$s}%");
+        }
+
+        $items = $query->paginate(15);
+
+        return response()->json([
+            'data' => $items->map(fn($r) => [
+                'id'         => $r->formattedId(),
+                'title'      => $r->title,
+                'department' => $r->department,
+                'status'     => $r->status,
+                'priority'   => $r->priority,
+                'user'       => $r->user ? $r->user->first_name . ' ' . $r->user->last_name : 'Unknown',
+                'created_at' => $r->created_at->format('M d, Y'),
+            ]),
+            'current_page' => $items->currentPage(),
+            'last_page'    => $items->lastPage(),
+            'total'        => $items->total(),
+        ]);
+    }
+
+    public function allRoutes(Request $request)
+    {
+        if (!auth()->user()->isAdmin() || auth()->user()->role !== 'Admin') abort(403);
+
+        $query = \App\Models\DocumentRoute::with('user')->latest();
+
+        if ($request->filled('status'))   $query->where('status',   $request->status);
+        if ($request->filled('priority')) $query->where('priority', $request->priority);
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where('title', 'like', "%{$s}%");
+        }
+
+        $items = $query->paginate(15);
+
+        return response()->json([
+            'data' => $items->map(fn($r) => [
+                'id'         => $r->formattedId(),
+                'title'      => $r->title,
+                'origin'     => $r->origin_department,
+                'waypoint'   => $r->current_waypoint ?? $r->origin_department,
+                'status'     => $r->status,
+                'priority'   => $r->priority,
+                'user'       => $r->user ? $r->user->first_name . ' ' . $r->user->last_name : 'Unknown',
+                'created_at' => $r->created_at->format('M d, Y'),
+            ]),
+            'current_page' => $items->currentPage(),
+            'last_page'    => $items->lastPage(),
+            'total'        => $items->total(),
+        ]);
+    }
+
     public function settingStore(Request $request, string $group)
     {
         if (!auth()->user()->isAdmin()) abort(403);

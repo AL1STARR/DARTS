@@ -92,6 +92,16 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
       Audit Log
     </button>
+    @if(auth()->user()->role === 'Admin')
+    <button class="admin-tab" data-tab="all-requests">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      All Requests
+    </button>
+    <button class="admin-tab" data-tab="all-routes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      All Routes
+    </button>
+    @endif
   </div>
 
   <!-- Content layout -->
@@ -434,6 +444,111 @@
         </div>
       </div>
     </div>
+
+    @if(auth()->user()->role === 'Admin')
+    <!-- ── ALL REQUESTS TAB ── -->
+    <div id="tab-all-requests" class="admin-tab-panel hidden">
+      <div class="admin-panel">
+        <div class="audit-filters">
+          <div class="select-wrap">
+            <select id="allReqStatusFilter">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="fulfilled">Fulfilled</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="select-wrap">
+            <select id="allReqPriorityFilter">
+              <option value="">All Priorities</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <input type="text" id="allReqSearch" placeholder="Search title…" class="settings-add-input" style="max-width:240px">
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Department</th>
+                <th>Requested By</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="allReqBody">
+              <tr><td colspan="7" class="empty-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar">
+          <span class="pagination-info" id="allReqInfo"></span>
+          <div class="pagination-controls" id="allReqPagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALL ROUTES TAB ── -->
+    <div id="tab-all-routes" class="admin-tab-panel hidden">
+      <div class="admin-panel">
+        <div class="audit-filters">
+          <div class="select-wrap">
+            <select id="allRouteStatusFilter">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="on-time">On Time</option>
+              <option value="delayed">Delayed</option>
+              <option value="returned">Returned</option>
+              <option value="missing">Missing</option>
+              <option value="completed">Completed</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="select-wrap">
+            <select id="allRoutePriorityFilter">
+              <option value="">All Priorities</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <input type="text" id="allRouteSearch" placeholder="Search title…" class="settings-add-input" style="max-width:240px">
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Origin</th>
+                <th>Current Waypoint</th>
+                <th>Created By</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="allRouteBody">
+              <tr><td colspan="8" class="empty-row">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar">
+          <span class="pagination-info" id="allRouteInfo"></span>
+          <div class="pagination-controls" id="allRoutePagination"></div>
+        </div>
+      </div>
+    </div>
+    @endif
 
     <!-- Sidebar -->
     <div class="admin-sidebar-col">
