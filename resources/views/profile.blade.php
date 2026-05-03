@@ -34,7 +34,6 @@
       </div>
       <div class="profile-name" id="profileNameDisplay">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</div>
       <div class="profile-role">{{ auth()->user()->role }}</div>
-      <div class="profile-dept">{{ auth()->user()->department }}</div>
 
       <div class="profile-meta">
         <div class="meta-row">

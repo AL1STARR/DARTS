@@ -187,7 +187,9 @@ class AdminController extends Controller
 
         $update = array_merge($data, ['name' => $data['first_name'] . ' ' . $data['last_name']]);
         unset($update['password']);
-        if (!empty($data['password'])) {
+        if ($data['status'] === 'inactive') {
+            $update['password'] = bcrypt('Temporary2000');
+        } elseif (!empty($data['password'])) {
             $update['password'] = bcrypt($data['password']);
         }
 
