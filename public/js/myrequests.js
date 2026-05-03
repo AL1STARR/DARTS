@@ -315,6 +315,7 @@ const deleteReasonConfirm  = document.getElementById('deleteReasonConfirm');
 function openDeleteModal() {
   deleteReasonInput.value = '';
   deleteReasonError.textContent = '';
+  deleteReasonInput.style.borderColor = '';
   deleteReasonOverlay.classList.add('open');
   deleteReasonInput.focus();
 }
@@ -322,7 +323,6 @@ function closeDeleteModal() {
   deleteReasonOverlay.classList.remove('open');
 }
 
-document.getElementById('deleteReasonClose').addEventListener('click', closeDeleteModal);
 document.getElementById('deleteReasonCancel').addEventListener('click', closeDeleteModal);
 deleteReasonOverlay.addEventListener('click', e => { if (e.target === deleteReasonOverlay) closeDeleteModal(); });
 

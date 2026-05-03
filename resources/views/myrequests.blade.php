@@ -354,22 +354,18 @@
 </div>
 
 <!-- Delete Reason Modal -->
-<div class="modal-overlay" id="deleteReasonOverlay">
-  <div class="modal modal-sm">
-    <div class="modal-header">
-      <h3>Reason for Deletion</h3>
-      <button class="modal-close" id="deleteReasonClose">✕</button>
+<div class="remarks-overlay" id="deleteReasonOverlay">
+  <div class="remarks-card">
+    <div class="remarks-card-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      <h4>Reason for Deletion</h4>
     </div>
-    <div class="modal-body">
-      <div class="field-group">
-        <label>Reason <span style="color:#ef4444">*</span></label>
-        <textarea id="deleteReasonInput" rows="4" placeholder="Enter reason for deleting this request…" style="border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13px;font-family:inherit;resize:vertical;outline:none;width:100%"></textarea>
-        <span class="field-error" id="deleteReasonError"></span>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn-cancel" id="deleteReasonCancel">Cancel</button>
-      <button type="button" class="btn-danger" id="deleteReasonConfirm">Delete Request</button>
+    <p class="remarks-card-sub">Please provide a reason for deleting this request.</p>
+    <textarea id="deleteReasonInput" placeholder="Enter reason for deletion…" rows="4"></textarea>
+    <span style="font-size:11px;color:#ef4444;min-height:14px;display:block" id="deleteReasonError"></span>
+    <div class="remarks-card-footer">
+      <button class="btn-cancel" id="deleteReasonCancel">Cancel</button>
+      <button class="btn-create" style="background:#c2410c" id="deleteReasonConfirm">Delete Request</button>
     </div>
   </div>
 </div>

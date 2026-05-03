@@ -393,10 +393,12 @@ class RoutingController extends Controller
             return response()->json(['message' => 'Cannot delete a route that is currently in progress.'], 422);
         }
 
-        $label = $documentRoute->formattedId();
-        $title = $documentRoute->title;
+        $label  = $documentRoute->formattedId();
+        $title  = $documentRoute->title;
+        $reason = request()->input('reason', '');
         AuditLog::record('deleted', $documentRoute,
-            "Route {$label} '{$title}' deleted by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+            "Route {$label} '{$title}' deleted by " . auth()->user()->first_name . ' ' . auth()->user()->last_name,
+            array_filter(['reason' => $reason])
         );
         $documentRoute->stages()->delete();
         $documentRoute->delete();

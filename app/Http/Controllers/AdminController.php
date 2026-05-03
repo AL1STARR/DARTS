@@ -66,6 +66,7 @@ class AdminController extends Controller
                 'description' => $l->description,
                 'user'        => $l->user ? $l->user->first_name . ' ' . $l->user->last_name : 'System',
                 'timestamp'   => $l->created_at->format('M d, Y g:i A'),
+                'metadata'    => $l->metadata,
             ]),
             'current_page' => $logs->currentPage(),
             'last_page'    => $logs->lastPage(),

@@ -198,13 +198,32 @@ async function loadAuditLogs(page = 1) {
     tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No audit log entries found.</td></tr>';
   } else {
     tbody.innerHTML = json.data.map(l => `
-      <tr>
+      <tr class="audit-log-row" style="cursor:pointer" data-log='${JSON.stringify(l).replace(/'/g, "&#39;")}'>
         <td style="white-space:nowrap;font-size:12px;color:var(--muted);text-align:center">${l.timestamp}</td>
         <td style="text-align:center"><span class="audit-event-badge ${l.event}">${l.event.replace(/_/g, ' ')}</span></td>
         <td style="text-align:center"><span class="audit-type-badge">${l.type}</span></td>
         <td style="font-size:12.5px; text-align: left;">${l.description}</td>
         <td style="font-size:12.5px;white-space:nowrap;text-align:center">${l.user}</td>
       </tr>`).join('');
+
+    // Row click — show detail popover
+    tbody.querySelectorAll('.audit-log-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const l = JSON.parse(row.dataset.log);
+        const body = document.getElementById('auditDetailBody');
+        const field = (label, value) => value
+          ? `<div><span style="font-size:10.5px;font-weight:700;color:#64748b;letter-spacing:.5px">${label}</span><p style="margin-top:3px">${value}</p></div>`
+          : '';
+        body.innerHTML =
+          field('TIMESTAMP', l.timestamp) +
+          field('EVENT', `<span class="audit-event-badge ${l.event}">${l.event.replace(/_/g, ' ')}</span>`) +
+          field('TYPE', `<span class="audit-type-badge">${l.type}</span>`) +
+          field('DESCRIPTION', l.description) +
+          field('ACTOR', l.user) +
+          (l.metadata?.reason ? field('REASON FOR DELETION', `<em style="color:#c2410c">${l.metadata.reason}</em>`) : '');
+        document.getElementById('auditDetailOverlay').classList.add('open');
+      });
+    });
   }
 
   document.getElementById('auditInfo').textContent =
@@ -241,4 +260,9 @@ document.querySelector('[data-tab="audit"]').addEventListener('click', () => loa
 
 document.getElementById('auditEventFilter').addEventListener('change', () => loadAuditLogs(1));
 document.getElementById('auditTypeFilter').addEventListener('change',  () => loadAuditLogs(1));
+
+// ── Audit detail popover close ──
+const auditDetailOverlay = document.getElementById('auditDetailOverlay');
+document.getElementById('auditDetailClose').addEventListener('click', () => auditDetailOverlay.classList.remove('open'));
+auditDetailOverlay.addEventListener('click', e => { if (e.target === auditDetailOverlay) auditDetailOverlay.classList.remove('open'); });
 

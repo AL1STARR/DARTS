@@ -157,15 +157,17 @@ class DocumentRequestController extends Controller
     {
         abort_if($documentRequest->user_id !== auth()->id(), 403);
 
-        // Delete stored files
         foreach ($documentRequest->attachments as $attachment) {
             \Storage::disk('public')->delete($attachment->path);
         }
 
-        $label = $documentRequest->formattedId();
-        $title = $documentRequest->title;
+        $label  = $documentRequest->formattedId();
+        $title  = $documentRequest->title;
+        $reason = request()->input('reason', '');
+
         AuditLog::record('request_deleted', $documentRequest,
-            "Request {$label} '{$title}' deleted by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+            "Request {$label} '{$title}' deleted by " . auth()->user()->first_name . ' ' . auth()->user()->last_name,
+            array_filter(['reason' => $reason])
         );
 
         $documentRequest->delete();
