@@ -55,12 +55,8 @@ class AdminController extends Controller
 
         if ($request->filled('event'))  $query->where('event', $request->event);
         if ($request->filled('type'))   $query->where('auditable_type', $request->type);
-        if ($request->filled('search')) {
-            $s = $request->search;
-            $query->where('description', 'like', "%{$s}%");
-        }
 
-        $logs = $query->paginate(20);
+        $logs = $query->paginate(10);
 
         return response()->json([
             'data' => $logs->map(fn($l) => [

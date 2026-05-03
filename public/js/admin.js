@@ -185,12 +185,10 @@ async function loadAuditLogs(page = 1) {
   auditPage = page;
   const event  = document.getElementById('auditEventFilter').value;
   const type   = document.getElementById('auditTypeFilter').value;
-  const search = document.getElementById('auditSearch').value;
 
   const params = new URLSearchParams({ page });
   if (event)  params.set('event',  event);
   if (type)   params.set('type',   type);
-  if (search) params.set('search', search);
 
   const res  = await fetch(`/admin/audit-logs?${params}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
   const json = await res.json();
@@ -241,11 +239,6 @@ async function loadAuditLogs(page = 1) {
 
 document.querySelector('[data-tab="audit"]').addEventListener('click', () => loadAuditLogs(1));
 
-let auditSearchTimer;
-document.getElementById('auditSearch').addEventListener('input', () => {
-  clearTimeout(auditSearchTimer);
-  auditSearchTimer = setTimeout(() => loadAuditLogs(1), 350);
-});
 document.getElementById('auditEventFilter').addEventListener('change', () => loadAuditLogs(1));
 document.getElementById('auditTypeFilter').addEventListener('change',  () => loadAuditLogs(1));
 
