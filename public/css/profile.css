@@ -137,6 +137,11 @@
   border: 1px solid var(--border);
 }
 
+.profile-badge.level-access { border-radius: 3px; }
+.profile-badge.level-3 { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.profile-badge.level-2 { background: #fff4ed; color: #c2410c; border-color: #fed7aa; }
+.profile-badge.level-1 { background: #fff7ed; color: #ea580c; border-color: #fdba74; }
+
 /* ── FORM CARDS ── */
 .profile-forms {
   display: flex;

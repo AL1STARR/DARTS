@@ -211,7 +211,7 @@
                 </td>
               </tr>
               @empty
-              <tr><td colspan="7" class="empty-row">No users found.</td></tr>
+              <tr><td colspan="8" class="empty-row">No users found.</td></tr>
               @endforelse
             </tbody>
           </table>

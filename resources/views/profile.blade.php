@@ -51,8 +51,14 @@
       </div>
 
       <div class="profile-badge-row">
-        <span class="profile-badge">Active</span>
-        <span class="profile-badge outline">Level 2 Access</span>
+        <span class="profile-badge">{{ ucfirst(auth()->user()->status) }}</span>
+        @if(auth()->user()->isFullAdmin())
+          <span class="profile-badge level-access level-3">Level 3 Access</span>
+        @elseif(auth()->user()->isDeptAdmin())
+          <span class="profile-badge level-access level-2">Level 2 Access</span>
+        @else
+          <span class="profile-badge level-access level-1">Level 1 Access</span>
+        @endif
       </div>
 
       <form method="POST" action="/logout" style="margin-top:1.5rem;width:100%">
