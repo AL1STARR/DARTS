@@ -11,11 +11,12 @@ class AccountApprovedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public User $user) {}
+    public function __construct(public User $user, public string $temporaryPassword) {}
 
     public function build()
     {
         return $this->subject('Your DARTS Account Has Been Approved')
-                    ->view('emails.account-approved');
+                    ->view('emails.account-approved')
+                    ->with(['temporaryPassword' => $this->temporaryPassword]);
     }
 }

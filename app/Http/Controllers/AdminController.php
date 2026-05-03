@@ -121,9 +121,13 @@ class AdminController extends Controller
     {
         if (!auth()->user()->isAdmin()) abort(403);
 
-        $user->update(['status' => 'active']);
+        $temporaryPassword = 'Temporary123';
+        $user->update([
+            'status' => 'active',
+            'password' => bcrypt($temporaryPassword),
+        ]);
 
-        Mail::to($user->email)->send(new AccountApprovedMail($user));
+        Mail::to($user->email)->send(new AccountApprovedMail($user, $temporaryPassword));
 
         // Notify user of approval
         NotificationService::notifyUserApproved($user->id, $user->first_name . ' ' . $user->last_name);
