@@ -97,35 +97,6 @@
             </div>
           </div>
 
-          <div class="reg-field-row">
-            <div class="field-group">
-              <label for="regPassword">Password</label>
-              <div class="password-wrap">
-                <input type="password" id="regPassword" name="password" placeholder="••••••••" autocomplete="new-password">
-                <button type="button" class="toggle-pw" id="togglePw1" aria-label="Show password">
-                  <svg id="eyeIcon1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
-              </div>
-              <span class="field-error" id="regPasswordError"></span>
-            </div>
-            <div class="field-group">
-              <label for="confirmPassword">Confirm Password</label>
-              <div class="password-wrap">
-                <input type="password" id="confirmPassword" name="password_confirmation" placeholder="••••••••" autocomplete="new-password">
-                <button type="button" class="toggle-pw" id="togglePw2" aria-label="Show password">
-                  <svg id="eyeIcon2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
-              </div>
-              <span class="field-error" id="confirmPasswordError"></span>
-            </div>
-          </div>
-
-          <div class="reg-password-hint">
-            <span id="hint-len" class="hint">8+ characters</span>
-            <span id="hint-upper" class="hint">Uppercase</span>
-            <span id="hint-num" class="hint">Number</span>
-          </div>
-
           <div class="reg-terms">
             <input type="checkbox" id="terms" name="terms">
             <label for="terms">I agree to the <a href="{{ route('terms') }}" target="_blank">Terms of Service</a> and <a href="{{ route('privacy') }}" target="_blank">Privacy Policy</a></label>

@@ -37,7 +37,6 @@ class CreateNewUser implements CreatesNewUsers
             ],
             'department' => ['required', 'string'],
             'role'       => ['required', 'string'],
-            'password'   => $this->passwordRules(),
             'terms'      => ['accepted'],
         ])->validate();
 
@@ -48,7 +47,7 @@ class CreateNewUser implements CreatesNewUsers
             'email'      => $input['email'],
             'department' => $input['department'],
             'role'       => $input['role'],
-            'password'   => Hash::make($input['password']),
+            'password'   => Hash::make('Darts@RequestAccess'),
             'is_admin'   => false,
             'status'     => 'pending',
         ]);
