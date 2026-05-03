@@ -2,9 +2,11 @@
 
 namespace App\Actions\Fortify;
 
+use App\Mail\VerifyEmailMail;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -54,6 +56,8 @@ class CreateNewUser implements CreatesNewUsers
         AuditLog::record('user_requested', $user,
             "New access request submitted by {$user->first_name} {$user->last_name} ({$user->role}, {$user->department})"
         );
+
+        Mail::to($user->email)->send(new VerifyEmailMail($user));
 
         return $user;
     }

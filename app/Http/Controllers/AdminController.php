@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AccountApprovedMail;
 use App\Models\AuditLog;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -120,6 +122,8 @@ class AdminController extends Controller
         if (!auth()->user()->isAdmin()) abort(403);
 
         $user->update(['status' => 'active']);
+
+        Mail::to($user->email)->send(new AccountApprovedMail($user));
 
         // Notify user of approval
         NotificationService::notifyUserApproved($user->id, $user->first_name . ' ' . $user->last_name);
