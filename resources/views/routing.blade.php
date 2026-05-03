@@ -277,6 +277,23 @@
   </div>
 </div>
 
+<!-- Delete Reason Modal -->
+<div class="remarks-overlay" id="deleteReasonOverlay">
+  <div class="remarks-card">
+    <div class="remarks-card-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      <h4>Reason for Deletion</h4>
+    </div>
+    <p class="remarks-card-sub">Please provide a reason for deleting this route.</p>
+    <textarea id="deleteReasonInput" placeholder="Enter reason for deletion…" rows="4"></textarea>
+    <span style="font-size:11px;color:#ef4444;min-height:14px;display:block" id="deleteReasonError"></span>
+    <div class="remarks-card-footer">
+      <button class="btn-cancel" id="deleteReasonCancel">Cancel</button>
+      <button class="btn-create" style="background:#c2410c" id="deleteReasonConfirm">Delete Route</button>
+    </div>
+  </div>
+</div>
+
 <script src="{{ asset('js/routing.js') }}"></script>
 </body>
 </html>

@@ -353,6 +353,27 @@
   </div>
 </div>
 
+<!-- Delete Reason Modal -->
+<div class="modal-overlay" id="deleteReasonOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Reason for Deletion</h3>
+      <button class="modal-close" id="deleteReasonClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label>Reason <span style="color:#ef4444">*</span></label>
+        <textarea id="deleteReasonInput" rows="4" placeholder="Enter reason for deleting this request…" style="border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13px;font-family:inherit;resize:vertical;outline:none;width:100%"></textarea>
+        <span class="field-error" id="deleteReasonError"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" id="deleteReasonCancel">Cancel</button>
+      <button type="button" class="btn-danger" id="deleteReasonConfirm">Delete Request</button>
+    </div>
+  </div>
+</div>
+
 <script src="{{ asset('js/myrequests.js') }}"></script>
 </body>
 </html>

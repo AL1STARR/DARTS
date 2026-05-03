@@ -458,27 +458,69 @@ function closeDetail() {
 document.getElementById('backBtn').addEventListener('click', closeDetail);
 document.getElementById('detailOverlay').addEventListener('click', closeDetail);
 document.getElementById('republishBtn').addEventListener('click', handleRepublish);
+
+// ── Delete route reason modal ──
+const deleteReasonOverlay = document.getElementById('deleteReasonOverlay');
+const deleteReasonInput   = document.getElementById('deleteReasonInput');
+const deleteReasonError   = document.getElementById('deleteReasonError');
+const deleteReasonConfirm = document.getElementById('deleteReasonConfirm');
+
+function openDeleteRouteModal() {
+  deleteReasonInput.value = '';
+  deleteReasonError.textContent = '';
+  deleteReasonInput.style.borderColor = '';
+  deleteReasonOverlay.classList.add('open');
+  deleteReasonInput.focus();
+}
+function closeDeleteRouteModal() {
+  deleteReasonOverlay.classList.remove('open');
+}
+
+document.getElementById('deleteReasonCancel').addEventListener('click', closeDeleteRouteModal);
+deleteReasonOverlay.addEventListener('click', e => { if (e.target === deleteReasonOverlay) closeDeleteRouteModal(); });
+
 document.getElementById('deleteRouteBtn').addEventListener('click', () => {
   if (!currentDetailRouteId) return;
-  showConfirmToast('Delete this route? This cannot be undone.', async () => {
-    try {
-      const res = await fetch(`/routing/${safeRouteId(currentDetailRouteId)}`, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        showToast(err.message || 'Failed to delete route.', 'error');
-        return;
-      }
-      showToast('Route deleted successfully.', 'success');
-      closeDetail();
-      fetchRoutes();
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to delete route.', 'error');
+  openDeleteRouteModal();
+});
+
+deleteReasonConfirm.addEventListener('click', async () => {
+  const reason = deleteReasonInput.value.trim();
+  if (!reason) {
+    deleteReasonError.textContent = 'Reason for deletion is required.';
+    deleteReasonInput.style.borderColor = '#ef4444';
+    return;
+  }
+  deleteReasonError.textContent = '';
+  deleteReasonInput.style.borderColor = '';
+  deleteReasonConfirm.disabled = true;
+  deleteReasonConfirm.textContent = 'Deleting…';
+  try {
+    const res = await fetch(`/routing/${safeRouteId(currentDetailRouteId)}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken(),
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ reason }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.message || 'Failed to delete route.', 'error');
+      return;
     }
-  });
+    showToast('Route deleted successfully.', 'success');
+    closeDeleteRouteModal();
+    closeDetail();
+    fetchRoutes();
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to delete route.', 'error');
+  } finally {
+    deleteReasonConfirm.disabled = false;
+    deleteReasonConfirm.textContent = 'Delete Route';
+  }
 });
 
 // ── Remarks prompt ──

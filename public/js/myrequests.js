@@ -307,29 +307,67 @@ document.getElementById('editRequestBtn').addEventListener('click', () => {
 });
 
 // ── Delete ──
+const deleteReasonOverlay  = document.getElementById('deleteReasonOverlay');
+const deleteReasonInput    = document.getElementById('deleteReasonInput');
+const deleteReasonError    = document.getElementById('deleteReasonError');
+const deleteReasonConfirm  = document.getElementById('deleteReasonConfirm');
+
+function openDeleteModal() {
+  deleteReasonInput.value = '';
+  deleteReasonError.textContent = '';
+  deleteReasonOverlay.classList.add('open');
+  deleteReasonInput.focus();
+}
+function closeDeleteModal() {
+  deleteReasonOverlay.classList.remove('open');
+}
+
+document.getElementById('deleteReasonClose').addEventListener('click', closeDeleteModal);
+document.getElementById('deleteReasonCancel').addEventListener('click', closeDeleteModal);
+deleteReasonOverlay.addEventListener('click', e => { if (e.target === deleteReasonOverlay) closeDeleteModal(); });
+
 document.getElementById('deleteRequestBtn').addEventListener('click', () => {
-  showConfirmToast('Delete this request? This cannot be undone.', async () => {
-    try {
-      const res = await fetch(currentDeleteUrl, {
-        method: 'DELETE',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-            || document.querySelector('input[name="_token"]')?.value,
-        },
-      });
-      if (res.ok) {
-        closeDrawer();
-        showToast('Request deleted.', 'success');
-        setTimeout(() => location.reload(), 1200);
-      } else {
-        showToast('Could not delete request.', 'error');
-      }
-    } catch {
-      showToast('Network error.', 'error');
+  if (!currentDeleteUrl) return;
+  openDeleteModal();
+});
+
+deleteReasonConfirm.addEventListener('click', async () => {
+  const reason = deleteReasonInput.value.trim();
+  if (!reason) {
+    deleteReasonError.textContent = 'Reason for deletion is required.';
+    deleteReasonInput.style.borderColor = '#ef4444';
+    return;
+  }
+  deleteReasonError.textContent = '';
+  deleteReasonInput.style.borderColor = '';
+  deleteReasonConfirm.disabled = true;
+  deleteReasonConfirm.textContent = 'Deleting…';
+  try {
+    const res = await fetch(currentDeleteUrl, {
+      method: 'DELETE',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+          || document.querySelector('input[name="_token"]')?.value,
+      },
+      body: JSON.stringify({ reason }),
+    });
+    if (res.ok) {
+      closeDeleteModal();
+      closeDrawer();
+      showToast('Request deleted.', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast('Could not delete request.', 'error');
     }
-  });
+  } catch {
+    showToast('Network error.', 'error');
+  } finally {
+    deleteReasonConfirm.disabled = false;
+    deleteReasonConfirm.textContent = 'Delete Request';
+  }
 });
 
 // ── Confirm toast ──
