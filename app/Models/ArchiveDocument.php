@@ -22,17 +22,29 @@ class ArchiveDocument extends Model
 
     public function formattedId(): string
     {
+        $num = str_pad((string) ($this->number ?? $this->id), 4, '0', STR_PAD_LEFT);
+
+        if ($this->archive_type === 'general') {
+            return "DOC-GA-{$num}";
+        }
+
         $initials = self::deptInitials($this->department ?? '');
-        $num      = str_pad((string) ($this->number ?? $this->id), 4, '0', STR_PAD_LEFT);
         return "DOC-{$initials}-{$num}";
     }
 
     public static function renumber(): void
     {
-        $departments = static::distinct()->pluck('department');
+        // General archive: single shared sequence
+        $i = 1;
+        static::where('archive_type', 'general')->orderBy('id')->each(function ($doc) use (&$i) {
+            $doc->updateQuietly(['number' => $i++]);
+        });
+
+        // Department archive: separate sequence per department
+        $departments = static::where('archive_type', 'department')->distinct()->pluck('department');
         foreach ($departments as $dept) {
             $i = 1;
-            static::where('department', $dept)->orderBy('id')->each(function ($doc) use (&$i) {
+            static::where('archive_type', 'department')->where('department', $dept)->orderBy('id')->each(function ($doc) use (&$i) {
                 $doc->updateQuietly(['number' => $i++]);
             });
         }

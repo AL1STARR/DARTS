@@ -718,3 +718,17 @@ a.file-item:hover .file-view-icon { stroke: var(--blue); }
   gap: 10px;
   margin-top: 4px;
 }
+
+.btn-create {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+}
+.btn-create:hover { background: #223a5e; }

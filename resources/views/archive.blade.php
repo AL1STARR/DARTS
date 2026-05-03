@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/archive.css') }}">
 </head>
-<body data-user-id="{{ auth()->id() }}">
+<body data-user-id="{{ auth()->id() }}" data-user-dept="{{ auth()->user()->department }}" data-is-admin="{{ auth()->user()->isAdmin() ? '1' : '0' }}">
 
 @include('partials.nav')
 

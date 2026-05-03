@@ -567,8 +567,6 @@
   </div>
 </div>
 
-<script src="{{ asset('js/admin.js') }}"></script>
-
 <!-- Audit Log Detail Popover -->
 <div class="remarks-overlay" id="auditDetailOverlay">
   <div class="remarks-card">
@@ -578,9 +576,11 @@
     </div>
     <div id="auditDetailBody" style="font-size:13px;color:#374151;display:flex;flex-direction:column;gap:10px;padding:4px 0"></div>
     <div class="remarks-card-footer">
-      <button class="btn-create" id="auditDetailClose">Close</button>
+      <button class="btn-cancel" id="auditDetailClose">Close</button>
     </div>
   </div>
 </div>
+
+<script src="{{ asset('js/admin.js') }}"></script>
 </body>
 </html>

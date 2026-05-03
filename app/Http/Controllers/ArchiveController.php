@@ -85,6 +85,10 @@ class ArchiveController extends Controller
 
         $dept = auth()->user()->department;
 
+        $numberQuery = $data['archive_type'] === 'general'
+            ? ArchiveDocument::where('archive_type', 'general')
+            : ArchiveDocument::where('archive_type', 'department')->where('department', $dept);
+
         $doc = ArchiveDocument::create([
             'uploaded_by'  => auth()->id(),
             'title'        => $data['title'],
@@ -95,7 +99,7 @@ class ArchiveController extends Controller
             'path'         => $path,
             'file_type'    => $fileType,
             'size'         => $file->getSize(),
-            'number'       => (ArchiveDocument::where('department', $dept)->max('number') ?? 0) + 1,
+            'number'       => ($numberQuery->max('number') ?? 0) + 1,
         ]);
 
         AuditLog::record('document_uploaded', $doc,
