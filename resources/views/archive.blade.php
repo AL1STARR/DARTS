@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/archive.css') }}">
 </head>
-<body data-user-id="{{ auth()->id() }}" data-user-dept="{{ auth()->user()->department }}" data-is-admin="{{ auth()->user()->isAdmin() ? '1' : '0' }}">
+<body data-user-id="{{ auth()->id() }}" data-user-dept="{{ auth()->user()->department }}" data-is-admin="{{ auth()->user()->isAdmin() ? '1' : '0' }}" data-is-dept-admin="{{ auth()->user()->isDeptAdmin() ? '1' : '0' }}">
 
 @include('partials.nav')
 
@@ -141,7 +141,7 @@
             <td><span class="upload-date">{{ $doc->created_at->format('M d, Y') }}</span></td>
             <td>
               <div class="action-btns">
-                <a href="{{ route('archive.view', $doc) }}" target="_blank" class="action-btn" title="Preview">
+                <a href="{{ asset('storage/' . $doc->path) }}" target="_blank" class="action-btn" title="Preview">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </a>
                 <a href="{{ route('archive.download', $doc) }}" class="action-btn" title="Download">
@@ -156,13 +156,15 @@
                   data-category="{{ $doc->category }}"
                   data-archive-type="{{ $doc->archive_type }}"
                   data-url="{{ route('archive.update', $doc) }}"
-                  data-owner="{{ $doc->uploaded_by }}">
+                  data-owner="{{ $doc->uploaded_by }}"
+                  data-dept="{{ $doc->department }}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
                 <button class="action-btn delete-doc-btn" title="Delete"
                   data-url="{{ route('archive.destroy', $doc) }}"
                   data-owner="{{ $doc->uploaded_by }}"
-                  data-archive-type="{{ $doc->archive_type }}">
+                  data-archive-type="{{ $doc->archive_type }}"
+                  data-dept="{{ $doc->department }}">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                 </button>
               </div>

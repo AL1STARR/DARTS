@@ -26,7 +26,9 @@ const csrfToken = () =>
   document.querySelector('meta[name="csrf-token"]')?.content ||
   document.querySelector('input[name="_token"]')?.value;
 
-const CURRENT_USER_ID = parseInt(document.body.dataset.userId) || 0;
+const CURRENT_USER_ID   = parseInt(document.body.dataset.userId) || 0;
+const IS_DEPT_ADMIN     = document.body.dataset.isDeptAdmin === '1';
+const CURRENT_USER_DEPT = document.body.dataset.userDept || '';
 
 // ── Upload modal ──
 const overlay    = document.getElementById('modalOverlay');
@@ -113,8 +115,9 @@ document.getElementById('editModalCancel').addEventListener('click', closeEditMo
 editOverlay.addEventListener('click', e => { if (e.target === editOverlay) closeEditModal(); });
 
 document.querySelectorAll('.edit-doc-btn').forEach(btn => {
-  const isOwner = parseInt(btn.dataset.owner) === CURRENT_USER_ID;
-  if (!isOwner) {
+  const isOwner     = parseInt(btn.dataset.owner) === CURRENT_USER_ID;
+  const isDeptMatch = IS_DEPT_ADMIN && btn.dataset.dept === CURRENT_USER_DEPT;
+  if (!isOwner && !isDeptMatch) {
     btn.disabled = true;
     btn.style.opacity = '0.35';
     btn.style.cursor  = 'not-allowed';
@@ -183,9 +186,10 @@ document.querySelectorAll('.print-btn').forEach(btn => {
 
 // ── Delete ──
 document.querySelectorAll('.delete-doc-btn').forEach(btn => {
-  const isOwner = parseInt(btn.dataset.owner) === CURRENT_USER_ID;
+  const isOwner     = parseInt(btn.dataset.owner) === CURRENT_USER_ID;
+  const isDeptMatch = IS_DEPT_ADMIN && btn.dataset.dept === CURRENT_USER_DEPT;
 
-  if (!isOwner) {
+  if (!isOwner && !isDeptMatch) {
     btn.disabled = true;
     btn.style.opacity = '0.35';
     btn.style.cursor  = 'not-allowed';

@@ -19,8 +19,15 @@ class ArchiveController extends Controller
         // If searching, search across both tabs but still scope department tab to user's dept
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            // Extract numeric portion from queries like "0001", "DOC-IT-0001"
+            preg_match('/(\d+)$/', $search, $m);
+            $numStr = $m[1] ?? null;
+            
+            $query->where(function ($q) use ($search, $numStr) {
                 $q->where('title', 'like', '%' . $search . '%');
+                if ($numStr) {
+                    $q->orWhereRaw('LPAD(CAST(number AS CHAR), 4, "0") LIKE ?', ['%' . $numStr . '%']);
+                }
             });
         } else {
             $query->where('archive_type', $tab);
@@ -112,7 +119,10 @@ class ArchiveController extends Controller
 
     public function update(Request $request, ArchiveDocument $archiveDocument)
     {
-        abort_if($archiveDocument->uploaded_by !== auth()->id(), 403);
+        $user = auth()->user();
+        $canEdit = $archiveDocument->uploaded_by === $user->id
+            || ($user->isDeptAdmin() && $archiveDocument->department === $user->department);
+        abort_if(!$canEdit, 403);
 
         $data = $request->validate([
             'title'        => 'required|string|max:255',
@@ -143,6 +153,11 @@ class ArchiveController extends Controller
 
     public function destroy(ArchiveDocument $archiveDocument)
     {
+        $user = auth()->user();
+        $canDelete = $archiveDocument->uploaded_by === $user->id
+            || ($user->isDeptAdmin() && $archiveDocument->department === $user->department);
+        abort_if(!$canDelete, 403);
+
         $label = $archiveDocument->formattedId();
         $title = $archiveDocument->title;
         AuditLog::record('document_deleted', $archiveDocument,

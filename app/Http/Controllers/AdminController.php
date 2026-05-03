@@ -49,7 +49,7 @@ class AdminController extends Controller
 
     public function auditLogs(Request $request)
     {
-        if (!auth()->user()->isAdmin()) abort(403);
+        if (!auth()->user()->isFullAdmin()) abort(403);
 
         $query = AuditLog::with('user')->latest();
 
@@ -76,7 +76,7 @@ class AdminController extends Controller
 
     public function settingStore(Request $request, string $group)
     {
-        if (!auth()->user()->isAdmin()) abort(403);
+        if (!auth()->user()->isFullAdmin()) abort(403);
 
         $data = $request->validate(['value' => 'required|string|max:255']);
 
@@ -91,7 +91,7 @@ class AdminController extends Controller
 
     public function settingDestroy(Setting $setting)
     {
-        if (!auth()->user()->isAdmin()) abort(403);
+        if (!auth()->user()->isFullAdmin()) abort(403);
 
         if ($setting->is_protected) {
             return back()->with('error', "'{$setting->value}' is a protected setting and cannot be removed.");

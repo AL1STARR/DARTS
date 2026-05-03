@@ -20,8 +20,15 @@ class AssignedRequestController extends Controller
         if ($request->filled('priority')) $query->where('priority', $request->priority);
         if ($request->filled('category')) $query->where('category', $request->category);
         if ($request->filled('search'))   $query->where(function ($q) use ($request) {
-            $q->where('title', 'like', '%' . $request->search . '%')
-              ->orWhereRaw('CONCAT("REQ-", LPAD(id, 4, "0")) LIKE ?', ['%' . $request->search . '%']);
+            $search = $request->search;
+            // Extract numeric portion from queries like "001", "REQ-IT-001"
+            preg_match('/(\d+)$/', $search, $m);
+            $numStr = $m[1] ?? null;
+            
+            $q->where('title', 'like', '%' . $search . '%');
+            if ($numStr) {
+                $q->orWhereRaw('LPAD(CAST(number AS CHAR), 3, "0") LIKE ?', ['%' . $numStr . '%']);
+            }
         });
 
         // If ?open= is set, find which page that request is on and force that page

@@ -38,6 +38,16 @@ class User extends Authenticatable
         return (bool) $this->is_admin;
     }
 
+    public function isFullAdmin(): bool
+    {
+        return $this->role === 'Admin';
+    }
+
+    public function isDeptAdmin(): bool
+    {
+        return $this->is_admin && $this->role !== 'Admin';
+    }
+
     public function documentRequests(): HasMany
     {
         return $this->hasMany(\App\Models\DocumentRequest::class, 'user_id');

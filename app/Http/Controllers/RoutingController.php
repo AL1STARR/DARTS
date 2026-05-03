@@ -39,8 +39,18 @@ class RoutingController extends Controller
         if (!empty($validated['status']))   $query->where('status',   $validated['status']);
         if (!empty($validated['priority'])) $query->where('priority', $validated['priority']);
         if (!empty($validated['search'])) {
-            $search = '%' . addcslashes($validated['search'], '%_\\') . '%';
-            $query->where('title', 'like', $search);
+            $search = $validated['search'];
+            // Extract numeric portion from queries like "001", "RT-IT-001"
+            preg_match('/(\d+)$/', $search, $m);
+            $numStr = $m[1] ?? null;
+            
+            $searchPattern = '%' . addcslashes($search, '%_\\') . '%';
+            $query->where(function ($q) use ($searchPattern, $numStr) {
+                $q->where('title', 'like', $searchPattern);
+                if ($numStr) {
+                    $q->orWhereRaw('LPAD(CAST(number AS CHAR), 3, "0") LIKE ?', ['%' . $numStr . '%']);
+                }
+            });
         }
 
         $routes = $query->paginate(5)->withQueryString();
