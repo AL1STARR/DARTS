@@ -92,26 +92,24 @@ The system serves multiple user roles:
 
 | Category          | Tools |
 |-------------------|-------|
-| Language          | PHP 8.1+ |
-| Framework         | Laravel 10.x |
-| Database          | MySQL 8.0 / SQLite (dev) |
-| Frontend          | Blade, HTML, CSS, Bootstrap/Tailwind |
+| Language          | PHP 8.2+ |
+| Framework         | Laravel 12.0 |
+| Database          | MySQL 8.0 |
+| Frontend          | Blade, HTML, CSS |
 | Authentication    | Google OAuth 2.0 API |
-| Dev Environment   | XAMPP, VS Code, Git, Postman |
+| Dev Environment   | XAMPP, VS Code, Git |
 
 
 ---
 
 ## Dependencies
 
-### PHP Dependencies (Composer)
+### PHP Dependencies
 ```json
 {
-    "php": "^8.1",
-    "laravel/framework": "^10.0",
-    "laravel/sanctum": "^3.2",
-    "laravel/jetstream": "^2.0",
-    "laravel/fortify": "^1.15",
-    "socialiteproviders/google": "^4.0",
-    "spatie/laravel-permission": "^5.5"
+    "php": "^8.2",
+    "laravel/framework": "^12.0",
+    "laravel/fortify": "^1.36",
+    "laravel/socialite": "^5.26",
+    "laravel/tinker": "^2.10.1",
 }
