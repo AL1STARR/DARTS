@@ -209,9 +209,9 @@ function renderStages() {
         ${deptOptions(s.waypoint, false, s.origin)}
       </div>
       <div class="stage-field">
-        <label>Assigned To</label>
+        <label>Assigned To <span style="color:#ef4444">*</span></label>
         <select class="handler-select" data-index="${i}" ${!s.waypoint ? 'disabled' : ''}>
-          <option value="">${!s.waypoint ? 'Select waypoint first' : s.loadingUsers ? 'Loading...' : 'Select person (optional)'}</option>
+          <option value="">${!s.waypoint ? 'Select waypoint first' : s.loadingUsers ? 'Loading...' : 'Select person'}</option>
           ${(s.users || []).map(u => `<option value="${u.id}" ${u.id == s.handler_id ? 'selected' : ''}>${u.first_name} ${u.last_name} — ${u.role}</option>`).join('')}
         </select>
       </div>
@@ -305,6 +305,7 @@ document.getElementById('modalSubmit').addEventListener('click', async () => {
 
   if (!doc) { showToast('Please enter a document name.', 'error'); return; }
   if (stages.some(s => !s.waypoint)) { showToast('Please select a waypoint for all stages.', 'error'); return; }
+  if (stages.some(s => !s.handler_id)) { showToast('Please assign a person for all stages.', 'error'); return; }
   if (stages.some(s => !s.instructions || !s.instructions.trim())) { showToast('Please enter instructions for all stages.', 'error'); return; }
 
   try {

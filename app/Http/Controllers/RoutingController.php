@@ -87,7 +87,7 @@ class RoutingController extends Controller
             'stages'              => 'required|array|min:1',
             'stages.*.origin'     => ['required', 'string', 'in:' . implode(',', $allowedDepts)],
             'stages.*.waypoint'   => ['required', 'string', 'in:' . implode(',', $allowedDepts)],
-            'stages.*.handler_id' => 'nullable|exists:users,id',
+            'stages.*.handler_id' => 'required|exists:users,id',
             'stages.*.instructions' => 'required|string|max:1000',
         ]);
 
