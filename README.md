@@ -1,4 +1,5 @@
-# 📄 DOCUMENT ARCHIVING AND RELEASE TRACKING SYSTEM(DARTS)
+# DARTS
+## Document Archiving and Release Tracking System
 
 <p align="center">
     <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php" alt="PHP Version">
