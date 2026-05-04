@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/badge/Version-Beta-blue" alt="Status">
 </p>
 
-## 📌 Overview
+## Overview
 
 *DARTS (Document Archiving and Release Tracking System)* is a web-based document management solution designed to digitalize and streamline the entire document request lifecycle—from submission and routing to processing, tracking, and archiving. It eliminates manual inefficiencies such as paper forms, misplaced files, and lack of real-time visibility.
 
@@ -23,7 +23,7 @@ The system serves multiple user roles:
 
 ---
 
-## ✨ Key Features
+## Features
 
 | Feature | Description |
 |---------|-------------|
@@ -37,10 +37,7 @@ The system serves multiple user roles:
 
 ---
 
-## 🖥️ Screenshots (Placeholders)
-
-*Add actual screenshots from your `public/screenshots/` folder or embedded base64 images.*
-
+## Screenshots
 
 ### Login Page
 ![Login Interface](./screenshots/login.png)
@@ -62,7 +59,7 @@ The system serves multiple user roles:
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 - *Type* : Web Application
 - *Architecture* : MVC (Model-View-Controller), Client-Server
@@ -82,7 +79,7 @@ The system serves multiple user roles:
 
 ---
 
-## 🛠️ Technologies & Tools
+## Technologies & Tools
 
 | Category          | Tools |
 |-------------------|-------|
@@ -96,7 +93,7 @@ The system serves multiple user roles:
 
 ---
 
-## 📦 Dependencies
+## Dependencies
 
 ### PHP Dependencies (Composer)
 ```json
