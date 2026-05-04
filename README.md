@@ -24,7 +24,7 @@ The system serves multiple user roles:
 ---
 
 ## Features
-<p align="center">
+<div align="center">
 | Feature | Description |
 |---------|-------------|
 | 🔐 *User Management* | Email/password + Google SSO login, role-based permissions |
@@ -36,7 +36,7 @@ The system serves multiple user roles:
 | 📊 *Dashboards & Reports* | Real-time request summaries, charts, exportable reports |
 
 ---
-</p>
+</div>
 ## Screenshots
 
 ### Login Page
