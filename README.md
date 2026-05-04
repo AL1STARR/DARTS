@@ -24,7 +24,6 @@ The system serves multiple user roles:
 ---
 
 ## Features
-<div align="center">
 | Feature | Description |
 |---------|-------------|
 | 🔐 *User Management* | Email/password + Google SSO login, role-based permissions |
@@ -34,9 +33,7 @@ The system serves multiple user roles:
 | 📢 *Notifications* | Automated email/in-app alerts on status changes |
 | 📦 *Archiving* | Completed requests stored with full history (no duplication) |
 | 📊 *Dashboards & Reports* | Real-time request summaries, charts, exportable reports |
-
 ---
-</div>
 ## Screenshots
 
 ### Login Page
