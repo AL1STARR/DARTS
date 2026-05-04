@@ -1,13 +1,14 @@
 <div align="center">
-<img width="50%" src="./public/assets/logo.png">
+<img width="40%" src="./public/assets/logo.png">
 </div>
 <br>
 <p align="center">
 <div align="center">
-    <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php" alt="PHP Version">
+    <img src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php" alt="PHP Version">
     <img src="https://img.shields.io/badge/PHPUnit-11.5-9b59b6?logo=phpunit" alt="PHPUnit">
-    <img src="https://img.shields.io/badge/Laravel-^12.0-FF2D20?logo=laravel" alt="Laravel Version">
+    <img src="https://img.shields.io/badge/Laravel-12.0-FF2D20?logo=laravel" alt="Laravel Version">
     <img src="https://img.shields.io/badge/Laravel%20Fortify-1.36-FF2D20?logo=laravel" alt="Laravel Fortify">
+    <img src="https://img.shields.io/badge/Laravel%20Socialite-5.26-FF2D20?logo=laravel" alt="Laravel Socialite">
 </div>
 <div align="center">
     <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql" alt="MySQL">
@@ -26,7 +27,7 @@ The system serves multiple user roles:
 - *Assigned Personnel*
 - *System Administrators & Archive Officers*
 
-🚀 Built with **Laravel MVC**, **MySQL**, and **Google Authentication API**.
+🚀 Built with **Laravel MVC**, **MySQL**, **Laravel Fortify**, and **Google OAuth 2.0**.
 
 
 ---
@@ -44,38 +45,20 @@ The system serves multiple user roles:
 ---
 
 ## Screenshots
-
-### Login Page
 ![Login Interface](./public/screenshots/1%20-%20Login.png)
-
-### Request Access
-![Request Access](./public/screenshots/2%20-%20Request%20Access.png)
-
-### Dashboard
 ![Dashboard](./public/screenshots/3%20-%20Dashboard.png)
-
-### Create Route 
-![Create Route](./public/screenshots/5%20-%20Routing.png)
-
-### Route Tracking View
 ![Route](./public/screenshots/6%20-%20Routing%20View.png)
-
-### Admin Panel
-![Admin Panel](./public/screenshots/7%20-%20User%20Control.png)
-
-### Audit Log
-![Audit Log](./public/screenshots/9%20-%20Audit%20Log.png)
 
 ---
 
 ## System Architecture
 
 - *Type* : Web Application
-- *Architecture* : MVC (Model-View-Controller), Client-Server
+- *Architecture* : MVC (Model-View-Controller)
 - *Backend* : Laravel PHP Framework
 - *Frontend* : Blade templates, HTML5, CSS3
 - *Database* : MySQL (via Eloquent ORM)
-- *Authentication* : Laravel Breeze/Jetstream + Google OAuth 2.0
+- *Authentication* : Laravel Fortify + Laravel Socialite (Google OAuth 2.0)
 
 ### Core Modules
 - User Management
@@ -96,7 +79,7 @@ The system serves multiple user roles:
 | Framework         | Laravel 12.0 |
 | Database          | MySQL 8.0 |
 | Frontend          | Blade, HTML, CSS |
-| Authentication    | Google OAuth 2.0 API |
+| Authentication    | Laravel Fortify + Laravel Socialite (Google OAuth 2.0) |
 | Dev Environment   | XAMPP, VS Code, Git |
 
 
