@@ -3,13 +3,17 @@
 </div>
 <br>
 <p align="center">
+<div>
     <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php" alt="PHP Version">
-    <img src="https://img.shields.io/badge/Laravel-^12.0-FF2D20?logo=laravel" alt="Laravel Version">
-    <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql" alt="MySQL">
-    <img src="https://img.shields.io/badge/Version-Beta-blue" alt="Status">
-    <img src="https://img.shields.io/badge/Google_OAuth-4285F4?logo=google" alt="Google OAuth">
     <img src="https://img.shields.io/badge/PHPUnit-11.5-9b59b6?logo=phpunit" alt="PHPUnit">
+    <img src="https://img.shields.io/badge/Laravel-^12.0-FF2D20?logo=laravel" alt="Laravel Version">
     <img src="https://img.shields.io/badge/Laravel%20Fortify-1.36-FF2D20?logo=laravel" alt="Laravel Fortify">
+</div>
+<div>
+    <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql" alt="MySQL">
+    <img src="https://img.shields.io/badge/Google_OAuth-4285F4?logo=google" alt="Google OAuth">
+    <img src="https://img.shields.io/badge/Version-Beta-blue" alt="Status">
+</div>
 </p>
 
 ## Overview
