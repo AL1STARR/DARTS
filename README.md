@@ -46,22 +46,25 @@ The system serves multiple user roles:
 ## Screenshots
 
 ### Login Page
-![Login Interface](./screenshots/login.png)
+![Login Interface](./public/screenshots/1%20-%20Login.png)
+
+### Request Access
+![Request Access](./public/screenshots/2%20-%20Request%20Access.png)
 
 ### Dashboard
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./public/screenshots/3%20-%20Dashboard.png)
 
-### Create Document Request
-![Create Request](./screenshots/create-request.png)
+### Create Route 
+![Create Route](./public/screenshots/5%20-%20Routing.png)
 
-### Tracking Page
-![Tracking](./screenshots/tracking.png)
+### Route Tracking View
+![Route](./public/screenshots/6%20-%20Routing%20View.png)
 
 ### Admin Panel
-![Admin Panel](./screenshots/admin-panel.png)
+![Admin Panel](./public/screenshots/7%20-%20User%20Control.png)
 
-### Reports & Analytics
-![Reports](./screenshots/reports.png)
+### Audit Log
+![Audit Log](./public/screenshots/9%20-%20Audit%20Log.png)
 
 ---
 
