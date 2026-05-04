@@ -1,7 +1,7 @@
 <div align="center">
 <img width="50%" src="./public/assets/logo.png">
 </div>
-
+<br>
 <p align="center">
     <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php" alt="PHP Version">
     <img src="https://img.shields.io/badge/Laravel-10.x-FF2D20?logo=laravel" alt="Laravel Version">
