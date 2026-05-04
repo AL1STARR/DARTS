@@ -1,9 +1,11 @@
 # 📄 DOCUMENT ARCHIVING AND RELEASE TRACKING SYSTEM(DARTS)
 
+<p align="center">
 ![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php)
 ![Laravel Version](https://img.shields.io/badge/Laravel-10.x-FF2D20?logo=laravel)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)
 ![Status](https://img.shields.io/badge/Status-Academic%20Project-blue)
+</p>
 
 ## 📌 Overview
 
