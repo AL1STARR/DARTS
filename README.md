@@ -1,5 +1,4 @@
-# DARTS
-## Document Archiving and Release Tracking System
+<h1>
 
 <p align="center">
     <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php" alt="PHP Version">
@@ -24,6 +23,7 @@ The system serves multiple user roles:
 ---
 
 ## Features
+<center>
 | Feature | Description |
 |---------|-------------|
 | 🔐 *User Management* | Email/password + Google SSO login, role-based permissions |
@@ -34,6 +34,8 @@ The system serves multiple user roles:
 | 📦 *Archiving* | Completed requests stored with full history (no duplication) |
 | 📊 *Dashboards & Reports* | Real-time request summaries, charts, exportable reports |
 ---
+</center>
+
 ## Screenshots
 
 ### Login Page
