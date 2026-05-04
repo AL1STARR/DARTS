@@ -1,4 +1,6 @@
-<h1>
+<div align="center">
+<img src="./public/assets/logo.png">
+</div>
 
 <p align="center">
     <img src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php" alt="PHP Version">
