@@ -74,3 +74,23 @@ document.querySelectorAll('.toggle-pw').forEach(btn => {
 });
 
 // ── Avatar upload ──
+
+// ── Password form client-side validation ──
+document.getElementById('passwordForm').addEventListener('submit', function (e) {
+  const pw = document.getElementById('newPassword').value;
+  const confirm = document.getElementById('confirmPassword').value;
+  const current = document.getElementById('currentPassword').value;
+  const errors = [];
+
+  if (!current) errors.push('Current password is required.');
+  if (pw.length < 8) errors.push('New password must be at least 8 characters.');
+  if (!/[A-Z]/.test(pw)) errors.push('New password must contain an uppercase letter.');
+  if (!/[0-9]/.test(pw)) errors.push('New password must contain a number.');
+  if (!/[^A-Za-z0-9]/.test(pw)) errors.push('New password must contain a special character.');
+  if (pw !== confirm) errors.push('Passwords do not match.');
+
+  if (errors.length) {
+    e.preventDefault();
+    showToast(errors[0], 'error');
+  }
+});

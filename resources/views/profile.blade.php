@@ -128,35 +128,41 @@
             Change Password
           </div>
         </div>
-        <form method="POST" action="/user/password" class="form-card-body">
+        <form method="POST" action="/user/password" class="form-card-body" id="passwordForm">
           @csrf
           @method('PUT')
-          @if ($errors->updatePassword->any())
-            <div class="field-error">{{ $errors->updatePassword->first() }}</div>
-          @endif
           <div class="field-group">
             <label>Current Password</label>
             <div class="input-wrap">
-              <input type="password" name="current_password" id="currentPassword" placeholder="Enter current password">
+              <input type="password" name="current_password" id="currentPassword" placeholder="Enter current password"
+                class="{{ $errors->updatePassword->has('current_password') ? 'input-error' : '' }}">
               <button class="toggle-pw" data-target="currentPassword" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
+            @error('current_password', 'updatePassword')
+              <span class="field-error">{{ $message }}</span>
+            @enderror
           </div>
           <div class="field-group">
             <label>New Password</label>
             <div class="input-wrap">
-              <input type="password" name="password" id="newPassword" placeholder="Minimum 8 characters">
+              <input type="password" name="password" id="newPassword" placeholder="Minimum 8 characters"
+                class="{{ $errors->updatePassword->has('password') ? 'input-error' : '' }}">
               <button class="toggle-pw" data-target="newPassword" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
+            @error('password', 'updatePassword')
+              <span class="field-error">{{ $message }}</span>
+            @enderror
             <div class="pw-strength" id="pwStrength"></div>
           </div>
           <div class="field-group">
             <label>Confirm New Password</label>
             <div class="input-wrap">
-              <input type="password" name="password_confirmation" id="confirmPassword" placeholder="Re-enter new password">
+              <input type="password" name="password_confirmation" id="confirmPassword" placeholder="Re-enter new password"
+                class="{{ $errors->updatePassword->has('password_confirmation') ? 'input-error' : '' }}">
               <button class="toggle-pw" data-target="confirmPassword" type="button">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>

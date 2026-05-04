@@ -13,6 +13,7 @@ use App\Models\Setting;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Contracts\PasswordUpdatedResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Fortify;
 
@@ -23,6 +24,13 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->instance(PasswordUpdatedResponse::class, new class implements PasswordUpdatedResponse {
+            public function toResponse($request)
+            {
+                return redirect()->route('profile')->with('status', 'password-updated');
+            }
+        });
+
         $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
             public function toResponse($request)
             {
