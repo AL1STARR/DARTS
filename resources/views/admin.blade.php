@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DARTS – Admin</title>
+  <title>DARTS – {{ auth()->user()->isDeptAdmin() ? 'Level 2 Access' : 'Admin' }}</title>
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
@@ -14,7 +14,7 @@
 <!-- ── SUBBAR ── -->
 <div class="subbar">
   <div class="subbar-left">
-    <span class="breadcrumb">Home / <strong>Admin</strong></span>
+    <span class="breadcrumb">Home / <strong>{{ auth()->user()->isDeptAdmin() ? 'Level 2 Access' : 'Admin' }}</strong></span>
   </div>
   <div class="subbar-right">
     <form method="GET" action="{{ route('admin') }}" class="search-bar">
@@ -38,8 +38,8 @@
   <!-- Page heading -->
   <div class="admin-heading">
     <div>
-      <h1 class="page-h1">Admin Control Panel</h1>
-      <p class="page-sub">Manage users, access requests, and system settings</p>
+      <h1 class="page-h1">{{ auth()->user()->isDeptAdmin() ? 'Level 2 Access Panel' : 'Admin Control Panel' }}</h1>
+      <p class="page-sub">{{ auth()->user()->isDeptAdmin() ? 'Manage users and access requests for your department' : 'Manage users, access requests, and system settings' }}</p>
     </div>
     <button class="add-user-btn" id="addUserBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -62,7 +62,7 @@
     <div class="admin-stat-card">
       <div class="asc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><line x1="12" y1="12" x2="12" y2="22"/><line x1="8" y1="16" x2="16" y2="16"/></svg></div>
       <div class="asc-num">{{ $users->where('role', 'Admin')->count() }}</div>
-      <div class="asc-label">Admins</div>
+      <div class="asc-label">{{ auth()->user()->isDeptAdmin() ? 'Level 2 Users' : 'Admins' }}</div>
     </div>
     <div class="admin-stat-card pending-card">
       <div class="asc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
@@ -153,7 +153,7 @@
                 <th>Department</th>
                 <th>Status</th>
                 <th>Date Added</th>
-                <th>Admin Privileges</th>
+                <th>Level 2 Access</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -180,14 +180,23 @@
                 <td><span class="status-badge {{ $user->status }}">{{ ucfirst($user->status) }}</span></td>
                 <td>{{ $user->created_at->format('M d, Y') }}</td>
                 <td>
-                  @if($user->role === 'Admin')
-                    <button class="admin-toggle on" disabled title="Cannot change privileges for Admin role">
+                  @php
+                    $isOwnRow     = $user->id === auth()->id();
+                    $isAdminRole  = $user->role === 'Admin';
+                    $canToggle    = auth()->user()->isFullAdmin() || $isOwnRow;
+                  @endphp
+                  @if($isAdminRole)
+                    <button class="admin-toggle on" disabled title="Cannot change Level 2 Access for Admin role">
+                      <span class="admin-toggle-knob"></span>
+                    </button>
+                  @elseif(!$canToggle)
+                    <button class="admin-toggle {{ $user->is_admin ? 'on' : '' }}" disabled title="Only full admins can change Level 2 Access">
                       <span class="admin-toggle-knob"></span>
                     </button>
                   @else
                     <form method="POST" action="{{ route('admin.users.toggle-admin', $user) }}" class="inline-form">
                       @csrf
-                      <button type="submit" class="admin-toggle {{ $user->is_admin ? 'on' : '' }}" title="{{ $user->is_admin ? 'Remove admin privileges' : 'Grant admin privileges' }}">
+                      <button type="submit" class="admin-toggle {{ $user->is_admin ? 'on' : '' }}" title="{{ $user->is_admin ? 'Remove Level 2 Access' : 'Grant Level 2 Access' }}">
                         <span class="admin-toggle-knob"></span>
                       </button>
                     </form>

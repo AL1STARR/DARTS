@@ -28,7 +28,7 @@
     @if(auth()->user()->isAdmin())
     <a href="{{ route('admin') }}" {{ request()->routeIs('admin') ? 'class=active' : '' }}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><circle cx="19" cy="19" r="3"/><line x1="19" y1="16" x2="19" y2="22"/><line x1="16" y1="19" x2="22" y2="19"/></svg>
-      {{ auth()->user()->isDeptAdmin() ? 'Admin' : 'Admin' }}
+      {{ auth()->user()->isDeptAdmin() ? 'Level 2' : 'Admin' }}
     </a>
     @endif
   </nav>
