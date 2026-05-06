@@ -49,8 +49,9 @@ function openAddModal() {
   document.getElementById('fLastName').value  = '';
   document.getElementById('fEmail').value     = '';
   document.getElementById('fPassword').value  = '';
-  document.getElementById('fRole').value      = 'Admin';
-  document.getElementById('fDept').value      = 'Executive Committee';
+  document.getElementById('fRole').value      = '';
+  document.getElementById('fRole').disabled   = true;
+  document.getElementById('fDept').value      = '';
   document.getElementById('fStatus').value    = 'active';
   document.getElementById('passwordGroup').style.display = '';
   document.querySelector('#passwordGroup label').textContent = 'Temporary Password';
@@ -81,8 +82,17 @@ document.getElementById('adminBody').addEventListener('click', e => {
   document.getElementById('fLastName').value  = btn.dataset.last;
   document.getElementById('fEmail').value     = btn.dataset.email;
   document.getElementById('fPassword').value  = '';
-  document.getElementById('fRole').value      = btn.dataset.role;
   document.getElementById('fDept').value      = btn.dataset.dept;
+  // filter roles for this dept
+  const roleSelect = document.getElementById('fRole');
+  Array.from(roleSelect.options).forEach(opt => {
+    if (!opt.value) return;
+    const match = opt.dataset.dept === btn.dataset.dept;
+    opt.disabled = !match;
+    opt.hidden   = !match;
+  });
+  roleSelect.disabled = false;
+  roleSelect.value    = btn.dataset.role;
   document.getElementById('fStatus').value    = btn.dataset.status;
   document.getElementById('passwordGroup').style.display = '';
   document.querySelector('#passwordGroup label').textContent = 'New Password';
@@ -149,6 +159,20 @@ userForm.addEventListener('submit', async e => {
     showToast('Network error. Please try again.', 'error');
     resetBtn();
   }
+});
+
+// ── Dept → Role dependency in Add/Edit modal ──
+document.getElementById('fDept').addEventListener('change', function () {
+  const roleSelect = document.getElementById('fRole');
+  const selected = this.value;
+  roleSelect.disabled = !selected;
+  roleSelect.value = '';
+  Array.from(roleSelect.options).forEach(opt => {
+    if (!opt.value) return;
+    const match = opt.dataset.dept === selected;
+    opt.disabled = !match;
+    opt.hidden   = !match;
+  });
 });
 
 // ── Confirm forms (replace browser confirm()) ──

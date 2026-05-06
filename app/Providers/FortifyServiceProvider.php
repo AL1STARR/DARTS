@@ -56,10 +56,15 @@ class FortifyServiceProvider extends ServiceProvider
                 Setting::getGroup('roles'),
                 fn($role) => $role !== 'Admin'
             );
-            
+
+            $rolesWithMeta = Setting::where('group', 'roles')
+                ->where('value', '!=', 'Admin')
+                ->get(['value', 'meta']);
+
             return view('register', [
-                'departments' => Setting::getGroup('departments'),
-                'roles'       => $roles,
+                'departments'  => Setting::getGroup('departments'),
+                'roles'        => $roles,
+                'rolesWithMeta' => $rolesWithMeta,
             ]);
         });
 

@@ -227,6 +227,13 @@
   background: var(--white);
 }
 
+.field-group select:disabled {
+  background: #f1f5f9;
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .field-group input.error,
 .field-group select.error { border-color: var(--red); }
 

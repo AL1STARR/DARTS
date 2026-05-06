@@ -87,10 +87,10 @@
             </div>
             <div class="field-group">
               <label for="role">Assigned Role</label>
-              <select id="role" name="role">
+              <select id="role" name="role" disabled>
                 <option value="" disabled selected>Select role</option>
-                @foreach($roles as $role)
-                  <option value="{{ $role }}">{{ $role }}</option>
+                @foreach($rolesWithMeta as $r)
+                  <option value="{{ $r->value }}" data-dept="{{ $r->meta }}">{{ $r->value }}</option>
                 @endforeach
               </select>
               <span class="field-error" id="roleError"></span>
@@ -120,6 +120,9 @@
     </div>
   </footer>
 
+  <script>
+    window.ROLES_META = @json($rolesWithMeta->map(fn($r) => ['value' => $r->value, 'meta' => $r->meta]));
+  </script>
   <script src="{{ asset('js/register.js') }}"></script>
 </body>
 </html>

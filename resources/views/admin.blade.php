@@ -345,6 +345,9 @@
                   <span class="settings-item-value priority-item">
                     <span class="{{ $dotCls }}"></span>
                     {{ $item->value }}
+                    @if($groupKey === 'roles' && $item->meta)
+                      <span class="settings-role-meta">{{ $item->meta }}</span>
+                    @endif
                   </span>
                 @else
                   <span class="settings-item-value">{{ $item->value }}</span>
@@ -363,6 +366,24 @@
               <p class="settings-empty">No options yet.</p>
             @endif
           </div>
+          @if($groupKey === 'roles')
+          <form method="POST" action="{{ route('admin.settings.store', $groupKey) }}" class="settings-add-form settings-add-form--roles">
+            @csrf
+            <input type="text" name="value" placeholder="Role name…" class="settings-add-input">
+            <div class="select-wrap" style="flex:1;min-width:0">
+              <select name="meta" class="settings-role-dept-select">
+                <option value="" disabled selected>Department…</option>
+                @foreach($departments as $dept)
+                  <option value="{{ $dept }}">{{ $dept }}</option>
+                @endforeach
+              </select>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <button type="submit" class="settings-add-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </form>
+          @else
           <form method="POST" action="{{ route('admin.settings.store', $groupKey) }}" class="settings-add-form">
             @csrf
             <input type="text" name="value" placeholder="Add new {{ strtolower($groupLabel) }}…" class="settings-add-input">
@@ -370,6 +391,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </button>
           </form>
+          @endif
         </div>
         @endforeach
 
@@ -528,22 +550,24 @@
         </div>
         <div class="field-row">
           <div class="field-group">
-            <label>Role</label>
+            <label>Department</label>
             <div class="select-wrap">
-              <select id="fRole" name="role">
-                @foreach($roles as $role)
-                  <option value="{{ $role }}">{{ $role }}</option>
+              <select id="fDept" name="department">
+                <option value="" disabled selected>Select department</option>
+                @foreach($departments as $dept)
+                  <option value="{{ $dept }}">{{ $dept }}</option>
                 @endforeach
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>
           <div class="field-group">
-            <label>Department</label>
+            <label>Role</label>
             <div class="select-wrap">
-              <select id="fDept" name="department">
-                @foreach($departments as $dept)
-                  <option value="{{ $dept }}">{{ $dept }}</option>
+              <select id="fRole" name="role" disabled>
+                <option value="" disabled selected>Select role</option>
+                @foreach($rolesWithMeta as $r)
+                  <option value="{{ $r->value }}" data-dept="{{ $r->meta }}">{{ $r->value }}</option>
                 @endforeach
               </select>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -583,6 +607,9 @@
   </div>
 </div>
 
+<script>
+  window.ROLES_META = @json($rolesWithMeta->map(fn($r) => ['value' => $r->value, 'meta' => $r->meta]));
+</script>
 <script src="{{ asset('js/admin.js') }}"></script>
 </body>
 </html>

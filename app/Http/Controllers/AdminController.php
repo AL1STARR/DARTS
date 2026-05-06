@@ -41,12 +41,13 @@ class AdminController extends Controller
 
         $departments = Setting::getGroup('departments');
         $roles       = Setting::getGroup('roles');
+        $rolesWithMeta = Setting::where('group', 'roles')->get(['value', 'meta']);
 
         // Calculate sidebar stats
         $roleCounts = $allFilteredUsers->groupBy('role')->map->count();
         $deptCounts = $allFilteredUsers->groupBy('department')->map->count();
 
-        return view('admin', compact('users', 'requests', 'settings', 'allFilteredUsers', 'roleCounts', 'deptCounts', 'departments', 'roles'));
+        return view('admin', compact('users', 'requests', 'settings', 'allFilteredUsers', 'roleCounts', 'deptCounts', 'departments', 'roles', 'rolesWithMeta'));
     }
 
     public function auditLogs(Request $request)
@@ -80,13 +81,20 @@ class AdminController extends Controller
     {
         if (!auth()->user()->isFullAdmin()) abort(403);
 
-        $data = $request->validate(['value' => 'required|string|max:255']);
+        $data = $request->validate([
+            'value' => 'required|string|max:255',
+            'meta'  => 'nullable|string|max:255',
+        ]);
 
         if (Setting::where('group', $group)->where('value', $data['value'])->exists()) {
             return back()->with('error', 'That option already exists.');
         }
 
-        Setting::create(['group' => $group, 'value' => $data['value']]);
+        Setting::create([
+            'group' => $group,
+            'value' => $data['value'],
+            'meta'  => $data['meta'] ?? null,
+        ]);
 
         return back()->with('success', "'{$data['value']}' added to {$group}.");
     }

@@ -432,6 +432,12 @@
   transition: border-color .12s;
 }
 .select-wrap select:focus { border-color: var(--blue); }
+.select-wrap select:disabled {
+  background: #f1f5f9;
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
 
 .select-wrap svg {
   position: absolute;
@@ -759,6 +765,68 @@
   transition: background .15s;
 }
 .btn-danger:hover { background: #b71c1c; }
+
+.settings-role-meta {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--muted);
+  background: #eef1f5;
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-left: 4px;
+}
+
+/* ── Roles add-form with dept dropdown ── */
+.settings-add-form--roles {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.settings-role-dept-select {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 28px 0 8px;
+  height: 32px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--navy);
+  background: var(--white);
+  cursor: pointer;
+  outline: none;
+  width: 100%;
+  transition: border-color .12s;
+}
+.settings-role-dept-select:focus { border-color: var(--blue); }
+
+/* ── Role Dept-Picker Cards ── */
+.role-dept-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.role-dept-card {
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: border-color .12s, background .12s, color .12s;
+}
+.role-dept-card:hover {
+  border-color: var(--blue);
+  background: #eff6ff;
+  color: var(--blue);
+}
 
 /* ── AUDIT LOG ── */
 .audit-filters {

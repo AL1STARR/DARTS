@@ -1,3 +1,17 @@
+// Enable and filter roles when department is selected
+document.getElementById('department').addEventListener('change', function () {
+  const roleSelect = document.getElementById('role');
+  const selected = this.value;
+  roleSelect.disabled = !selected;
+  roleSelect.value = '';
+  Array.from(roleSelect.options).forEach(opt => {
+    if (!opt.value) return;
+    const match = opt.dataset.dept === selected;
+    opt.disabled = !match;
+    opt.hidden   = !match;
+  });
+});
+
 // Validation
 function setError(id, msg) {
   const el = document.getElementById(id);
