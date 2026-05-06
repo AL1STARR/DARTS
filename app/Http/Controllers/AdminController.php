@@ -222,6 +222,10 @@ class AdminController extends Controller
     {
         if (!auth()->user()->isAdmin()) abort(403);
 
+        AuditLog::record('user_removed', $user,
+            "User {$user->first_name} {$user->last_name} ({$user->role}, {$user->department}) removed by " . auth()->user()->first_name . ' ' . auth()->user()->last_name
+        );
+
         $user->delete();
 
         return back()->with('success', 'User removed successfully.');
