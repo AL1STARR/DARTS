@@ -422,6 +422,7 @@
               <option value="document_deleted">Document Deleted</option>
               <option value="user_requested">User Request</option>
               <option value="user_created">User Created</option>
+              <option value="user_deleted">User Removed</option>
               <option value="user_request_approved">User Request Approved</option>
               <option value="received">Route Received</option>
               <option value="accomplished">Route Accomplished</option>
