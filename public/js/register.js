@@ -6,7 +6,9 @@ document.getElementById('department').addEventListener('change', function () {
   roleSelect.value = '';
   Array.from(roleSelect.options).forEach(opt => {
     if (!opt.value) return;
-    const match = opt.dataset.dept === selected;
+    // If meta is not set, show the option (applies to all departments)
+    const deptMeta = opt.dataset.dept;
+    const match = !deptMeta || deptMeta === selected;
     opt.disabled = !match;
     opt.hidden   = !match;
   });

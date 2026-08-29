@@ -105,9 +105,10 @@ class AssignedRequestController extends Controller
         $department = $request->query('department');
 
         $users = User::where('department', $department)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'pending'])
             ->where('id', '!=', auth()->id())
-            ->select('id', 'first_name', 'last_name', 'role')
+            ->select('id', 'first_name', 'last_name', 'role', 'status')
+            ->orderBy('first_name')
             ->get();
 
         return response()->json($users);

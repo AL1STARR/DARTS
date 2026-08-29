@@ -13,12 +13,16 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        // Create roles
-        $roles = ['Admin', 'User', 'Manager'];
+        // Create roles with department metadata
+        $roles = [
+            ['value' => 'Admin', 'meta' => null],
+            ['value' => 'User', 'meta' => null],
+            ['value' => 'Manager', 'meta' => null],
+        ];
         foreach ($roles as $role) {
             Setting::firstOrCreate(
-                ['group' => 'roles', 'value' => $role],
-                ['is_protected' => true]
+                ['group' => 'roles', 'value' => $role['value']],
+                ['is_protected' => true, 'meta' => $role['meta']]
             );
         }
 

@@ -35,8 +35,15 @@ document.getElementById('fDept').addEventListener('change', async function () {
   try {
     const res = await fetch(`/assigned/department-users?department=${encodeURIComponent(dept)}`);
     const users = await res.json();
+
+    if (!users.length) {
+      assignSelect.innerHTML = '<option value="">No users in this department</option>';
+      assignSelect.disabled = true;
+      return;
+    }
+
     assignSelect.innerHTML = '<option value="">Select person…</option>' +
-      users.map(u => `<option value="${u.id}">${u.first_name} ${u.last_name}</option>`).join('');
+      users.map(u => `<option value="${u.id}">${u.first_name} ${u.last_name}${u.status === 'pending' ? ' (Pending approval)' : ''}</option>`).join('');
     assignSelect.disabled = false;
   } catch {
     assignSelect.innerHTML = '<option value="">Failed to load users</option>';

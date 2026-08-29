@@ -198,15 +198,23 @@ class AdminController extends Controller
             'role'       => 'required|string',
             'department' => 'required|string',
             'status'     => 'required|in:active,inactive',
-            'password'   => 'required|string|min:8',
+            'password'   => 'nullable|string|min:8',
         ]);
 
-        $update = array_merge($data, ['name' => $data['first_name'] . ' ' . $data['last_name']]);
-        unset($update['password']);
-        if ($data['status'] === 'inactive') {
-            $update['password'] = bcrypt('Temporary2000');
-        } elseif (!empty($data['password'])) {
+        $update = [
+            'first_name' => $data['first_name'],
+            'last_name'  => $data['last_name'],
+            'name'       => $data['first_name'] . ' ' . $data['last_name'],
+            'email'      => $data['email'],
+            'role'       => $data['role'],
+            'department' => $data['department'],
+            'status'     => $data['status'],
+        ];
+
+        if (!empty($data['password'])) {
             $update['password'] = bcrypt($data['password']);
+        } elseif ($data['status'] === 'inactive') {
+            $update['password'] = bcrypt('Temporary2000');
         }
 
         $user->update($update);

@@ -83,16 +83,22 @@ document.getElementById('adminBody').addEventListener('click', e => {
   document.getElementById('fEmail').value     = btn.dataset.email;
   document.getElementById('fPassword').value  = '';
   document.getElementById('fDept').value      = btn.dataset.dept;
-  // filter roles for this dept
+
   const roleSelect = document.getElementById('fRole');
+  const department = btn.dataset.dept;
+  const selectedRole = btn.dataset.role;
+  const selectedRoleExists = Array.from(roleSelect.options).some(opt => opt.value === selectedRole);
+
   Array.from(roleSelect.options).forEach(opt => {
     if (!opt.value) return;
-    const match = opt.dataset.dept === btn.dataset.dept;
+    const isGeneralRole = !opt.dataset.dept || opt.dataset.dept === '' || opt.dataset.dept === 'null';
+    const match = isGeneralRole || opt.dataset.dept === department;
     opt.disabled = !match;
     opt.hidden   = !match;
   });
+
   roleSelect.disabled = false;
-  roleSelect.value    = btn.dataset.role;
+  roleSelect.value = selectedRoleExists ? selectedRole : '';
   document.getElementById('fStatus').value    = btn.dataset.status;
   document.getElementById('passwordGroup').style.display = '';
   document.querySelector('#passwordGroup label').textContent = 'New Password';
@@ -169,7 +175,8 @@ document.getElementById('fDept').addEventListener('change', function () {
   roleSelect.value = '';
   Array.from(roleSelect.options).forEach(opt => {
     if (!opt.value) return;
-    const match = opt.dataset.dept === selected;
+    const isGeneralRole = !opt.dataset.dept || opt.dataset.dept === '' || opt.dataset.dept === 'null';
+    const match = isGeneralRole || opt.dataset.dept === selected;
     opt.disabled = !match;
     opt.hidden   = !match;
   });
